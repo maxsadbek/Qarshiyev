@@ -22,19 +22,19 @@ export const CertificatesSection: React.FC = () => {
             transition={{ duration: 0.7 }}
           >
             <SectionHeader
-              overline="Accreditations"
-              title="Internationally"
-              titleAccent="Recognized"
-              description="Qarshiyev Education Center operates under strict international quality standards. We are officially accredited by leading global education bodies."
+              overline="Akkreditatsiyalar"
+              title="Xalqaro Darajada"
+              titleAccent="Tan Olingan"
+              description="Qarshiyev Ta'lim Markazi qat'iy xalqaro sifat standartlari asosida ishlaydi. Biz etakchi global ta'lim organlari tomonidan rasmiy akkreditatsiyadan o'tganmiz."
               align="left"
             />
             
             <div className="mt-8 space-y-4">
               {[
-                'Official IELTS Registration & Testing Venue',
-                'Cambridge English Preparation Centre',
-                'Licensed by the Ministry of Education',
-                'Teachers certified by Cambridge (CELTA/DELTA)',
+                'Rasmiy IELTS Ro\'yxatdan O\'tish va Test Markazi',
+                'Cambridge Ingliz Tili Tayyorgarlik Markazi',
+                'Ta\'lim Vazirligi tomonidan litsenziyalangan',
+                'Cambridge (CELTA/DELTA) sertifikatlangan o\'qituvchilar',
               ].map((item, i) => (
                 <motion.div
                   key={i}

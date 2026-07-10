@@ -11,12 +11,12 @@ import { StaggerContainer, StaggerItem } from '@/components/ui/AnimatedSection';
 import { statistics } from '@/data/statistics';
 
 const ABOUT_POINTS = [
-  'Cambridge & DELTA certified instructors',
-  'Maximum 12 students per class',
-  'Authentic exam materials & mock tests',
-  'Personalized progress tracking',
-  '10+ years of proven results',
-  'International partnerships & study abroad support',
+  'Cambridge va DELTA sertifikatlangan o\'qituvchilar',
+  'Har bir sinfda maksimal 12 ta o\'quvchi',
+  'Rasmiy imtihon materiallari va amaliy testlar',
+  'Shaxsiy rivojlanishni kuzatish',
+  '10+ yillik isbotlangan natijalar',
+  'Xalqaro hamkorlik va xorijda o\'qishga yordam',
 ];
 
 export const AboutSection: React.FC = () => {
@@ -55,8 +55,8 @@ export const AboutSection: React.FC = () => {
               transition={{ delay: 0.4 }}
             >
               <div className="text-4xl font-serif font-bold text-violet-400 leading-none">10+</div>
-              <div className="text-slate-300 text-sm mt-1 font-medium">Years of</div>
-              <div className="text-white text-sm font-semibold">Excellence</div>
+              <div className="text-slate-300 text-sm mt-1 font-medium">Yillik</div>
+              <div className="text-white text-sm font-semibold">Mukammallik</div>
             </motion.div>
 
             {/* Floating card: Success */}
@@ -73,7 +73,7 @@ export const AboutSection: React.FC = () => {
                 </div>
                 <div>
                   <div className="font-serif font-bold text-slate-950 text-xl">96%</div>
-                  <div className="text-slate-500 text-xs">Success Rate</div>
+                  <div className="text-slate-500 text-xs">Muvaffaqiyat Ko'rsatkichi</div>
                 </div>
               </div>
             </motion.div>
@@ -91,10 +91,10 @@ export const AboutSection: React.FC = () => {
               transition={{ duration: 0.7 }}
             >
               <SectionHeader
-                overline="Who We Are"
-                title="A Decade of Transforming"
-                titleAccent="Futures"
-                description="Founded in 2015, Qarshiyev Education Center has grown from a small language school into Qarshi's most trusted international education institution — with over 8,500 students and a legacy of academic excellence."
+                overline="Biz Haqimizda"
+                title="Kelajakni O'zgartirishning"
+                titleAccent="O'n Yili"
+                description="2015 yilda tashkil etilgan Qarshiyev Ta'lim Markazi kichik til maktabidan Qarshining eng ishonchli xalqaro ta'lim muassasasiga aylandi — 8,500 dan ortiq o'quvchilar va akademik mukammallik merosi bilan."
                 align="left"
               />
             </motion.div>
@@ -103,13 +103,13 @@ export const AboutSection: React.FC = () => {
             <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
                 {
-                  title: 'Our Mission',
-                  text: 'To provide world-class education that empowers Uzbek students to succeed in international academic and professional environments.',
+                  title: 'Bizning Missiyamiz',
+                  text: 'O\'zbek talabalarini xalqaro akademik va professional muhitda muvaffaqiyatga erishishga imkon beradigan jahon darajasidagi ta\'lim taqdim etish.',
                   accent: 'border-l-4 border-violet-500',
                 },
                 {
-                  title: 'Our Vision',
-                  text: 'To become the leading education center in Central Asia, recognized for excellence, innovation, and the global success of our graduates.',
+                  title: 'Bizning Maqsadimiz',
+                  text: 'Markaziy Osiyodagi yetakchi ta\'lim markaziga aylanish, mukammallik, innovatsiya va bitiruvchilarimizning global muvaffaqiyati bilan tan olinish.',
                   accent: 'border-l-4 border-slate-950',
                 },
               ].map((item) => (
@@ -145,7 +145,7 @@ export const AboutSection: React.FC = () => {
             >
               <Link to="/about">
                 <Button variant="primary" size="lg" icon={<ArrowRight size={16} />}>
-                  Learn More About Us
+                  Biz Haqimizda Ko'proq
                 </Button>
               </Link>
             </motion.div>

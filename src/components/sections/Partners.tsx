@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { partners, partnerNames } from '@/data/partners';
+import { partners } from '@/data/partners';
 import { ShieldCheck } from 'lucide-react';
 
 export const Partners: React.FC = () => {

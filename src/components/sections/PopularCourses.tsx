@@ -16,10 +16,10 @@ import { courses } from '@/data/courses';
 import { formatPrice } from '@/utils';
 
 export const PopularCourses: React.FC = () => {
-  const [activeCategory, setActiveCategory] = useState<string>('All');
-  const categories = ['All', 'IELTS', 'English', 'SAT', 'Business'];
+  const [activeCategory, setActiveCategory] = useState<string>('Barchasi');
+  const categories = ['Barchasi', 'IELTS', 'English', 'SAT', 'Business'];
 
-  const filtered = activeCategory === 'All'
+  const filtered = activeCategory === 'Barchasi'
     ? courses
     : courses.filter((c) => c.category === activeCategory);
 
@@ -120,7 +120,7 @@ const CourseCard: React.FC<{ course: typeof courses[0] }> = ({ course }) => {
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 to-transparent" />
         <div className="absolute top-4 left-4 flex gap-2">
           <Badge variant="gold">{course.category}</Badge>
-          {course.featured && <Badge variant="dark">Featured</Badge>}
+          {course.featured && <Badge variant="dark">Tavsiya Etilgan</Badge>}
         </div>
         <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
           <div className="flex items-center gap-1">
@@ -156,7 +156,7 @@ const CourseCard: React.FC<{ course: typeof courses[0] }> = ({ course }) => {
           </div>
           <div className="flex items-center gap-1.5">
             <BookOpen size={13} />
-            <span>{course.lessons} lessons</span>
+            <span>{course.lessons} dars</span>
           </div>
           <div className="flex items-center gap-1.5">
             <Users size={13} />
@@ -182,7 +182,7 @@ const CourseCard: React.FC<{ course: typeof courses[0] }> = ({ course }) => {
           </div>
           <Link to="/contact">
             <button className="bg-violet-500 text-white text-xs font-bold px-4 py-2 rounded-full hover:bg-violet-600 transition-colors">
-              Enroll
+              Ro'yxatdan O'tish
             </button>
           </Link>
         </div>

@@ -49,7 +49,7 @@ export const EventsSection: React.FC = () => {
                 />
                 <div className="absolute top-4 left-4 flex gap-2">
                   <Badge variant={event.isFree ? 'green' : 'gold'}>
-                    {event.isFree ? 'Free Entry' : 'Ticketed'}
+                    {event.isFree ? 'Bepul Kirish' : 'Chiptali'}
                   </Badge>
                 </div>
                 {/* Date Calendar Icon */}
@@ -100,7 +100,7 @@ export const EventsSection: React.FC = () => {
         >
           <Link to="/events">
             <Button variant="outline" size="lg" icon={<ArrowRight size={16} />}>
-              View Event Calendar
+              Tadbirlar Jadvalini Ko'rish
             </Button>
           </Link>
         </motion.div>

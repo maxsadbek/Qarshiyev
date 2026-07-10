@@ -24,10 +24,10 @@ export const FAQSection: React.FC = () => {
             transition={{ duration: 0.7 }}
           >
             <SectionHeader
-              overline="Got Questions?"
-              title="Frequently Asked"
-              titleAccent="Questions"
-              description="Find answers to common questions about our courses, admissions, schedule, and more. Can't find what you're looking for? Feel free to contact our support team."
+              overline="Savollaringiz Bormi?"
+              title="Tez-tez So'raladigan"
+              titleAccent="Savollar"
+              description="Kurslar, qabul, jadval va boshqalar bo'yicha tez-tez beriladigan savollarga javob toping. Izlayotganingizni topa olmadingizmi? Qo'llab-quvvatlash jamoamiz bilan bog'laning."
               align="left"
             />
           </motion.div>

@@ -1,20 +1,111 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ChevronDown, Phone } from 'lucide-react';
+import {
+  Menu,
+  X,
+  ChevronDown,
+  Phone,
+  Home,
+  Info,
+  GraduationCap,
+  Users,
+  Image,
+  Trophy,
+  Calendar,
+  FileText,
+  HelpCircle,
+  PhoneCall,
+  Sparkles,
+  MoreHorizontal,
+} from 'lucide-react';
 import { useScrollPosition } from '@/hooks/useScrollPosition';
 import { NAV_ITEMS, CONTACT_INFO } from '@/constants';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/utils';
 
+const getIcon = (label: string) => {
+  switch (label.toLowerCase()) {
+    case 'bosh sahifa':
+      return <Home size={18} />;
+    case 'biz haqimizda':
+      return <Info size={18} />;
+    case 'kurslar':
+      return <GraduationCap size={18} />;
+    case "o'qituvchilar":
+      return <Users size={18} />;
+    case 'yana':
+      return <MoreHorizontal size={18} />;
+    case 'galereya':
+      return <Image size={16} />;
+    case "o'quvchi natijalari":
+      return <Trophy size={16} />;
+    case 'tadbirlar':
+      return <Calendar size={16} />;
+    case 'blog':
+      return <FileText size={16} />;
+    case 'savollar':
+      return <HelpCircle size={16} />;
+    case 'aloqa':
+      return <PhoneCall size={18} />;
+    default:
+      return <Sparkles size={18} />;
+  }
+};
+
 export const Navbar: React.FC = () => {
   const { isScrolled } = useScrollPosition();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false);
   const location = useLocation();
+  const navRef = useRef<HTMLElement>(null);
 
   const isActive = (href: string) =>
     href === '/' ? location.pathname === '/' : location.pathname.startsWith(href);
+
+  const hasActiveChild = (item: any) => {
+    return item.children?.some((child: any) => {
+      return child.href === '/' ? location.pathname === '/' : location.pathname.startsWith(child.href);
+    }) || false;
+  };
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(event.target as Node)) {
+        setActiveDropdown(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Close dropdown on keydown (Escape)
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setActiveDropdown(null);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Close dropdown on location change
+  useEffect(() => {
+    setActiveDropdown(null);
+  }, [location]);
+
+  // Open mobile dropdown if any child is active when mobile menu is opened
+  useEffect(() => {
+    if (mobileOpen) {
+      const activeChild = NAV_ITEMS.find(item => item.children && hasActiveChild(item));
+      if (activeChild) {
+        setMobileDropdownOpen(true);
+      }
+    }
+  }, [mobileOpen, location.pathname]);
 
   return (
     <>
@@ -51,25 +142,28 @@ export const Navbar: React.FC = () => {
                     isScrolled ? 'text-slate-400' : 'text-white/70'
                   )}
                 >
-                  Education Center
+                  Ta'lim Markazi
                 </p>
               </div>
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-1">
+            <nav ref={navRef} className="hidden lg:flex items-center gap-1">
               {NAV_ITEMS.map((item) => (
                 <div
                   key={item.label}
                   className="relative"
-                  onMouseEnter={() => item.children && setActiveDropdown(item.label)}
-                  onMouseLeave={() => setActiveDropdown(null)}
                 >
                   {item.children ? (
                     <button
+                      onClick={() => setActiveDropdown(activeDropdown === item.label ? null : item.label)}
                       className={cn(
-                        'flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200',
-                        isScrolled
+                        'flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 cursor-pointer select-none outline-none',
+                        activeDropdown === item.label
+                          ? isScrolled
+                            ? 'text-slate-950 bg-slate-100'
+                            : 'text-white bg-white/15'
+                          : isScrolled
                           ? 'text-slate-600 hover:text-slate-950 hover:bg-slate-100'
                           : 'text-white/80 hover:text-white hover:bg-white/10'
                       )}
@@ -116,6 +210,7 @@ export const Navbar: React.FC = () => {
                             <Link
                               key={child.label}
                               to={child.href}
+                              onClick={() => setActiveDropdown(null)}
                               className={cn(
                                 'flex items-center px-4 py-2.5 rounded-xl text-sm font-medium transition-colors',
                                 isActive(child.href)
@@ -148,7 +243,7 @@ export const Navbar: React.FC = () => {
               </a>
               <Link to="/contact">
                 <Button variant="gold" size="md">
-                  Enroll Now
+                  Hoziroq Ro'yxatdan O'ting
                 </Button>
               </Link>
             </div>
@@ -210,38 +305,88 @@ export const Navbar: React.FC = () => {
                   {NAV_ITEMS.map((item) => (
                     <div key={item.label}>
                       {item.children ? (
-                        <div>
-                          <div className="px-4 py-2 text-xs font-bold text-slate-400 uppercase tracking-widest mt-4 mb-1">
-                            {item.label}
-                          </div>
-                          {item.children.map((child) => (
-                            <Link
-                              key={child.label}
-                              to={child.href}
-                              onClick={() => setMobileOpen(false)}
+                        <div className="mb-2">
+                          <button
+                            onClick={() => setMobileDropdownOpen(!mobileDropdownOpen)}
+                            className={cn(
+                              'flex items-center justify-between w-full px-4 py-3 rounded-xl text-sm font-semibold transition-colors cursor-pointer select-none outline-none',
+                              hasActiveChild(item)
+                                ? 'text-violet-600 bg-violet-50/50'
+                                : 'text-slate-700 hover:bg-slate-50 hover:text-slate-950'
+                            )}
+                          >
+                            <div className="flex items-center gap-3">
+                              <span className={cn(
+                                'transition-colors',
+                                hasActiveChild(item) ? 'text-violet-600' : 'text-slate-400'
+                              )}>
+                                {getIcon(item.label)}
+                              </span>
+                              <span>{item.label}</span>
+                            </div>
+                            <ChevronDown
+                              size={16}
                               className={cn(
-                                'flex items-center px-4 py-2.5 rounded-xl text-sm font-medium transition-colors',
-                                isActive(child.href)
-                                  ? 'bg-violet-50 text-violet-700'
-                                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-950'
+                                'transition-transform duration-300',
+                                mobileDropdownOpen ? 'rotate-180 text-violet-600' : 'text-slate-400'
                               )}
-                            >
-                              {child.label}
-                            </Link>
-                          ))}
+                            />
+                          </button>
+                          
+                          <AnimatePresence initial={false}>
+                            {mobileDropdownOpen && (
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                                className="overflow-hidden"
+                              >
+                                <div className="py-1 flex flex-col gap-1 border-l-2 border-slate-100 ml-6 pl-2 mt-1">
+                                  {item.children.map((child) => (
+                                    <Link
+                                      key={child.label}
+                                      to={child.href}
+                                      onClick={() => setMobileOpen(false)}
+                                      className={cn(
+                                        'flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors',
+                                        isActive(child.href)
+                                          ? 'bg-violet-50 text-violet-700'
+                                          : 'text-slate-600 hover:bg-slate-50 hover:text-slate-950'
+                                      )}
+                                    >
+                                      <span className={cn(
+                                        'transition-colors',
+                                        isActive(child.href) ? 'text-violet-600' : 'text-slate-400'
+                                      )}>
+                                        {getIcon(child.label)}
+                                      </span>
+                                      <span>{child.label}</span>
+                                    </Link>
+                                  ))}
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
                         </div>
                       ) : (
                         <Link
                           to={item.href}
                           onClick={() => setMobileOpen(false)}
                           className={cn(
-                            'flex items-center px-4 py-3 rounded-xl text-sm font-semibold transition-colors',
+                            'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors',
                             isActive(item.href)
-                              ? 'bg-slate-950 text-white'
+                              ? 'bg-slate-950 text-white shadow-md shadow-slate-950/10'
                               : 'text-slate-700 hover:bg-slate-50 hover:text-slate-950'
                           )}
                         >
-                          {item.label}
+                          <span className={cn(
+                            'transition-colors',
+                            isActive(item.href) ? 'text-white' : 'text-slate-400'
+                          )}>
+                            {getIcon(item.label)}
+                          </span>
+                          <span>{item.label}</span>
                         </Link>
                       )}
                     </div>
@@ -262,7 +407,7 @@ export const Navbar: React.FC = () => {
                     onClick={() => setMobileOpen(false)}
                     className="flex items-center justify-center w-full py-3.5 bg-violet-500 text-white font-semibold rounded-xl hover:bg-violet-600 transition-colors"
                   >
-                    Enroll Now
+                    Hoziroq Ro'yxatdan O'ting
                   </Link>
                 </div>
               </div>

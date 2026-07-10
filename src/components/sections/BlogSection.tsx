@@ -59,7 +59,7 @@ export const BlogSection: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Clock size={14} className="text-violet-500" />
-                    <span>{post.readTime} min read</span>
+                    <span>{post.readTime} daqiqa o'qish</span>
                   </div>
                 </div>
 
@@ -102,7 +102,7 @@ export const BlogSection: React.FC = () => {
         >
           <Link to="/blog">
             <Button variant="outline" size="lg" icon={<ArrowRight size={16} />}>
-              Read More Articles
+              Ko'proq Maqolalar O'qish
             </Button>
           </Link>
         </motion.div>

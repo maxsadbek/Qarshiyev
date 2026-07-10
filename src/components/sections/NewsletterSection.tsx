@@ -34,10 +34,10 @@ export const NewsletterSection: React.FC = () => {
             viewport={{ once: true }}
           >
             <h2 className="text-3xl md:text-5xl font-serif font-bold text-white mb-4">
-              Join Our <span className="gold-shimmer">Community</span>
+              <span className="gold-shimmer">Hamjamiyatimizga</span> Qo'shiling
             </h2>
             <p className="text-slate-400 text-lg mb-10 max-w-xl mx-auto">
-              Subscribe to our newsletter to receive weekly study tips, free resources, and early access to our workshop registrations.
+              Haftalik o'quv maslahatlari, bepul resurslar va seminarlarimizga erta kirish uchun yangiliklarimizga obuna bo'ling.
             </p>
 
             <form onSubmit={handleSubmit} className="relative max-w-md mx-auto">
@@ -46,7 +46,7 @@ export const NewsletterSection: React.FC = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email address"
+                  placeholder="Email manzilingizni kiriting"
                   disabled={status === 'success'}
                   className="w-full bg-white/5 border border-white/10 rounded-full py-4 pl-6 pr-36 text-white placeholder:text-slate-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all disabled:opacity-50"
                   required
@@ -59,14 +59,14 @@ export const NewsletterSection: React.FC = () => {
                     disabled={status === 'success' || status === 'loading'}
                   >
                     {status === 'loading' ? (
-                      <span className="animate-pulse">Sending...</span>
+                      <span className="animate-pulse">Yuborilmoqda...</span>
                     ) : status === 'success' ? (
                       <span className="flex items-center gap-2">
-                        <CheckCircle2 size={16} /> Subscribed
+                        <CheckCircle2 size={16} /> Obuna Bo'ldingiz
                       </span>
                     ) : (
                       <span className="flex items-center gap-2">
-                        Subscribe <Send size={14} />
+                        Obuna Bo'lish <Send size={14} />
                       </span>
                     )}
                   </Button>
@@ -79,7 +79,7 @@ export const NewsletterSection: React.FC = () => {
                   animate={{ opacity: 1, y: 0 }}
                   className="text-violet-400 text-sm mt-3"
                 >
-                  Thank you! You have successfully subscribed to our newsletter.
+                  Rahmat! Yangiliklarimizga muvaffaqiyatli obuna bo'ldingiz.
                 </motion.p>
               )}
             </form>

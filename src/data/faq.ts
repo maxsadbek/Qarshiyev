@@ -1,94 +1,94 @@
 import type { FAQItem } from '../types';
 
 export const faqItems: FAQItem[] = [
-  // General
+  // Umumiy
   {
     id: '1',
-    question: 'What makes Qarshiyev Education Center different from other language schools?',
-    answer: 'Qarshiyev Education Center combines internationally certified instructors, a premium learning environment, and a data-driven teaching methodology. Our instructors hold Cambridge CELTA, DELTA, and other internationally recognized qualifications. We maintain small class sizes (max 12 students) to ensure individual attention, and our 96% success rate speaks for itself. We are not just a language school — we are a launchpad to international opportunities.',
+    question: 'Qarshiyev Ta\'lim Markazi boshqa til maktablaridan nimasi bilan farq qiladi?',
+    answer: 'Qarshiyev Ta\'lim Markazi xalqaro sertifikatlangan o\'qituvchilar, premium ta\'lim muhiti va ma\'lumotlarga asoslangan o\'qitish metodologiyasini birlashtiradi. O\'qituvchilarimiz Cambridge CELTA, DELTA va boshqa xalqaro tan olingan malakaga ega. Har bir o\'quvchiga shaxsiy e\'tibor ta\'minlash uchun guruh hajmini cheklab (maksimum 12 o\'quvchi) qo\'yamiz va 96% muvaffaqiyat ko\'rsatkichimiz o\'z navbatida gapiradi. Biz shunchaki til maktabi emasmiz — biz xalqaro imkoniyatlarga poydevor yaratamiz.',
     category: 'General',
   },
   {
     id: '2',
-    question: 'How do I choose the right course for me?',
-    answer: 'We offer a free 30-minute consultation and placement test to every prospective student. Our academic advisors will assess your current English level, understand your goals (university admission, career advancement, travel, etc.), and recommend the most suitable program. You can book this consultation directly through our website or by calling our office.',
+    question: 'Men uchun to\'g\'ri kursni qanday tanlash kerak?',
+    answer: 'Har bir istiqbolli o\'quvchiga bepul 30 daqiqalik maslahat va darajani aniqlash testi taklif etamiz. Bizning akademik maslahatchilarimiz sizning joriy ingliz tili darajangizni baholaydi, maqsadlaringizni (universitetga kirish, karyera yuksalishi, sayohat va h.k.) tushunadi va eng mos dasturni tavsiya etadi. Bu maslahatni veb-saytimiz orqali yoki ofisimizga qo\'ng\'iroq qilib band qilishingiz mumkin.',
     category: 'General',
   },
   {
     id: '3',
-    question: 'What age groups do you accept?',
-    answer: 'We welcome students from age 8 upwards. Our Young Learners program is designed for students aged 8–14, our Teen Program for 14–18, and our Adult Programs for 18 and above. Each program uses age-appropriate materials and teaching approaches.',
+    question: 'Qaysi yosh guruhlarini qabul qilasiz?',
+    answer: 'Biz 8 yoshdan boshlab o\'quvchilarni qabul qilamiz. Yosh o\'quvchilar dasturimiz 8–14 yoshdagi o\'quvchilar uchun, O\'smirlar Dasturi 14–18 yoshlilar uchun, Kattalar Dasturlari esa 18 va undan katta yoshdagilar uchun mo\'ljallangan. Har bir dastur yoshga mos materiallar va o\'qitish yondashuvlaridan foydalanadi.',
     category: 'General',
   },
-  // Courses
+  // Kurslar
   {
     id: '4',
-    question: 'How long does an IELTS preparation course take?',
-    answer: 'Our standard IELTS Intensive Preparation course is 3 months long with 6 hours of class time per week. For students targeting Band 8+, we recommend our 2-month Advanced IELTS program. For beginners starting from a lower level, we recommend a 6-month track that includes General English followed by IELTS preparation.',
+    question: 'IELTS tayyorgarlik kursi qancha davom etadi?',
+    answer: 'Bizning standart IELTS Intensiv Tayyorgarlik kursimiz haftada 6 soat sinf vaqti bilan 3 oy davom etadi. 8+ ballni maqsad qilgan o\'quvchilar uchun 2 oylik Ilg\'or IELTS dasturimizni tavsiya etamiz. Quyi darajadan boshlaydigan boshlang\'ich o\'quvchilar uchun Umumiy Ingliz Tili va ardidan IELTS tayyorgarligini o\'z ichiga olgan 6 oylik yo\'nalisharni tavsiya etamiz.',
     category: 'Courses',
   },
   {
     id: '5',
-    question: 'What is the class size?',
-    answer: 'We maintain a strict maximum of 12 students per class for exam preparation courses (IELTS, SAT, Cambridge). General English classes have a maximum of 15 students. This ensures every student receives meaningful teacher interaction and personalized feedback in every session.',
+    question: 'Guruh hajmi qanday?',
+    answer: 'Imtihon tayyorgarligi kurslari (IELTS, SAT, Cambridge) uchun bir guruhda maksimum 12 ta o\'quvchi bo\'lishini qat\'iy talab qilamiz. Umumiy Ingliz Tili kurslarida maksimum 15 ta o\'quvchi bo\'ladi. Bu har bir o\'quvchi har bir seansdа muhim o\'qituvchi muloqoti va shaxsiy fikr-mulohaza olishini ta\'minlaydi.',
     category: 'Courses',
   },
   {
     id: '6',
-    question: 'Can I join a course after it has started?',
-    answer: 'In most cases, yes — for General English courses. For exam preparation courses, we recommend starting from the beginning of a cycle to ensure you cover all required content. Contact us and our team will advise you on the best entry point based on your level and the course progress.',
+    question: 'Kurs boshlanib ketgandan so\'ng unga kirish mumkinmi?',
+    answer: 'Ko\'p holatlarda, ha — Umumiy Ingliz Tili kurslariga. Imtihon tayyorgarligi kurslari uchun barcha talab qilinadigan mavzularni qamrab olganligingizni ta\'minlash maqsadida tsiklning boshidan boshlashni tavsiya etamiz. Bizga murojaat qiling va jamoamiz sizning darajangiz va kurs taraqqiyotiga asoslanib eng yaxshi kirish nuqtasi haqida maslahat beradi.',
     category: 'Courses',
   },
-  // Enrollment
+  // Ro'yxatdan o'tish
   {
     id: '7',
-    question: 'How do I enroll in a course?',
-    answer: 'You can enroll in three ways: (1) Visit our center in person and speak with our admissions team, (2) Fill out our online enrollment form on the website, or (3) Contact us via Telegram or phone. We will arrange a placement test and confirm your class schedule within 24 hours.',
+    question: 'Kursga qanday ro\'yxatdan o\'tish mumkin?',
+    answer: 'Uch usulda ro\'yxatdan o\'tishingiz mumkin: (1) Markazimizga shaxsan tashrif buyuring va qabul jamoamiz bilan gaplashing, (2) Veb-saytimizda onlayn ro\'yxatdan o\'tish formasini to\'ldiring, yoki (3) Telegram yoki telefon orqali biz bilan bog\'laning. Biz darajani aniqlash testini tashkil etamiz va 24 soat ichida dars jadvalini tasdiqlaymiz.',
     category: 'Enrollment',
   },
   {
     id: '8',
-    question: 'Is there a placement test?',
-    answer: 'Yes. All new students take a free placement test before enrollment. This 45-minute test assesses reading, listening, grammar, and writing skills to place you in the most appropriate level. There is no pass/fail — it is purely for accurate course placement.',
+    question: 'Darajani aniqlash testi bormi?',
+    answer: 'Ha. Barcha yangi o\'quvchilar ro\'yxatdan o\'tishdan oldin bepul darajani aniqlash testini topshiradilar. Ushbu 45 daqiqalik test o\'qish, tinglash, grammatika va yozish ko\'nikmalarini baholaydi va sizni eng mos darajaga joylashtirish uchun mo\'ljallangan. O\'tish/yiqilish yo\'q — bu faqat aniq kurs joylashtirish uchun.',
     category: 'Enrollment',
   },
-  // Fees & Payment
+  // To'lov
   {
     id: '9',
-    question: 'What payment methods do you accept?',
-    answer: 'We accept cash, bank transfer, and all major Uzbek payment systems (Payme, Click, Uzcard). Monthly payment plans are available for all courses lasting 3 months or more. A 10% early enrollment discount applies when you pay the full course fee upfront.',
+    question: 'Qanday to\'lov usullarini qabul qilasiz?',
+    answer: 'Naqd pul, bank o\'tkazma va O\'zbekistonning barcha yirik to\'lov tizimlari (Payme, Click, Uzcard) qabul qilinadi. 3 oy va undan ko\'p davom etadigan barcha kurslar uchun oylik to\'lov rejalari mavjud. To\'liq kurs to\'lovini oldindan to\'lashda 10% erta ro\'yxatdan o\'tish chegirmasi qo\'llaniladi.',
     category: 'Fees & Payment',
   },
   {
     id: '10',
-    question: 'Is there a refund policy?',
-    answer: 'Yes. Students who withdraw within the first 7 days of a course receive a full refund minus an administrative fee. Between days 7–30, a 50% refund applies. After 30 days, course fees are non-refundable. All refund requests must be submitted in writing.',
+    question: 'Qaytarish siyosati bormi?',
+    answer: 'Ha. Kursning dastlabki 7 kunida chiqib ketgan o\'quvchilar ma\'muriy to\'lovni ayirib tashlagan holda to\'liq qaytarishga erishadilar. 7–30 kun orasida 50% qaytariladi. 30 kundan keyin kurs to\'lovlari qaytarilmaydi. Barcha qaytarish so\'rovlari yozma ravishda topshirilishi kerak.',
     category: 'Fees & Payment',
   },
-  // Certificates
+  // Sertifikatlar
   {
     id: '11',
-    question: 'Will I receive a certificate upon completion?',
-    answer: 'All students who complete a full course and meet the minimum attendance requirement (80%) receive a Qarshiyev Education Center Completion Certificate. Additionally, we guide and prepare you for official international certifications (IELTS, Cambridge, SAT) which you take at official testing centers.',
+    question: 'Kursni tugatganda sertifikat olamanmi?',
+    answer: 'To\'liq kursni tugatgan va minimal davomat talabini (80%) bajargan barcha o\'quvchilar Qarshiyev Ta\'lim Markazi Bitirish Sertifikatini oladilar. Bundan tashqari, biz sizni rasmiy sinovxonalarda toʻplagan rasmiy xalqaro sertifikatlarga (IELTS, Cambridge, SAT) yo\'llashimiz va tayyorlashimiz mumkin.',
     category: 'Certificates',
   },
   {
     id: '12',
-    question: 'Are your certificates recognized internationally?',
-    answer: 'Our internal completion certificates are recognized by partner universities and employers in Uzbekistan. For international recognition, you will need an official examination certificate (IELTS, Cambridge B2/C1, TOEFL, etc.) which we fully prepare you for. We have a 96% pass rate for our prepared students.',
+    question: 'Sertifikatlaringiz xalqaro darajada tan olinadimi?',
+    answer: 'Bizning ichki bitirish sertifikatlarimiz O\'zbekistondagi hamkor universitetlar va ish beruvchilar tomonidan tan olingan. Xalqaro tan olinish uchun rasmiy imtihon sertifikati (IELTS, Cambridge B2/C1, TOEFL va h.k.) talab qilinadi, biz sizni bunga to\'liq tayyorlaymiz. Tayyorlangan o\'quvchilarimiz orasida 96% topshirish darajasiga egamiz.',
     category: 'Certificates',
   },
-  // Schedule
+  // Jadval
   {
     id: '13',
-    question: 'What are your operating hours?',
-    answer: 'Our center is open Monday to Saturday, 08:00–21:00. Classes are scheduled in morning (08:00–12:00), afternoon (13:00–17:00), and evening (17:00–21:00) slots. We also offer online sessions for students with scheduling constraints. The center is closed on Sundays and public holidays.',
+    question: 'Ish vaqtingiz qanday?',
+    answer: 'Markazimiz dushanba-shanba kunlari 08:00–21:00 gacha ochiq. Darslar ertalab (08:00–12:00), kunduzi (13:00–17:00) va kechqurun (17:00–21:00) slotlarida rejalashtirilgan. Jadval cheklovi bo\'lgan o\'quvchilar uchun onlayn seanslari ham taklif etamiz. Markaz yakshanba va jamoat bayramlarida yopiq bo\'ladi.',
     category: 'Schedule',
   },
   {
     id: '14',
-    question: 'Can I study online?',
-    answer: 'Yes! We offer a fully online learning option for all our courses. Online students use our virtual classroom platform with live video sessions, interactive whiteboards, and recorded lesson access for 30 days. The online experience is as interactive and effective as our in-person classes.',
+    question: 'Onlayn o\'qish mumkinmi?',
+    answer: 'Ha! Barcha kurslarimiz uchun to\'liq onlayn ta\'lim imkoniyati mavjud. Onlayn o\'quvchilar jonli video seanslari, interaktiv doskalar va 30 kunlik yozib olingan dars kirish imkoniyatiga ega virtual sinf platformamizdan foydalanadilar. Onlayn tajriba shaxsiy darslarimiz kabi interaktiv va samaraldir.',
     category: 'Schedule',
   },
 ];

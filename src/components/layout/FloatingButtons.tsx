@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUp, Phone, MessageCircle } from 'lucide-react';
+import { ArrowUp, Phone } from 'lucide-react';
 import { CONTACT_INFO } from '@/constants';
 import { cn } from '@/utils';
 

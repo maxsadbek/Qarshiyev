@@ -11,7 +11,7 @@ interface AnimatedSectionProps {
   delay?: number;
   once?: boolean;
   threshold?: number;
-  as?: keyof JSX.IntrinsicElements;
+  as?: React.ElementType;
 }
 
 export const AnimatedSection: React.FC<AnimatedSectionProps> = ({
@@ -42,7 +42,6 @@ export const AnimatedSection: React.FC<AnimatedSectionProps> = ({
       animate={inView ? 'visible' : 'hidden'}
       variants={{ hidden: variantConfig.hidden, visible: visibleWithDelay }}
     >
-      {/* @ts-expect-error dynamic tag */}
       <Tag>{children}</Tag>
     </motion.div>
   );

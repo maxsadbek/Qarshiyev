@@ -35,8 +35,7 @@ export const Footer: React.FC = () => {
               </div>
             </Link>
             <p className="text-slate-400 text-sm leading-relaxed mb-6">
-              Qarshi's premier education center dedicated to helping students achieve international
-              language and academic success since 2015.
+              2015 yildan buyon Qarshining yetakchi ta'lim markazi, o'quvchilarga xalqaro til va akademik muvaffaqiyatga erishishda yordam beradi.
             </p>
             <div className="flex items-center gap-3">
               <a
@@ -81,7 +80,7 @@ export const Footer: React.FC = () => {
           {/* Quick Links */}
           <div>
             <h4 className="text-white font-semibold text-sm uppercase tracking-widest mb-5">
-              Quick Links
+              Tezkor Havolalar
             </h4>
             <ul className="space-y-3">
               {NAV_ITEMS.filter((n) => !n.children).map((item) => (
@@ -107,7 +106,7 @@ export const Footer: React.FC = () => {
                     size={12}
                     className="opacity-0 group-hover:opacity-100 transition-opacity -ml-1"
                   />
-                  Student Results
+                  O'quvchi Natijalari
                 </Link>
               </li>
             </ul>
@@ -116,7 +115,7 @@ export const Footer: React.FC = () => {
           {/* Courses */}
           <div>
             <h4 className="text-white font-semibold text-sm uppercase tracking-widest mb-5">
-              Our Courses
+              Bizning Kurslarimiz
             </h4>
             <ul className="space-y-3">
               {featuredCourses.map((course) => (
@@ -138,7 +137,7 @@ export const Footer: React.FC = () => {
                   to={ROUTES.COURSES}
                   className="text-violet-500 text-sm font-medium hover:text-violet-400 transition-colors"
                 >
-                  View all courses →
+                  Barcha kurslarni ko'rish →
                 </Link>
               </li>
             </ul>
@@ -147,7 +146,7 @@ export const Footer: React.FC = () => {
           {/* Contact */}
           <div>
             <h4 className="text-white font-semibold text-sm uppercase tracking-widest mb-5">
-              Contact Us
+              Biz bilan Bog'laning
             </h4>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
@@ -194,14 +193,14 @@ export const Footer: React.FC = () => {
         <div className="container-custom py-5">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-slate-500 text-sm">
-              © {currentYear} Qarshiyev Education Center. All rights reserved.
+              © {currentYear} Qarshiyev Ta'lim Markazi. Barcha huquqlar himoyalangan.
             </p>
             <div className="flex items-center gap-5">
               <Link to="#" className="text-slate-500 text-sm hover:text-slate-300 transition-colors">
-                Privacy Policy
+                Maxfiylik Siyosati
               </Link>
               <Link to="#" className="text-slate-500 text-sm hover:text-slate-300 transition-colors">
-                Terms of Use
+                Foydalanish Shartlari
               </Link>
             </div>
           </div>
