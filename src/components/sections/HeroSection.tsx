@@ -1,10 +1,9 @@
 import React, { useRef, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { Play, ArrowRight, Users, GraduationCap, Star, Award } from 'lucide-react';
+import { Play, ArrowRight, Users, GraduationCap, Star, Award, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useGyroscope } from '@/hooks/useGyroscope';
-import { Modal } from '@/components/ui/Modal';
 
 const HERO_VIDEO_URL = 'https://www.youtube.com/embed/LXb3EKWsInQ?autoplay=1&controls=1&rel=0&modestbranding=1';
 const THUMBNAIL = 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&q=90';
@@ -262,34 +261,59 @@ export const HeroSection: React.FC = () => {
                   </div>
 
                   {/* VIDEO / THUMBNAIL */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    {/* Thumbnail */}
-                    <img
-                      src={THUMBNAIL}
-                      alt="Education Center Video"
-                      className="absolute inset-0 w-full h-full object-cover"
-                    />
-                    {/* Dark overlay */}
-                    <div className="absolute inset-0 bg-slate-950/50" />
-                    {/* Play button */}
-                    <motion.button
-                      className="relative z-10 flex flex-col items-center gap-3"
-                      onClick={() => setVideoPlaying(true)}
-                      whileHover={{}}
-                      whileTap={{}}
-                      aria-label="Play video"
-                    >
-                      <motion.div
-                        className="w-16 h-16 rounded-full bg-violet-500 flex items-center justify-center shadow-lg shadow-violet-500/50"
-                        animate={{ scale: [1, 1.08, 1] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                      >
-                        <Play size={24} fill="white" className="text-white ml-1" />
-                      </motion.div>
-                      <span className="text-white text-xs font-semibold tracking-wide">
-                        Bizning Hikoyamizni Ko'ring
-                      </span>
-                    </motion.button>
+                  <div className="absolute inset-0 flex items-center justify-center bg-black">
+                    {videoPlaying ? (
+                      <div className="relative w-full h-full overflow-hidden">
+                        <iframe
+                          src={HERO_VIDEO_URL}
+                          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-full aspect-[16/9] max-w-none border-0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                          allowFullScreen
+                          title="Qarshiyev Ta'lim Markazi - Bizning Hikoyamiz"
+                        />
+                        {/* Close button inside the screen */}
+                        <button
+                          className="absolute top-14 right-4 z-30 w-8 h-8 rounded-full bg-black/70 hover:bg-black/95 flex items-center justify-center text-white transition-colors border border-white/10"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setVideoPlaying(false);
+                          }}
+                          aria-label="Videoni yopish"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        {/* Thumbnail */}
+                        <img
+                          src={THUMBNAIL}
+                          alt="Education Center Video"
+                          className="absolute inset-0 w-full h-full object-cover"
+                        />
+                        {/* Dark overlay */}
+                        <div className="absolute inset-0 bg-slate-950/50" />
+                        {/* Play button */}
+                        <motion.button
+                          className="relative z-10 flex flex-col items-center gap-3"
+                          onClick={() => setVideoPlaying(true)}
+                          whileHover={{}}
+                          whileTap={{}}
+                          aria-label="Play video"
+                        >
+                          <motion.div
+                            className="w-16 h-16 rounded-full bg-violet-500 flex items-center justify-center shadow-lg shadow-violet-500/50"
+                            animate={{ scale: [1, 1.08, 1] }}
+                            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                          >
+                            <Play size={24} fill="white" className="text-white ml-1" />
+                          </motion.div>
+                          <span className="text-white text-xs font-semibold tracking-wide">
+                            Bizning Hikoyamizni Ko'ring
+                          </span>
+                        </motion.button>
+                      </>
+                    )}
                   </div>
 
                   {/* Screen edge glare */}
@@ -377,21 +401,6 @@ export const HeroSection: React.FC = () => {
           />
         </motion.div>
       </motion.div>
-
-      {/* Video Modal */}
-      <Modal isOpen={videoPlaying} onClose={() => setVideoPlaying(false)} size="xl" showClose title="Qarshiyev Ta'lim Markazi — Bizning Hikoyamiz">
-        <div className="p-4 bg-slate-950">
-          <div className="aspect-video rounded-lg overflow-hidden bg-black">
-            <iframe
-              src={HERO_VIDEO_URL}
-              className="w-full h-full"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              title="Qarshiyev Ta'lim Markazi - Bizning Hikoyamiz"
-            />
-          </div>
-        </div>
-      </Modal>
     </section>
   );
 };
