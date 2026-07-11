@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUp, Phone } from 'lucide-react';
 import { CONTACT_INFO } from '@/constants';
 import { cn } from '@/utils';
+import { useLenis } from '@/context/SmoothScrollProvider';
 
 // Telegram SVG icon
 const TelegramIcon = () => (
@@ -26,8 +27,14 @@ export const FloatingButtons: React.FC = () => {
     return () => window.removeEventListener('scroll', handler);
   }, []);
 
+  const lenis = useLenis();
+
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (lenis) {
+      lenis.scrollTo(0, { duration: 1.6 });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const buttons = [

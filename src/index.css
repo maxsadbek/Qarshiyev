@@ -64,24 +64,27 @@
 *, *::before, *::after { box-sizing: border-box; }
 
 html {
-  scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  scroll-padding-top: 80px;
 }
 
-/* Adjust scroll behavior for different screen sizes */
-@media (min-width: 768px) {
-  html {
-    scroll-behavior: smooth;
-    scroll-padding-top: 80px;
-  }
+/* Lenis smooth scrolling */
+html.lenis,
+html.lenis body {
+  height: auto;
 }
-
-@media (min-width: 1024px) {
-  html {
-    scroll-behavior: smooth;
-    scroll-padding-top: 80px;
-  }
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
 }
 
 body {
