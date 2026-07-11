@@ -119,8 +119,8 @@ const VideoCard: React.FC<{
       {/* Play button */}
       <div className="absolute inset-0 flex items-center justify-center">
         <motion.div
-          className={`rounded-full bg-white/10 backdrop-blur-sm border border-white/30 flex items-center justify-center text-white ${large ? 'w-16 h-16' : 'w-10 h-10'}`}
-          whileHover={{ backgroundColor: 'rgba(245,158,11,0.9)' }}
+          className={`rounded-full bg-violet-500/30 backdrop-blur-md border border-white/30 shadow-lg shadow-violet-500/40 flex items-center justify-center text-white transition-colors ${large ? 'w-16 h-16' : 'w-10 h-10'}`}
+          whileHover={{ backgroundColor: 'rgba(139,92,246,0.5)' }}
           transition={{ duration: 0.2 }}
         >
           <Play size={large ? 22 : 14} fill="white" />

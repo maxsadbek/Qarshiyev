@@ -206,7 +206,7 @@ export const HeroSection: React.FC = () => {
                           aria-label="Play video"
                         >
                           <div
-                            className="w-16 h-16 rounded-full bg-violet-500 flex items-center justify-center shadow-lg shadow-violet-500/50"
+                            className="w-16 h-16 rounded-full bg-violet-500/30 backdrop-blur-md border border-white/30 flex items-center justify-center shadow-lg shadow-violet-500/40 transition-colors hover:bg-violet-500/50"
                           >
                             <Play size={24} fill="white" className="text-white ml-1" />
                           </div>

@@ -42,7 +42,7 @@ export const ContactSection: React.FC = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
           >
-            <div className="bg-white rounded-3xl p-8 card-shadow border border-slate-100 mb-8">
+            <div className="bg-white rounded-3xl p-8 card-shadow-bottom border border-slate-100 mb-8">
               <h3 className="font-serif font-bold text-2xl text-slate-950 mb-6">Aloqa Ma'lumotlari</h3>
               
               <ul className="space-y-6">
@@ -102,7 +102,7 @@ export const ContactSection: React.FC = () => {
                href="https://www.google.com/maps/place/Nuriston,+Qashqadaryo+Region,+Uzbekistan/@38.4926666,65.6410898,136m/data=!3m1!1e3!4m6!3m5!1s0x3f49455c235a7e43:0x33c3595f807bba19!8m2!3d38.4893713!4d65.6462065!16s%2Fg%2F1hc0htvnj?entry=ttu&g_ep=EgoyMDI2MDcwOC4wIKXMDSoASAFQAw%3D%3D"
                target="_blank"
                rel="noreferrer"
-               className="block bg-white rounded-3xl p-8 card-shadow border border-slate-100"
+               className="block bg-white rounded-3xl p-8 card-shadow-bottom border border-slate-100"
              >
                <h3 className="font-serif font-bold text-2xl text-slate-950 mb-4">Joylashuv</h3>
                <div className="flex items-start gap-4">
@@ -124,7 +124,7 @@ export const ContactSection: React.FC = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.7, delay: 0.2 }}
           >
-            <div className="bg-white rounded-3xl p-8 lg:p-10 card-shadow border border-slate-100 h-full">
+            <div className="bg-white rounded-3xl p-8 lg:p-10 card-shadow-bottom border border-slate-100 h-full">
               <h3 className="font-serif font-bold text-3xl text-slate-950 mb-2">Xabar Yuboring</h3>
               <p className="text-slate-500 text-sm mb-8">Odatda 24 soat ichida javob beramiz.</p>
 
