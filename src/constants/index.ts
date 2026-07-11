@@ -39,15 +39,13 @@ export const CONTACT_INFO = {
   instagram: 'https://instagram.com/qarshiyev_edu',
   facebook: 'https://facebook.com/qarshiyev_edu',
   youtube: 'https://youtube.com/@qarshiyev_edu',
-  address: 'Qarshi, Kashkadarya Region, Uzbekistan',
-  addressFull: '12 Amir Temur Street, Qarshi 180100, Kashkadarya, Uzbekistan',
+  address: 'Nuriston, Qashqadaryo Region, Uzbekistan',
+  addressFull: 'Nuriston, Qashqadaryo Region, Uzbekistan',
   workingHours: [
     { day: 'Dushanba – Juma', hours: '08:00 – 21:00' },
     { day: 'Shanba', hours: '09:00 – 18:00' },
     { day: 'Yakshanba', hours: 'Yopiq' },
   ],
-  mapEmbedUrl:
-    'https://www.openstreetmap.org/export/embed.html?bbox=65.6362065%2C38.4793713%2C65.6562065%2C38.4993713&layer=mapnik&marker=38.4893713%2C65.6462065',
 };
 
 export const ANIMATION_VARIANTS = {

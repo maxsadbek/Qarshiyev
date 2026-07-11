@@ -97,20 +97,24 @@ export const ContactSection: React.FC = () => {
               </ul>
             </div>
 
-            {/* Map */}
-            <div className="rounded-3xl overflow-hidden card-shadow h-64 relative border border-slate-100">
-              <iframe
-                src={CONTACT_INFO.mapEmbedUrl}
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                allow="geolocation"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Qarshiyev Education Center Location"
-              />
-            </div>
+             {/* Map info */}
+             <a
+               href="https://www.google.com/maps/place/Nuriston,+Qashqadaryo+Region,+Uzbekistan/@38.4926666,65.6410898,136m/data=!3m1!1e3!4m6!3m5!1s0x3f49455c235a7e43:0x33c3595f807bba19!8m2!3d38.4893713!4d65.6462065!16s%2Fg%2F1hc0htvnj?entry=ttu&g_ep=EgoyMDI2MDcwOC4wIKXMDSoASAFQAw%3D%3D"
+               target="_blank"
+               rel="noreferrer"
+               className="block bg-white rounded-3xl p-8 card-shadow border border-slate-100"
+             >
+               <h3 className="font-serif font-bold text-2xl text-slate-950 mb-4">Joylashuv</h3>
+               <div className="flex items-start gap-4">
+                 <div className="w-12 h-12 rounded-full bg-violet-50 flex items-center justify-center shrink-0">
+                   <MapPin size={20} className="text-violet-600" />
+                 </div>
+                 <div>
+                   <p className="text-slate-500 text-sm leading-relaxed">{CONTACT_INFO.addressFull}</p>
+                   <p className="text-violet-600 text-sm font-medium mt-2">Google Maps’da ochish</p>
+                 </div>
+               </div>
+             </a>
           </motion.div>
 
           {/* Contact Form */}
