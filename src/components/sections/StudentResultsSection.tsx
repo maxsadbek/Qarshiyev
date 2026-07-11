@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
@@ -7,9 +7,11 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { studentResults } from '@/data/results';
-import { MapPin, Award, TrendingUp } from 'lucide-react';
+import { MapPin, Award, TrendingUp, ArrowLeft, ArrowRight } from 'lucide-react';
 
 export const StudentResultsSection: React.FC = () => {
+  const prevRef = useRef<HTMLButtonElement>(null);
+  const nextRef = useRef<HTMLButtonElement>(null);
   return (
     <section className="section-padding bg-slate-50">
       <div className="container-custom">
@@ -28,6 +30,13 @@ export const StudentResultsSection: React.FC = () => {
         </motion.div>
 
         <Swiper
+          onSwiper={(swiper) => {
+            const nav = swiper.params.navigation!;
+            nav.prevEl = prevRef.current;
+            nav.nextEl = nextRef.current;
+            swiper.navigation.init();
+            swiper.navigation.update();
+          }}
           modules={[Navigation, Pagination, Autoplay]}
           spaceBetween={24}
           slidesPerView={1}
@@ -46,6 +55,22 @@ export const StudentResultsSection: React.FC = () => {
             </SwiperSlide>
           ))}
         </Swiper>
+        <div className="flex items-center justify-center gap-3 mt-6">
+          <button
+            ref={prevRef}
+            className="w-11 h-11 rounded-full bg-white border border-slate-200 text-slate-950 flex items-center justify-center hover:bg-slate-50 hover:border-slate-300 transition-colors"
+            aria-label="Previous"
+          >
+            <ArrowLeft size={18} />
+          </button>
+          <button
+            ref={nextRef}
+            className="w-11 h-11 rounded-full bg-violet-500 text-white flex items-center justify-center hover:bg-violet-600 transition-colors"
+            aria-label="Next"
+          >
+            <ArrowRight size={18} />
+          </button>
+        </div>
       </div>
     </section>
   );

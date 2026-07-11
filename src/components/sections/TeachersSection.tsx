@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -7,7 +7,7 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import {
-  Star, Users, Award, Play, Send, ArrowRight,
+  Star, Users, Award, Play, Send, ArrowRight, ArrowLeft,
 } from 'lucide-react';
 import { Linkedin, Instagram, Youtube } from '@/components/ui/Icons';
 import { SectionHeader } from '@/components/ui/SectionHeader';
@@ -19,6 +19,8 @@ import { teachers } from '@/data/teachers';
 export const TeachersSection: React.FC = () => {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const featuredTeachers = teachers.filter((t) => t.featured);
+  const prevRef = useRef<HTMLButtonElement>(null);
+  const nextRef = useRef<HTMLButtonElement>(null);
 
   return (
     <section className="section-padding bg-slate-950">
@@ -40,6 +42,13 @@ export const TeachersSection: React.FC = () => {
         </motion.div>
 
         <Swiper
+          onSwiper={(swiper) => {
+            const nav = swiper.params.navigation!;
+            nav.prevEl = prevRef.current;
+            nav.nextEl = nextRef.current;
+            swiper.navigation.init();
+            swiper.navigation.update();
+          }}
           modules={[Navigation, Pagination]}
           spaceBetween={24}
           slidesPerView={1}
@@ -57,6 +66,22 @@ export const TeachersSection: React.FC = () => {
             </SwiperSlide>
           ))}
         </Swiper>
+        <div className="flex items-center justify-center gap-3 mt-6">
+          <button
+            ref={prevRef}
+            className="w-11 h-11 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-white/20 hover:border-white/30 transition-colors"
+            aria-label="Previous"
+          >
+            <ArrowLeft size={18} />
+          </button>
+          <button
+            ref={nextRef}
+            className="w-11 h-11 rounded-full bg-violet-500 text-white flex items-center justify-center hover:bg-violet-600 transition-colors"
+            aria-label="Next"
+          >
+            <ArrowRight size={18} />
+          </button>
+        </div>
 
         <motion.div
           className="text-center mt-4"

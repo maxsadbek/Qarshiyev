@@ -1,15 +1,17 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import { Quote, Star } from 'lucide-react';
+import { Quote, Star, ArrowLeft, ArrowRight } from 'lucide-react';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { testimonials } from '@/data/testimonials';
 
 export const ParentReviews: React.FC = () => {
+  const prevRef = useRef<HTMLButtonElement>(null);
+  const nextRef = useRef<HTMLButtonElement>(null);
   return (
     <section className="section-padding bg-slate-950 text-white overflow-hidden relative">
       {/* Background decoration */}
@@ -33,6 +35,13 @@ export const ParentReviews: React.FC = () => {
         </motion.div>
 
         <Swiper
+          onSwiper={(swiper) => {
+            const nav = swiper.params.navigation!;
+            nav.prevEl = prevRef.current;
+            nav.nextEl = nextRef.current;
+            swiper.navigation.init();
+            swiper.navigation.update();
+          }}
           modules={[Navigation, Pagination, Autoplay]}
           spaceBetween={24}
           slidesPerView={1}
@@ -51,6 +60,22 @@ export const ParentReviews: React.FC = () => {
             </SwiperSlide>
           ))}
         </Swiper>
+        <div className="flex items-center justify-center gap-3 mt-6">
+          <button
+            ref={prevRef}
+            className="w-11 h-11 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-white/20 hover:border-white/30 transition-colors"
+            aria-label="Previous"
+          >
+            <ArrowLeft size={18} />
+          </button>
+          <button
+            ref={nextRef}
+            className="w-11 h-11 rounded-full bg-violet-500 text-white flex items-center justify-center hover:bg-violet-600 transition-colors"
+            aria-label="Next"
+          >
+            <ArrowRight size={18} />
+          </button>
+        </div>
       </div>
     </section>
   );
