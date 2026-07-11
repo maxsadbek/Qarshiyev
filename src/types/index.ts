@@ -38,7 +38,14 @@ export type CourseCategory =
   | 'Programming'
   | 'Business';
 
-export type CourseLevel = 'Beginner' | 'Intermediate' | 'Advanced' | 'All Levels';
+export type CourseLevel =
+  | 'Beginner'
+  | 'Intermediate'
+  | 'Advanced'
+  | 'All Levels'
+  | 'Boshlang\'ich (Beginner)'
+  | 'O\'rta (Intermediate)'
+  | 'Mukammal (Advanced)';
 
 // ============================================================
 
@@ -201,7 +208,11 @@ export type EventCategory =
   | 'Exam Prep'
   | 'Award Ceremony'
   | 'Cultural'
-  | 'Online';
+  | 'Online'
+  | 'Ochiq Eshiklar Kuni'
+  | 'Imtihon Tayyorgarligi'
+  | 'Mukofot Marosimi'
+  | 'Madaniy';
 
 // ============================================================
 
@@ -231,7 +242,15 @@ export type BlogCategory =
   | 'Student Life'
   | 'Career Advice'
   | 'News'
-  | 'Success Stories';
+  | 'Success Stories'
+  | 'Barchasi'
+  | 'IELTS Maslahatlari'
+  | 'Xorijda O\'qish'
+  | 'Til O\'rganish'
+  | 'O\'quvchi Hayoti'
+  | 'Karyera Maslahati'
+  | 'Yangiliklar'
+  | 'Muvaffaqiyat Tarixi';
 
 // ============================================================
 
