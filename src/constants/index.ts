@@ -47,7 +47,7 @@ export const CONTACT_INFO = {
     { day: 'Yakshanba', hours: 'Yopiq' },
   ],
   mapEmbedUrl:
-    'https://maps.google.com/maps?q=38.4893713,65.6462065&z=16&output=embed',
+    'https://www.google.com/maps/place/Nuriston,+Qashqadaryo+Region,+Uzbekistan/@38.4926666,65.6410898,136m/data=!3m1!1e3!4m6!3m5!1s0x3f49455c235a7e43:0x33c3595f807bba19!8m2!3d38.4893713!4d65.6462065!16s%2Fg%2F1hc0htvnj?entry=ttu&g_ep=EgoyMDI2MDcwOC4wIKXMDSoASAFQAw%3D%3D&output=embed',
 };
 
 export const ANIMATION_VARIANTS = {
