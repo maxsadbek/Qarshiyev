@@ -106,6 +106,7 @@ export const ContactSection: React.FC = () => {
                 style={{ border: 0 }}
                 allowFullScreen
                 loading="lazy"
+                allow="geolocation"
                 referrerPolicy="no-referrer-when-downgrade"
                 title="Qarshiyev Education Center Location"
               />
