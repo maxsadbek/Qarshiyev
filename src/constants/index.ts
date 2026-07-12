@@ -9,6 +9,8 @@ export const ROUTES = {
   BLOG: '/blog',
   FAQ: '/faq',
   CONTACT: '/contact',
+  LOGIN: '/login',
+  PROFILE: '/profile',
 } as const;
 
 export const NAV_ITEMS = [
@@ -36,7 +38,7 @@ export const CONTACT_INFO = {
   email: 'info@qarshiyev.uz',
   email2: 'admissions@qarshiyev.uz',
   telegram: 'https://t.me/QARSHIYEV_SCHOOL',
-  instagram: 'https://instagram.com/qarshiyev_edu',
+  instagram: 'https://www.instagram.com/qarshiyev_school/',
   facebook: 'https://facebook.com/qarshiyev_edu',
   youtube: 'https://youtube.com/@qarshiyev_edu',
   address: 'Nuriston, Qashqadaryo Region, Uzbekistan',

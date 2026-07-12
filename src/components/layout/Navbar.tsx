@@ -20,9 +20,10 @@ import {
   MoreHorizontal,
 } from 'lucide-react';
 import { useScrollPosition } from '@/hooks/useScrollPosition';
-import { NAV_ITEMS, CONTACT_INFO } from '@/constants';
+import { NAV_ITEMS, CONTACT_INFO, ROUTES } from '@/constants';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/utils';
+import { useAuth } from '@/context/AuthContext';
 
 const getIcon = (label: string) => {
   switch (label.toLowerCase()) {
@@ -58,8 +59,11 @@ export const Navbar: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const location = useLocation();
   const navRef = useRef<HTMLElement>(null);
+  const userRef = useRef<HTMLDivElement>(null);
+  const { user, logout } = useAuth();
 
   const isActive = (href: string) =>
     href === '/' ? location.pathname === '/' : location.pathname.startsWith(href);
@@ -75,6 +79,9 @@ export const Navbar: React.FC = () => {
     const handleClickOutside = (event: MouseEvent) => {
       if (navRef.current && !navRef.current.contains(event.target as Node)) {
         setActiveDropdown(null);
+      }
+      if (userRef.current && !userRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -241,11 +248,61 @@ export const Navbar: React.FC = () => {
                 <Phone size={14} />
                 <span>{CONTACT_INFO.phone}</span>
               </a>
-              <Link to="/contact">
-                <Button variant="gold" size="md">
-                  Hoziroq Ro'yxatdan O'ting
-                </Button>
-              </Link>
+              {user ? (
+                <div className="relative" ref={userRef}>
+                  <button
+                    onClick={() => setUserMenuOpen((o) => !o)}
+                    className="flex items-center gap-2 rounded-full pl-1 pr-3 py-1 bg-white/10 hover:bg-white/15 transition-colors"
+                  >
+                    <span className="w-8 h-8 rounded-full bg-violet-500 text-white flex items-center justify-center text-sm font-bold">
+                      {user.avatar ? (
+                        <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full object-cover" />
+                      ) : (
+                        user.name.charAt(0).toUpperCase()
+                      )}
+                    </span>
+                    <span className={cn('text-sm font-medium', isScrolled ? 'text-slate-950' : 'text-white')}>
+                      {user.name.split(' ')[0]}
+                    </span>
+                    <ChevronDown size={14} className={cn(isScrolled ? 'text-slate-500' : 'text-white/70', userMenuOpen && 'rotate-180')} />
+                  </button>
+                  <AnimatePresence>
+                    {userMenuOpen && (
+                      <motion.div
+                        className="absolute top-full right-0 mt-2 w-52 bg-white rounded-lg shadow-xl border border-slate-100 overflow-hidden"
+                        initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                        transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                      >
+                        <div className="p-2">
+                          <Link
+                            to={ROUTES.PROFILE}
+                            onClick={() => setUserMenuOpen(false)}
+                            className="flex items-center px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-950 transition-colors"
+                          >
+                            Kabinet
+                          </Link>
+                          <button
+                            onClick={() => { logout(); setUserMenuOpen(false); }}
+                            className="flex items-center w-full px-4 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
+                          >
+                            Chiqish
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ) : (
+                <>
+                  <Link to={ROUTES.LOGIN}>
+                    <Button variant="gold" size="md">
+                      Kirish
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
 
             {/* Mobile menu toggle */}
@@ -402,13 +459,33 @@ export const Navbar: React.FC = () => {
                     <Phone size={16} />
                     <span className="text-sm font-medium">{CONTACT_INFO.phone}</span>
                   </a>
-                  <Link
-                    to="/contact"
-                    onClick={() => setMobileOpen(false)}
-                    className="flex items-center justify-center w-full py-3.5 bg-violet-500 text-white font-semibold rounded-xl hover:bg-violet-600 transition-colors"
-                  >
-                    Hoziroq Ro'yxatdan O'ting
-                  </Link>
+                  {user ? (
+                    <>
+                      <Link
+                        to={ROUTES.PROFILE}
+                        onClick={() => setMobileOpen(false)}
+                        className="flex items-center justify-center w-full py-3.5 bg-slate-950 text-white font-semibold rounded-xl hover:bg-slate-800 transition-colors"
+                      >
+                        Kabinet
+                      </Link>
+                      <button
+                        onClick={() => { logout(); setMobileOpen(false); }}
+                        className="flex items-center justify-center w-full py-3.5 bg-red-500 text-white font-semibold rounded-xl hover:bg-red-600 transition-colors"
+                      >
+                        Chiqish
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        to={ROUTES.LOGIN}
+                        onClick={() => setMobileOpen(false)}
+                        className="flex items-center justify-center w-full py-3.5 bg-violet-500 text-white font-semibold rounded-xl hover:bg-violet-600 transition-colors"
+                      >
+                        Kirish
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
             </motion.div>
