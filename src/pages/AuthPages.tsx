@@ -147,15 +147,37 @@ export const LoginPage: React.FC = () => {
   );
 };
 
+const formatPhone = (value: string) => {
+  const digits = value
+    .replace(/\D/g, '')
+    .replace(/^998/, '')
+    .slice(0, 9);
+  const parts: string[] = [];
+  if (digits.length > 0) parts.push(digits.slice(0, 2));
+  if (digits.length > 2) parts.push(digits.slice(2, 5));
+  if (digits.length > 5) parts.push(digits.slice(5, 7));
+  if (digits.length > 7) parts.push(digits.slice(7, 9));
+  return parts.join('-');
+};
+
 export const RegisterPage: React.FC = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirm: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
-    setForm((f) => ({ ...f, [key]: e.target.value }));
+  const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setForm((f) => ({ ...f, [key]: key === 'phone' ? formatPhone(value) : value }));
+  };
+
+  const isValid =
+    form.name.trim() !== '' &&
+    form.email.trim() !== '' &&
+    form.password.length >= 6 &&
+    form.password === form.confirm;
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -172,16 +194,18 @@ export const RegisterPage: React.FC = () => {
       setError('Parollar mos kelmadi');
       return;
     }
+    setIsSubmitting(true);
     const result = register({
       name: form.name,
       email: form.email,
       password: form.password,
-      phone: form.phone,
+      phone: form.phone ? `+998${form.phone.replace(/-/g, '')}` : '',
     });
     if (result.ok) {
       navigate(ROUTES.PROFILE);
     } else {
       setError(result.error ?? 'Xatolik yuz berdi');
+      setIsSubmitting(false);
     }
   };
 
@@ -234,14 +258,19 @@ export const RegisterPage: React.FC = () => {
                   placeholder="Email manzilingiz"
                 />
               </div>
-              <div className="relative">
+              <div className="relative flex items-center">
                 <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                <span className="absolute left-11 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-medium select-none">
+                  +998
+                </span>
                 <input
                   type="tel"
+                  inputMode="numeric"
+                  autoComplete="tel"
                   value={form.phone}
                   onChange={set('phone')}
-                  className={inputClass}
-                  placeholder="Telefon raqamingiz (ixtiyoriy)"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-[5.25rem] pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
+                  placeholder="97-971-84-21"
                 />
               </div>
               <div className="relative">
@@ -272,7 +301,7 @@ export const RegisterPage: React.FC = () => {
                   placeholder="Parolni tasdiqlang"
                 />
               </div>
-              <Button type="submit" variant="primary" size="lg" className="w-full">
+              <Button type="submit" variant="primary" size="lg" className="w-full" loading={isSubmitting} disabled={!isValid}>
                 Ro'yxatdan o'tish
                 <GraduationCap size={16} />
               </Button>
