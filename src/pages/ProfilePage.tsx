@@ -4,7 +4,7 @@ import { Navigate, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   User as UserIcon, Mail, Phone, MapPin, Calendar, Pencil, LogOut,
-  Award, Save, X, CheckCircle2, Sparkles, LayoutDashboard, Clock,
+  Award, Save, X, CheckCircle2, Sparkles, LayoutDashboard, Clock, ImageIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/context/AuthContext';
@@ -32,10 +32,24 @@ const floatAnim = (delay: number) => ({
   transition: { duration: 6, repeat: Infinity, ease: 'easeInOut' as const, delay },
 });
 
+const CARD_RADIUS = 'rounded-xl';
+const CARD_BG = '#FFFFFF';
+const CARD_BORDER = '1px solid rgba(15,23,42,.07)';
+const CARD_SHADOW = '0 1px 2px rgba(15,23,42,.04)';
+const CARD_TRANSITION = 'transition-all duration-250 ease-out';
+
+const cardBaseClass = `${CARD_RADIUS} ${CARD_TRANSITION}`;
+const cardBaseStyle: React.CSSProperties = {
+  backgroundColor: CARD_BG,
+  border: CARD_BORDER,
+  boxShadow: CARD_SHADOW,
+};
+
 export const ProfilePage: React.FC = () => {
   const { user, updateProfile, logout } = useAuth();
   const navigate = useNavigate();
   const [editing, setEditing] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [form, setForm] = useState({
     name: user?.name ?? '',
     phone: user?.phone ?? '',
@@ -50,9 +64,28 @@ export const ProfilePage: React.FC = () => {
   const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64 = reader.result as string;
+      setForm((f) => ({ ...f, avatar: base64 }));
+      setAvatarPreview(base64);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeAvatar = () => {
+    setForm((f) => ({ ...f, avatar: '' }));
+    setAvatarPreview(null);
+  };
+
   const save = () => {
     updateProfile(form);
     setEditing(false);
+    setAvatarPreview(null);
   };
 
   const handleLogout = () => {
@@ -113,14 +146,16 @@ export const ProfilePage: React.FC = () => {
               <div className="relative shrink-0">
                 <div className="absolute -inset-3 rounded-2xl blur-2xl" style={{ background: 'linear-gradient(135deg, rgba(124,58,237,.7), rgba(167,139,250,.4))' }} />
                 <motion.div
-                  className="relative w-32 h-32 md:w-36 md:h-36 rounded-2xl flex items-center justify-center text-4xl font-bold text-white shadow-2xl"
+                  className="relative w-32 h-32 md:w-36 md:h-36 rounded-2xl flex items-center justify-center text-4xl font-bold text-white shadow-2xl overflow-hidden"
                   style={{ background: 'linear-gradient(135deg, #7C3AED, #A855F7)' }}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  {user.avatar ? (
-                    <img src={user.avatar} alt={user.name} className="w-full h-full rounded-2xl object-cover" />
+                  {editing && avatarPreview ? (
+                    <img src={avatarPreview} alt={user.name} className="w-full h-full object-cover" />
+                  ) : user.avatar ? (
+                    <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                   ) : (
                     initials(user.name)
                   )}
@@ -174,60 +209,62 @@ export const ProfilePage: React.FC = () => {
             {/* LEFT COLUMN */}
             <div className="lg:col-span-1 space-y-6">
               <InfoCard title="Shaxsiy ma'lumotlar" icon={<UserIcon size={18} />} items={personalItems} index={0} />
-              <InfoCard title="Aloqa ma'lumotlari" icon={<Phone size={18} />} items={contactItems} index={1} />
-
-              {/* Quick Stats */}
-              <motion.div
-                variants={fadeUp}
-                initial="hidden"
-                whileInView="show"
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-                className="rounded-2xl p-6"
-                style={{ backgroundColor: '#fff', border: `1px solid ${'rgba(124,58,237,.12)'}`, boxShadow: '0 10px 40px rgba(15,23,42,.06)' }}
-              >
-                <div className="flex items-center gap-2 mb-5">
-                  <span className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'rgba(124,58,237,.1)', color: ACCENT }}>
-                    <LayoutDashboard size={18} />
-                  </span>
-                  <h3 className="font-semibold text-[15px]" style={{ color: TEXT }}>Tezkor statistika</h3>
-                </div>
-                <div className="grid grid-cols-3 gap-3">
-                  {quickStats.map((s) => (
-                    <motion.div
-                      key={s.label}
-                      whileHover={{ y: -4 }}
-                      className="rounded-xl p-4 text-center flex flex-col items-center justify-center"
-                      style={{ backgroundColor: 'rgba(237,233,254,.55)' }}
-                    >
-                      <span className="w-8 h-8 rounded-lg flex items-center justify-center mb-2" style={{ backgroundColor: '#fff', color: ACCENT }}>
-                        {s.icon}
-                      </span>
-                      <div className="font-bold text-lg leading-none" style={{ color: TEXT }}>{s.value}</div>
-                      <div className="text-[11px] mt-1" style={{ color: 'rgba(17,24,39,.55)' }}>{s.label}</div>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
             </div>
 
             {/* RIGHT COLUMN */}
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-2 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <InfoCard title="Aloqa ma'lumotlari" icon={<Phone size={18} />} items={contactItems} index={1} />
+
+                {/* Quick Stats */}
+                <motion.div
+                  variants={fadeUp}
+                  initial="hidden"
+                  whileInView="show"
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.2 }}
+                  className={cardBaseClass}
+                  style={{ ...cardBaseStyle, padding: '24px' }}
+                >
+                  <div className="flex items-center gap-3 mb-5">
+                    <span className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#F3F0FF', color: ACCENT }}>
+                      <LayoutDashboard size={17} />
+                    </span>
+                    <h3 className="font-semibold text-[15px]" style={{ color: TEXT }}>Tezkor statistika</h3>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    {quickStats.map((s) => (
+                      <div
+                        key={s.label}
+                        className="rounded-lg p-4 text-center flex flex-col items-center justify-center cursor-default"
+                        style={{ backgroundColor: '#FAFAFB', border: '1px solid rgba(15,23,42,.06)', transition: 'all 250ms ease-out' }}
+                      >
+                        <span className="w-8 h-8 rounded-lg flex items-center justify-center mb-2" style={{ backgroundColor: '#fff', color: ACCENT, border: '1px solid rgba(124,58,237,.12)' }}>
+                          {s.icon}
+                        </span>
+                        <div className="font-bold text-[15px] leading-none" style={{ color: TEXT }}>{s.value}</div>
+                        <div className="text-[11px] mt-1.5 font-medium" style={{ color: 'rgba(17,24,39,.5)' }}>{s.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              </div>
+
               {editing ? (
                 <motion.div
                   variants={fadeUp}
                   initial="hidden"
                   animate="show"
-                  className="rounded-2xl p-7"
-                  style={{ backgroundColor: '#fff', border: `1px solid rgba(124,58,237,.12)`, boxShadow: '0 10px 40px rgba(15,23,42,.06)' }}
+                  className={cardBaseClass}
+                  style={{ ...cardBaseStyle, padding: '32px' }}
                 >
-                  <div className="flex items-center justify-between mb-5">
-                    <h3 className="font-semibold text-lg" style={{ color: TEXT }}>Profilni tahrirlash</h3>
-                    <button onClick={() => setEditing(false)} className="text-slate-400 hover:text-slate-600">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="font-semibold text-[17px]" style={{ color: TEXT }}>Profilni tahrirlash</h3>
+                    <button onClick={() => { setEditing(false); setAvatarPreview(null); }} className="text-slate-400 hover:text-slate-600 transition-colors">
                       <X size={18} />
                     </button>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     {([
                       ['Ism', 'name'],
                       ['Telefon', 'phone'],
@@ -235,26 +272,50 @@ export const ProfilePage: React.FC = () => {
                       ['Tug‘ilgan sana', 'birthDate'],
                     ] as const).map(([label, key]) => (
                       <div key={key}>
-                        <label className="block text-sm font-semibold mb-2" style={{ color: TEXT }}>{label}</label>
+                        <label className="block text-[13px] font-semibold mb-2" style={{ color: TEXT }}>{label}</label>
                         <input
                           type={key === 'birthDate' ? 'date' : 'text'}
                           className={inputClass}
-                          style={{ borderColor: 'rgba(124,58,237,.12)' }}
+                          style={{ borderColor: 'rgba(15,23,42,.1)' }}
                           value={form[key]}
                           onChange={set(key)}
                         />
                       </div>
                     ))}
                     <div className="sm:col-span-2">
-                      <label className="block text-sm font-semibold mb-2" style={{ color: TEXT }}>Avatar havolasi</label>
-                      <input className={inputClass} style={{ borderColor: 'rgba(124,58,237,.12)' }} value={form.avatar} onChange={set('avatar')} placeholder="https://..." />
+                      <label className="block text-[13px] font-semibold mb-2" style={{ color: TEXT }}>Avatar</label>
+                      <div className="flex items-start gap-4">
+                        <div className="relative w-20 h-20 rounded-xl overflow-hidden shrink-0" style={{ border: '1px solid rgba(15,23,42,.08)', backgroundColor: '#FAFAFB' }}>
+                          {avatarPreview || form.avatar ? (
+                            <img src={avatarPreview || form.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center" style={{ color: 'rgba(17,24,39,.25)' }}>
+                              <ImageIcon size={24} />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 space-y-2">
+                          <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium cursor-pointer transition-colors" style={{ backgroundColor: '#FAFAFB', border: '1px solid rgba(15,23,42,.08)', color: TEXT }}>
+                            <ImageIcon size={16} />
+                            Rasm tanlash
+                            <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                          </label>
+                          {(avatarPreview || form.avatar) && (
+                            <button type="button" onClick={removeAvatar} className="text-xs text-red-500 hover:text-red-600 transition-colors">
+                              Rasmni o'chirish
+                            </button>
+                          )}
+                          <p className="text-[11px]" style={{ color: 'rgba(17,24,39,.45)' }}>Yoki URL manzilini kiriting:</p>
+                          <input className={inputClass} style={{ borderColor: 'rgba(15,23,42,.1)' }} value={form.avatar} onChange={set('avatar')} placeholder="https://..." />
+                        </div>
+                      </div>
                     </div>
                     <div className="sm:col-span-2">
-                      <label className="block text-sm font-semibold mb-2" style={{ color: TEXT }}>O‘z haqingizda</label>
-                      <textarea rows={3} className={`${inputClass} resize-none`} style={{ borderColor: 'rgba(124,58,237,.12)' }} value={form.bio} onChange={set('bio')} />
+                      <label className="block text-[13px] font-semibold mb-2" style={{ color: TEXT }}>O‘z haqingizda</label>
+                      <textarea rows={3} className={`${inputClass} resize-none`} style={{ borderColor: 'rgba(15,23,42,.1)' }} value={form.bio} onChange={set('bio')} />
                     </div>
                   </div>
-                  <Button variant="gold" className="mt-5" onClick={save} icon={<Save size={16} />}>
+                  <Button variant="gold" className="mt-6" onClick={save} icon={<Save size={16} />}>
                     Saqlash
                   </Button>
                 </motion.div>
@@ -269,11 +330,11 @@ export const ProfilePage: React.FC = () => {
                   whileInView="show"
                   viewport={{ once: true }}
                   transition={{ delay: 0.15 }}
-                  className="rounded-2xl p-7 mt-6"
-                  style={{ backgroundColor: '#fff', border: `1px solid rgba(124,58,237,.12)`, boxShadow: '0 10px 40px rgba(15,23,42,.06)' }}
+                  className={cardBaseClass}
+                  style={{ ...cardBaseStyle, padding: '32px', marginTop: '24px' }}
                 >
-                  <h3 className="font-semibold text-[15px] mb-2" style={{ color: TEXT }}>O‘z haqingizda</h3>
-                  <p className="text-sm leading-relaxed" style={{ color: 'rgba(17,24,39,.7)' }}>{user.bio}</p>
+                  <h3 className="font-semibold text-[15px] mb-3" style={{ color: TEXT }}>O‘z haqingizda</h3>
+                  <p className="text-[15px] leading-[1.7]" style={{ color: 'rgba(17,24,39,.75)' }}>{user.bio}</p>
                 </motion.div>
               )}
             </div>
@@ -298,31 +359,30 @@ const InfoCard: React.FC<{
     whileInView="show"
     viewport={{ once: true }}
     transition={{ delay: index * 0.1 }}
-    className="rounded-2xl p-6"
-    style={{ backgroundColor: '#fff', border: '1px solid rgba(124,58,237,.12)', boxShadow: '0 10px 40px rgba(15,23,42,.06)' }}
+    className={cardBaseClass}
+    style={{ ...cardBaseStyle, padding: '24px', cursor: 'default' }}
   >
-    <div className="flex items-center gap-2 mb-5">
-      <span className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'rgba(124,58,237,.1)', color: ACCENT }}>
+    <div className="flex items-center gap-3 mb-5">
+      <span className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#F3F0FF', color: ACCENT }}>
         {icon}
       </span>
       <h3 className="font-semibold text-[15px]" style={{ color: TEXT }}>{title}</h3>
     </div>
-    <div className="space-y-3">
-      {items.map((it) => (
-        <motion.div
+    <div className="space-y-0">
+      {items.map((it, i) => (
+        <div
           key={it.label}
-          whileHover={{ y: -3 }}
-          className="flex items-center gap-3 rounded-xl p-3.5 transition-shadow"
-          style={{ backgroundColor: 'rgba(248,249,252,1)', border: '1px solid rgba(124,58,237,.08)' }}
+          className={`flex items-center gap-4 py-4 ${i < items.length - 1 ? 'border-b' : ''}`}
+          style={{ borderColor: 'rgba(15,23,42,.06)' }}
         >
-          <span className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: 'rgba(124,58,237,.08)', color: ACCENT }}>
+          <span className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: '#FAFAFB', color: ACCENT }}>
             {it.icon}
           </span>
-          <div className="min-w-0">
-            <div className="text-xs" style={{ color: 'rgba(17,24,39,.5)' }}>{it.label}</div>
-            <div className="font-semibold text-sm truncate" style={{ color: TEXT }}>{it.value}</div>
+          <div className="min-w-0 flex-1">
+            <div className="text-[13px] font-medium" style={{ color: 'rgba(17,24,39,.45)' }}>{it.label}</div>
+            <div className="font-semibold text-[15px] mt-0.5 truncate" style={{ color: TEXT }}>{it.value}</div>
           </div>
-        </motion.div>
+        </div>
       ))}
     </div>
   </motion.div>
@@ -334,73 +394,75 @@ const WelcomeCard: React.FC = () => (
     initial="hidden"
     whileInView="show"
     viewport={{ once: true }}
-    className="relative overflow-hidden rounded-2xl p-8 md:p-10 flex flex-col md:flex-row items-center gap-8"
-    style={{ backgroundColor: '#fff', border: '1px solid rgba(124,58,237,.12)', boxShadow: '0 10px 40px rgba(15,23,42,.08)' }}
+    className={cardBaseClass}
+    style={{ ...cardBaseStyle, overflow: 'hidden' }}
   >
-    {/* Left */}
-    <div className="flex-1 text-center md:text-left">
-      <motion.span
-        className="inline-flex items-center justify-center w-12 h-12 rounded-2xl mb-5 text-white shadow-lg"
-        style={{ background: 'linear-gradient(135deg, #7C3AED, #A855F7)' }}
-        animate={{ y: [0, -6, 0] }}
-        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-      >
-        <Sparkles size={22} />
-      </motion.span>
-      <h3 className="font-bold text-2xl md:text-3xl tracking-tight" style={{ color: TEXT }}>Xush kelibsiz!</h3>
-      <p className="mt-3 text-sm leading-relaxed max-w-md mx-auto md:mx-0" style={{ color: 'rgba(17,24,39,.65)' }}>
-        Bu sizning shaxsiy kabinetingiz. Ma'lumotlaringizni "Tahrirlash" tugmasi orqali
-        yangilashingiz, yuqori o'ngdagi "Chiqish" orqali esa kabinetdan chiqib ketishingiz mumkin.
-      </p>
-      <div className="mt-6 flex items-center justify-center md:justify-start gap-3">
-        <Link
-          to={ROUTES.HOME}
-          className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold text-white shadow-[0_8px_24px_rgba(124,58,237,.4)] hover:-translate-y-0.5 transition-all duration-300"
+    <div className="p-8 md:p-10 flex flex-col md:flex-row items-center gap-8">
+      {/* Left */}
+      <div className="flex-1 text-center md:text-left">
+        <motion.span
+          className="inline-flex items-center justify-center w-11 h-11 rounded-xl mb-5 text-white shadow-md"
           style={{ background: 'linear-gradient(135deg, #7C3AED, #A855F7)' }}
+          animate={{ y: [0, -6, 0] }}
+          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
         >
-          Bosh sahifaga
-        </Link>
-        <Link
-          to={ROUTES.COURSES}
-          className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold transition-all duration-300 hover:-translate-y-0.5"
-          style={{ color: TEXT, border: '1px solid rgba(124,58,237,.2)' }}
-        >
-          Kurslarni ko'rish
-        </Link>
+          <Sparkles size={20} />
+        </motion.span>
+        <h3 className="font-bold text-[22px] md:text-[24px] tracking-tight" style={{ color: TEXT }}>Xush kelibsiz!</h3>
+        <p className="mt-3 text-[15px] leading-[1.7] max-w-md mx-auto md:mx-0" style={{ color: 'rgba(17,24,39,.65)' }}>
+          Bu sizning shaxsiy kabinetingiz. Ma'lumotlaringizni "Tahrirlash" tugmasi orqali
+          yangilashingiz, yuqori o'ngdagi "Chiqish" orqali esa kabinetdan chiqib ketishingiz mumkin.
+        </p>
+        <div className="mt-6 flex items-center justify-center md:justify-start gap-3">
+          <Link
+            to={ROUTES.HOME}
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold text-white shadow-md hover:-translate-y-0.5 transition-all duration-300"
+            style={{ background: 'linear-gradient(135deg, #7C3AED, #A855F7)' }}
+          >
+            Bosh sahifaga
+          </Link>
+          <Link
+            to={ROUTES.COURSES}
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold transition-all duration-300 hover:-translate-y-0.5"
+            style={{ color: TEXT, border: '1px solid rgba(15,23,42,.12)' }}
+          >
+            Kurslarni ko'rish
+          </Link>
+        </div>
       </div>
-    </div>
 
-    {/* Right: 3D abstract illustration */}
-    <div className="relative w-full max-w-[280px] h-[220px] shrink-0">
-      <div className="absolute inset-0 rounded-2xl" style={{ background: 'linear-gradient(135deg, rgba(124,58,237,.16), rgba(168,85,247,.08))' }} />
-      {/* glass card */}
-      <motion.div
-        className="absolute top-6 left-6 w-36 h-24 rounded-xl backdrop-blur-md"
-        style={{ background: 'rgba(255,255,255,.55)', border: '1px solid rgba(255,255,255,.7)', boxShadow: '0 12px 30px rgba(124,58,237,.18)' }}
-        {...floatAnim(0)}
-      >
-        <div className="m-3 h-2 w-20 rounded-full" style={{ background: 'rgba(124,58,237,.35)' }} />
-        <div className="m-3 h-2 w-14 rounded-full" style={{ background: 'rgba(124,58,237,.2)' }} />
-        <div className="mx-3 mt-4 h-6 w-12 rounded-lg" style={{ background: 'linear-gradient(135deg,#7C3AED,#A855F7)' }} />
-      </motion.div>
-      {/* floating sphere 1 */}
-      <motion.div
-        className="absolute bottom-6 right-8 w-16 h-16 rounded-full"
-        style={{ background: 'radial-gradient(circle at 30% 30%, #C4B5FD, #7C3AED)', boxShadow: '0 14px 30px rgba(124,58,237,.45)' }}
-        {...floatAnim(1.2)}
-      />
-      {/* floating sphere 2 */}
-      <motion.div
-        className="absolute top-2 right-2 w-8 h-8 rounded-full"
-        style={{ background: 'radial-gradient(circle at 30% 30%, #E9D5FF, #A855F7)', boxShadow: '0 10px 20px rgba(168,85,247,.4)' }}
-        {...floatAnim(2.1)}
-      />
-      {/* thin glowing ring */}
-      <motion.div
-        className="absolute -bottom-2 left-10 w-24 h-24 rounded-full border-2"
-        style={{ borderColor: 'rgba(124,58,237,.25)' }}
-        {...floatAnim(0.6)}
-      />
+      {/* Right: 3D abstract illustration */}
+      <div className="relative w-full max-w-[280px] h-[220px] shrink-0">
+        <div className="absolute inset-0 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(124,58,237,.10), rgba(168,85,247,.05))' }} />
+        {/* glass card */}
+        <motion.div
+          className="absolute top-6 left-6 w-36 h-24 rounded-xl backdrop-blur-md"
+          style={{ background: 'rgba(255,255,255,.55)', border: '1px solid rgba(255,255,255,.7)', boxShadow: '0 12px 30px rgba(124,58,237,.18)' }}
+          {...floatAnim(0)}
+        >
+          <div className="m-3 h-2 w-20 rounded-full" style={{ background: 'rgba(124,58,237,.35)' }} />
+          <div className="m-3 h-2 w-14 rounded-full" style={{ background: 'rgba(124,58,237,.2)' }} />
+          <div className="mx-3 mt-4 h-6 w-12 rounded-lg" style={{ background: 'linear-gradient(135deg,#7C3AED,#A855F7)' }} />
+        </motion.div>
+        {/* floating sphere 1 */}
+        <motion.div
+          className="absolute bottom-6 right-8 w-16 h-16 rounded-full"
+          style={{ background: 'radial-gradient(circle at 30% 30%, #C4B5FD, #7C3AED)', boxShadow: '0 14px 30px rgba(124,58,237,.45)' }}
+          {...floatAnim(1.2)}
+        />
+        {/* floating sphere 2 */}
+        <motion.div
+          className="absolute top-2 right-2 w-8 h-8 rounded-full"
+          style={{ background: 'radial-gradient(circle at 30% 30%, #E9D5FF, #A855F7)', boxShadow: '0 10px 20px rgba(168,85,247,.4)' }}
+          {...floatAnim(2.1)}
+        />
+        {/* thin glowing ring */}
+        <motion.div
+          className="absolute -bottom-2 left-10 w-24 h-24 rounded-full border-2"
+          style={{ borderColor: 'rgba(124,58,237,.25)' }}
+          {...floatAnim(0.6)}
+        />
+      </div>
     </div>
   </motion.div>
 );
