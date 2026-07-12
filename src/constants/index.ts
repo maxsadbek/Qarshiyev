@@ -35,7 +35,7 @@ export const CONTACT_INFO = {
   phone2: '+998 91 234 56 78',
   email: 'info@qarshiyev.uz',
   email2: 'admissions@qarshiyev.uz',
-  telegram: 'https://t.me/qarshiyev_edu',
+  telegram: 'https://t.me/QARSHIYEV_SCHOOL',
   instagram: 'https://instagram.com/qarshiyev_edu',
   facebook: 'https://facebook.com/qarshiyev_edu',
   youtube: 'https://youtube.com/@qarshiyev_edu',
