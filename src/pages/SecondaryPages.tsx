@@ -2,6 +2,8 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { SectionHeader } from '@/components/ui/SectionHeader';
+import { Badge } from '@/components/ui/Badge';
+import { galleryItems } from '@/data/gallery';
 
 const PageHero: React.FC<{ title: string, subtitle: string, image: string }> = ({ title, subtitle, image }) => (
   <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden bg-slate-950">
@@ -81,13 +83,45 @@ export const GalleryPage: React.FC = () => (
   <>
     <Helmet><title>Gallery | Qarshiyev Education Center</title></Helmet>
     <main>
-      <PageHero 
-        title="Gallery" 
-        subtitle="Explore the vibrant life at our education center." 
-        image="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1200&q=90" 
+      <PageHero
+        title="Gallery"
+        subtitle="Explore the vibrant life at our education center."
+        image={galleryItems[0]?.src ?? ''}
       />
-      <section className="section-padding bg-white min-h-[50vh] flex items-center justify-center">
-        <SectionHeader title="Full Gallery" description="Complete photo and video gallery will be displayed here." />
+      <section className="section-padding bg-white">
+        <div className="container-custom">
+          <SectionHeader
+            overline="Gallery"
+            title="Moments That"
+            titleAccent="Matter"
+            description="A glimpse into life at Qarshiyev Education Center — from classrooms and events to graduation ceremonies and student achievements."
+          />
+          <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4 mt-8">
+            {galleryItems.map((item, i) => (
+              <motion.div
+                key={item.id}
+                className="break-inside-avoid relative rounded-lg overflow-hidden"
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.05 }}
+              >
+                <img
+                  src={item.src}
+                  alt={item.title}
+                  className="w-full object-cover"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-slate-950/40 flex items-end p-4">
+                  <div>
+                    <Badge variant="gold" size="sm">{item.category}</Badge>
+                    <p className="text-white text-sm font-semibold mt-1">{item.title}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
       </section>
     </main>
   </>
