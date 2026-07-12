@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { Badge } from '@/components/ui/Badge';
+import { CourseCard } from '@/components/ui/CourseCard';
+import { courses } from '@/data/courses';
 import { galleryItems } from '@/data/gallery';
 
 const PageHero: React.FC<{ title: string, subtitle: string, image: string }> = ({ title, subtitle, image }) => (
@@ -47,21 +49,79 @@ export const AboutPage: React.FC = () => (
   </>
 );
 
-export const CoursesPage: React.FC = () => (
-  <>
-    <Helmet><title>Courses | Qarshiyev Education Center</title></Helmet>
-    <main>
-      <PageHero 
-        title="Our Courses" 
-        subtitle="Explore our wide range of premium educational programs." 
-        image="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=1200&q=90" 
-      />
-      <section className="section-padding bg-white min-h-[50vh] flex items-center justify-center">
-        <SectionHeader title="Courses Directory" description="Full courses listing will be displayed here." />
-      </section>
-    </main>
-  </>
-);
+export const CoursesPage: React.FC = () => {
+  const [activeCategory, setActiveCategory] = useState<string>('Barchasi');
+
+  const categories = useMemo(() => {
+    const present = Array.from(new Set(courses.map((c) => c.category)));
+    return ['Barchasi', ...present];
+  }, []);
+
+  const filtered = activeCategory === 'Barchasi'
+    ? courses
+    : courses.filter((c) => c.category === activeCategory);
+
+  return (
+    <>
+      <Helmet><title>Courses | Qarshiyev Education Center</title></Helmet>
+      <main>
+        <PageHero
+          title="Bizning Kurslar"
+          subtitle="Ingliz tilidan IELTS va akademik dasturlargacha — maqsadingizga mos kursni tanlang."
+          image="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=1200&q=90"
+        />
+        <section className="section-padding bg-white">
+          <div className="container-custom">
+            <SectionHeader
+              overline="Bizning Dasturlarimiz"
+              title="Barcha"
+              titleAccent="Kurslar"
+              description="Boshlang'ich ingliz tilidan ilg'or IELTS tayyorgarligigacha bo'lgan barcha kurslarimizni ko'rib chiqing."
+            />
+
+            {/* Category Filter */}
+            <div className="flex items-center gap-2 flex-wrap justify-center mb-10">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
+                    activeCategory === cat
+                      ? 'bg-slate-950 text-white shadow-sm'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            {/* Courses Grid */}
+            {filtered.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filtered.map((course, i) => (
+                  <motion.div
+                    key={course.id}
+                    initial={{ opacity: 0, y: 24 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: (i % 3) * 0.08, duration: 0.5 }}
+                  >
+                    <CourseCard course={course} className="h-full" />
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center text-slate-500 py-20">
+                <p className="text-lg">Tanlangan yo'nalish bo'yicha kurslar topilmadi.</p>
+              </div>
+            )}
+          </div>
+        </section>
+      </main>
+    </>
+  );
+};
 
 export const TeachersPage: React.FC = () => (
   <>

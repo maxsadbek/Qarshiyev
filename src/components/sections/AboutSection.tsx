@@ -9,6 +9,7 @@ import { SectionHeader } from '@/components/ui/SectionHeader';
 import { Button } from '@/components/ui/Button';
 import { StaggerContainer, StaggerItem } from '@/components/ui/AnimatedSection';
 import { statistics } from '@/data/statistics';
+import sirojUstoz from '@/assets/SirojUstoz.jpg';
 
 const ABOUT_POINTS = [
   'Cambridge va DELTA sertifikatlangan o\'qituvchilar',
@@ -38,8 +39,8 @@ export const AboutSection: React.FC = () => {
             {/* Main Image */}
             <div className="relative rounded-3xl overflow-hidden aspect-[4/5] shadow-2xl">
               <img
-                src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=900&q=90"
-                alt="Students learning at Qarshiyev Education Center"
+                src={sirojUstoz}
+                alt="Siroj Ustoz"
                 className="w-full h-full object-cover"
                 loading="lazy"
               />
