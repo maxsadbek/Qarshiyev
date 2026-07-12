@@ -36,7 +36,9 @@ export type CourseCategory =
   | 'Math'
   | 'Science'
   | 'Programming'
-  | 'Business';
+  | 'Business'
+  | 'Tarix'
+  | 'Ona tili va adabiyot';
 
 export type CourseLevel =
   | 'Beginner'

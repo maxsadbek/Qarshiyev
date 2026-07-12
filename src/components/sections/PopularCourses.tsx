@@ -17,7 +17,7 @@ import { formatPrice } from '@/utils';
 
 export const PopularCourses: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string>('Barchasi');
-  const categories = ['Barchasi', 'IELTS', 'English', 'SAT', 'Business'];
+  const categories = ['Barchasi', 'IELTS', 'English', 'SAT', 'Business', 'Tarix', 'Ona tili va adabiyot'];
   const prevRef = useRef<HTMLButtonElement>(null);
   const nextRef = useRef<HTMLButtonElement>(null);
 
