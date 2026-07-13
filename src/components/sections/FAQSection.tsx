@@ -14,10 +14,10 @@ export const FAQSection: React.FC = () => {
   return (
     <section className="section-padding bg-white">
       <div className="container-custom">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           
           <motion.div
-            className="lg:col-span-5 lg:sticky lg:top-32"
+            className="lg:col-span-5 lg:sticky lg:top-24"
             initial={{ opacity: 0, x: -40 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}

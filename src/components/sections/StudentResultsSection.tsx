@@ -22,10 +22,10 @@ export const StudentResultsSection: React.FC = () => {
           className="mb-14"
         >
           <SectionHeader
-            overline="Success Stories"
-            title="Our Students'"
-            titleAccent="Achievements"
-            description="We measure our success by the success of our students. See the incredible scores and university admissions our recent graduates have achieved."
+            overline="Muvaffaqiyat Hikoyalari"
+            title="Bizning O'quvchilarimizning"
+            titleAccent="Yutuqlari"
+            description="Biz o'z muvaffaqiyatimizni o'quvchilarimizning muvaffaqiyati bilan o'lchaymiz. Bizning so'nggi bitiruvchilarimiz erishgan ajoyib ballar va universitet qabullarini ko'ring."
           />
         </motion.div>
 

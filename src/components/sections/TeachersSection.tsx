@@ -144,7 +144,7 @@ export const TeacherCard: React.FC<{
       whileHover={{}}
     >
       {/* Photo */}
-      <div className="relative h-64 md:h-80 lg:h-[24rem] overflow-hidden">
+      <div className="relative h-96 md:h-[28rem] lg:h-[32rem] overflow-hidden">
         <img
           src={teacher.avatar}
           alt={teacher.name}

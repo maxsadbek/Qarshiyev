@@ -40,7 +40,7 @@ export const EventsSection: React.FC = () => {
               whileHover={{}}
             >
               {/* Image & Date Badge */}
-              <div className="relative h-48 overflow-hidden shrink-0">
+              <div className="relative h-40 sm:h-44 md:h-48 overflow-hidden shrink-0">
                 <img
                   src={event.image}
                   alt={event.title}

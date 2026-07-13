@@ -98,7 +98,7 @@ export const WhyChooseUs: React.FC = () => {
             return (
               <StaggerItem key={f.title}>
                 <motion.div
-                  className="bg-white rounded-xl p-6 card-shadow hover:shadow-xl transition-all duration-300 group cursor-default h-full"
+                  className="bg-white rounded-xl p-4 sm:p-5 md:p-6 card-shadow hover:shadow-xl transition-all duration-300 group cursor-default h-full"
                   whileHover={{}}
                 >
                   {/* Icon & Stat */}

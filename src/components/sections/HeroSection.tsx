@@ -54,7 +54,7 @@ export const HeroSection: React.FC = () => {
             </motion.div>
 
             <motion.h1
-              className="font-serif text-5xl md:text-6xl xl:text-7xl font-bold text-white leading-[1.08] mb-6"
+              className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-[1.08] mb-6"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
@@ -69,7 +69,7 @@ export const HeroSection: React.FC = () => {
             </motion.h1>
 
             <motion.p
-              className="text-slate-400 text-lg leading-relaxed mb-8 max-w-lg"
+              className="text-slate-400 text-sm sm:text-base md:text-lg leading-relaxed mb-8 max-w-lg"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.45 }}
@@ -130,11 +130,11 @@ export const HeroSection: React.FC = () => {
               <div
                 className="relative"
                 style={{
-                  width: '280px',
-                  height: '570px',
+                  width: 'clamp(200px, 40vw, 280px)',
+                  height: 'clamp(400px, 80vw, 570px)',
                   background: 'linear-gradient(145deg, #2d2d2d 0%, #1a1a1a 40%, #0d0d0d 100%)',
-                  borderRadius: '44px',
-                  padding: '10px',
+                  borderRadius: 'clamp(32px, 8vw, 44px)',
+                  padding: 'clamp(6px, 1.5vw, 10px)',
                   boxShadow: `
                     0 0 0 1px rgba(255,255,255,0.08),
                     0 0 0 2px rgba(0,0,0,0.8),

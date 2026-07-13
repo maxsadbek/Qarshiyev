@@ -37,10 +37,10 @@ export const GallerySection: React.FC = () => {
           className="mb-10"
         >
           <SectionHeader
-            overline="Gallery"
-            title="Moments That"
-            titleAccent="Matter"
-            description="A glimpse into life at Qarshiyev Education Center — from classrooms and events to graduation ceremonies and student achievements."
+            overline="Galereya"
+            title="Ahamiyatli"
+            titleAccent="Lahzalar"
+            description="Qarshiyev Ta'lim Markazidagi hayotga bir nazar — sinfxonalardan va tadbirlardan bitirish marosimlarigacha va o'quvchi yutuqlarigacha."
           />
         </motion.div>
 

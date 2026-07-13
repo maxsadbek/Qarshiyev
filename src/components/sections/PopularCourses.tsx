@@ -42,7 +42,7 @@ export const PopularCourses: React.FC = () => {
 
         {/* Category Filter */}
         <motion.div
-          className="flex items-center gap-2 flex-wrap justify-center mb-10"
+          className="flex items-center gap-2 flex-wrap justify-center mb-10 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:pb-0"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -52,7 +52,7 @@ export const PopularCourses: React.FC = () => {
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
+              className={`px-3 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap ${
                 activeCategory === cat
                   ? 'bg-slate-950 text-white shadow-sm'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'

@@ -319,7 +319,7 @@ export const Navbar: React.FC = () => {
               onClick={() => setMobileOpen(false)}
             />
             <motion.div
-              className="fixed top-0 right-0 bottom-0 z-50 w-80 bg-white shadow-2xl overflow-y-auto"
+              className="fixed top-0 right-0 bottom-0 z-50 w-80 bg-slate-950 shadow-2xl overflow-y-auto"
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
@@ -330,11 +330,11 @@ export const Navbar: React.FC = () => {
                 <div className="flex items-center justify-between mb-8">
                   <Link to="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-2">
                     <img src={logo} alt="Qarshiyev" className="w-10 h-10 rounded-xl object-cover" />
-                    <span className="font-serif font-bold text-slate-950">Qarshiyev</span>
+                    <span className="font-serif font-bold text-white">Qarshiyev</span>
                   </Link>
                   <button
                     onClick={() => setMobileOpen(false)}
-                    className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-950 transition-colors"
+                    className="p-2 rounded-xl text-white/70 hover:bg-white/10 hover:text-white transition-colors"
                   >
                     <X size={20} />
                   </button>
@@ -351,14 +351,14 @@ export const Navbar: React.FC = () => {
                             className={cn(
                               'flex items-center justify-between w-full px-4 py-3 rounded-xl text-sm font-semibold transition-colors cursor-pointer select-none outline-none',
                               hasActiveChild(item)
-                                ? 'text-violet-600 bg-violet-50/50'
-                                : 'text-slate-700 hover:bg-slate-50 hover:text-slate-950'
+                                ? 'text-violet-400 bg-violet-500/20'
+                                : 'text-white/70 hover:bg-white/10 hover:text-white'
                             )}
                           >
                             <div className="flex items-center gap-3">
                               <span className={cn(
                                 'transition-colors',
-                                hasActiveChild(item) ? 'text-violet-600' : 'text-slate-400'
+                                hasActiveChild(item) ? 'text-violet-400' : 'text-white/50'
                               )}>
                                 {getIcon(item.label)}
                               </span>
@@ -368,7 +368,7 @@ export const Navbar: React.FC = () => {
                               size={16}
                               className={cn(
                                 'transition-transform duration-300',
-                                mobileDropdownOpen ? 'rotate-180 text-violet-600' : 'text-slate-400'
+                                mobileDropdownOpen ? 'rotate-180 text-violet-400' : 'text-white/50'
                               )}
                             />
                           </button>
@@ -382,7 +382,7 @@ export const Navbar: React.FC = () => {
                                 transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                                 className="overflow-hidden"
                               >
-                                <div className="py-1 flex flex-col gap-1 border-l-2 border-slate-100 ml-6 pl-2 mt-1">
+                                <div className="py-1 flex flex-col gap-1 border-l-2 border-white/10 ml-6 pl-2 mt-1">
                                   {item.children.map((child) => (
                                     <Link
                                       key={child.label}

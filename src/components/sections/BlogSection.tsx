@@ -39,7 +39,7 @@ export const BlogSection: React.FC = () => {
               transition={{ delay: i * 0.1, duration: 0.6 }}
               whileHover={{}}
             >
-              <Link to={`/blog/${post.slug}`} className="block relative h-56 overflow-hidden shrink-0">
+              <Link to={`/blog/${post.slug}`} className="block relative h-40 sm:h-48 md:h-56 overflow-hidden shrink-0">
                 <img
                   src={post.thumbnail}
                   alt={post.title}

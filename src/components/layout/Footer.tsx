@@ -30,7 +30,7 @@ export const Footer: React.FC = () => {
                 <span className="font-serif font-bold text-white text-lg leading-none block">
                   Qarshiyev
                 </span>
-                <span className="text-white/50 text-xs tracking-wider">Education Center</span>
+                <span className="text-white/50 text-xs tracking-wider">Ta'lim Markazi</span>
               </div>
             </Link>
             <p className="text-slate-400 text-sm leading-relaxed mb-6">

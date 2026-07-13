@@ -25,9 +25,9 @@ export const VideoExperience: React.FC = () => {
         >
           <SectionHeader
             overline="Media"
-            title="Stories That"
-            titleAccent="Inspire"
-            description="Watch our center presentation, teacher introductions, student success stories, and parent testimonials."
+            title="Ilhomlantiruvchi"
+            titleAccent="Hikoyalar"
+            description="Bizning markazimiz taqdimoti, o'qituvchilarning tanishtirishi, o'quvchi muvaffaqiyat hikoyalari va ota-onalar testimonialsini tomosha qiling."
           />
         </motion.div>
 

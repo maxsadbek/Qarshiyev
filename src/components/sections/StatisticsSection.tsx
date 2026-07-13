@@ -43,7 +43,7 @@ export const StatisticsSection: React.FC = () => {
           {statistics.map((stat, i) => (
             <motion.div
               key={stat.id}
-              className="relative overflow-hidden rounded-xl bg-slate-50 p-8 text-center group hover:bg-slate-950 transition-all duration-500 cursor-default"
+              className="relative overflow-hidden rounded-xl bg-slate-50 p-4 sm:p-6 md:p-8 text-center group hover:bg-slate-950 transition-all duration-500 cursor-default"
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -54,12 +54,12 @@ export const StatisticsSection: React.FC = () => {
               <div className="absolute top-0 right-0 w-32 h-32 bg-violet-500/5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-violet-500/10 transition-colors" />
 
               {/* Icon */}
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white group-hover:bg-violet-500/20 text-violet-500 mb-5 shadow-sm transition-all duration-300 mx-auto">
+              <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-2xl bg-white group-hover:bg-violet-500/20 text-violet-500 mb-3 sm:mb-5 shadow-sm transition-all duration-300 mx-auto">
                 {ICON_MAP[stat.icon]}
               </div>
 
               {/* Number */}
-              <div className="text-5xl font-serif font-bold text-slate-950 group-hover:text-white transition-colors mb-2">
+              <div className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-slate-950 group-hover:text-white transition-colors mb-2">
                 {stat.prefix}
                 {inView ? (
                   <CountUp
