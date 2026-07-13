@@ -11,6 +11,7 @@ import {
 import { Facebook, Instagram, Youtube } from '@/components/ui/Icons';
 import { CONTACT_INFO, NAV_ITEMS, ROUTES } from '@/constants';
 import { courses } from '@/data/courses';
+import logo from '@/assets/logo.png';
 
 export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
@@ -24,9 +25,7 @@ export const Footer: React.FC = () => {
           {/* Brand */}
           <div className="lg:col-span-1">
             <Link to="/" className="flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 rounded-xl bg-violet-500 flex items-center justify-center">
-                <span className="text-white font-serif font-bold text-lg">Q</span>
-              </div>
+              <img src={logo} alt="Qarshiyev" className="w-10 h-10 rounded-xl object-cover" />
               <div>
                 <span className="font-serif font-bold text-white text-lg leading-none block">
                   Qarshiyev

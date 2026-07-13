@@ -24,6 +24,7 @@ import { NAV_ITEMS, CONTACT_INFO, ROUTES } from '@/constants';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/utils';
 import { useAuth } from '@/context/AuthContext';
+import logo from '@/assets/logo.png';
 
 const getIcon = (label: string) => {
   switch (label.toLowerCase()) {
@@ -131,9 +132,7 @@ export const Navbar: React.FC = () => {
           <div className="flex items-center justify-between h-18 md:h-20">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl bg-slate-950 flex items-center justify-center shadow-sm group-hover:bg-violet-500 transition-colors duration-300">
-                <span className="text-white font-serif font-bold text-lg">Q</span>
-              </div>
+              <img src={logo} alt="Qarshiyev" className="w-10 h-10 rounded-xl object-cover shadow-sm group-hover:opacity-80 transition-opacity duration-300" />
               <div>
                 <span
                   className={cn(
@@ -344,9 +343,7 @@ export const Navbar: React.FC = () => {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
                   <Link to="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-2">
-                    <div className="w-9 h-9 rounded-xl bg-slate-950 flex items-center justify-center">
-                      <span className="text-white font-serif font-bold">Q</span>
-                    </div>
+                    <img src={logo} alt="Qarshiyev" className="w-9 h-9 rounded-xl object-cover" />
                     <span className="font-serif font-bold text-slate-950">Qarshiyev</span>
                   </Link>
                   <button
