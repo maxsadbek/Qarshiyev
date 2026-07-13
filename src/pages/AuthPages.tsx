@@ -19,7 +19,7 @@ const BrandPanel: React.FC = () => (
     <div className="absolute inset-0 opacity-30 bg-[url('https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&q=90')] bg-cover bg-center" />
     <div className="absolute inset-0 bg-gradient-to-br from-slate-950/90 to-violet-900/70" />
     <div className="relative z-10 flex items-center gap-3">
-      <img src={logo} alt="Qarshiyev" className="w-11 h-11 rounded-xl object-cover" />
+      <img src={logo} alt="Qarshiyev" className="w-12 h-12 rounded-xl object-cover" />
       <span className="font-serif font-bold text-xl">Qarshiyev</span>
     </div>
     <div className="relative z-10">
@@ -80,7 +80,7 @@ export const LoginPage: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
           >
             <Link to="/" className="lg:hidden flex items-center gap-2 mb-8">
-              <img src={logo} alt="Qarshiyev" className="w-10 h-10 rounded-xl object-cover" />
+              <img src={logo} alt="Qarshiyev" className="w-11 h-11 rounded-xl object-cover" />
               <span className="font-serif font-bold text-lg">Qarshiyev</span>
             </Link>
             <h1 className="font-serif font-bold text-3xl text-slate-950 mb-2">Xush kelibsiz!</h1>
@@ -218,7 +218,7 @@ export const RegisterPage: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
           >
             <Link to="/" className="lg:hidden flex items-center gap-2 mb-8">
-              <img src={logo} alt="Qarshiyev" className="w-10 h-10 rounded-xl object-cover" />
+              <img src={logo} alt="Qarshiyev" className="w-11 h-11 rounded-xl object-cover" />
               <span className="font-serif font-bold text-lg">Qarshiyev</span>
             </Link>
             <h1 className="font-serif font-bold text-3xl text-slate-950 mb-2">Akkount yaratish</h1>

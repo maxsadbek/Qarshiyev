@@ -52,7 +52,7 @@ export const ParentReviews: React.FC = () => {
             768: { slidesPerView: 2 },
             1024: { slidesPerView: 3 },
           }}
-          className="pb-16 px-2"
+          className="pb-16 px-2 testimonials-swiper"
         >
           {testimonials.map((testimonial) => (
             <SwiperSlide key={testimonial.id}>
@@ -102,12 +102,18 @@ const TestimonialCard: React.FC<{ testimonial: typeof testimonials[0] }> = ({ te
       </p>
 
       <div className="flex items-center gap-4 mt-auto border-t border-white/10 pt-6">
-        <img
-          src={testimonial.avatar}
-          alt={testimonial.name}
-          className="w-12 h-12 rounded-full object-cover border-2 border-white/10"
-          loading="lazy"
-        />
+        {testimonial.avatar ? (
+          <img
+            src={testimonial.avatar}
+            alt={testimonial.name}
+            className="w-12 h-12 rounded-full object-cover border-2 border-white/10"
+            loading="lazy"
+          />
+        ) : (
+          <div className="w-12 h-12 rounded-full bg-violet-500/20 border-2 border-white/10 flex items-center justify-center text-violet-300 font-bold text-lg">
+            {testimonial.name.charAt(0).toUpperCase()}
+          </div>
+        )}
         <div>
           <h4 className="font-bold text-white text-sm">{testimonial.name}</h4>
           <p className="text-violet-400 text-xs font-medium mt-0.5">{testimonial.role}</p>

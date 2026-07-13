@@ -15,7 +15,6 @@ import {
   Calendar,
   FileText,
   HelpCircle,
-  PhoneCall,
   Sparkles,
   MoreHorizontal,
 } from 'lucide-react';
@@ -48,8 +47,6 @@ const getIcon = (label: string) => {
       return <FileText size={16} />;
     case 'savollar':
       return <HelpCircle size={16} />;
-    case 'aloqa':
-      return <PhoneCall size={18} />;
     default:
       return <Sparkles size={18} />;
   }
@@ -132,7 +129,7 @@ export const Navbar: React.FC = () => {
           <div className="flex items-center justify-between h-18 md:h-20">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3 group">
-              <img src={logo} alt="Qarshiyev" className="w-10 h-10 rounded-xl object-cover shadow-sm group-hover:opacity-80 transition-opacity duration-300" />
+              <img src={logo} alt="Qarshiyev" className="w-12 h-12 rounded-xl object-cover shadow-sm group-hover:opacity-80 transition-opacity duration-300" />
               <div>
                 <span
                   className={cn(
@@ -235,18 +232,7 @@ export const Navbar: React.FC = () => {
               ))}
             </nav>
 
-            {/* Right Actions */}
             <div className="hidden lg:flex items-center gap-3">
-              <a
-                href={`tel:${CONTACT_INFO.phone}`}
-                className={cn(
-                  'flex items-center gap-2 text-sm font-medium transition-colors',
-                  isScrolled ? 'text-slate-600 hover:text-slate-950' : 'text-white/80 hover:text-white'
-                )}
-              >
-                <Phone size={14} />
-                <span>{CONTACT_INFO.phone}</span>
-              </a>
               {user ? (
                 <div className="relative" ref={userRef}>
                   <button
@@ -343,7 +329,7 @@ export const Navbar: React.FC = () => {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
                   <Link to="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-2">
-                    <img src={logo} alt="Qarshiyev" className="w-9 h-9 rounded-xl object-cover" />
+                    <img src={logo} alt="Qarshiyev" className="w-10 h-10 rounded-xl object-cover" />
                     <span className="font-serif font-bold text-slate-950">Qarshiyev</span>
                   </Link>
                   <button

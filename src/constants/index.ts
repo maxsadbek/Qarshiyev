@@ -29,7 +29,6 @@ export const NAV_ITEMS = [
       { label: 'Savollar', href: ROUTES.FAQ },
     ],
   },
-  { label: 'Aloqa', href: ROUTES.CONTACT },
 ];
 
 export const CONTACT_INFO = {

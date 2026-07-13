@@ -122,7 +122,7 @@ export const TeachersSection: React.FC = () => {
   );
 };
 
-function getYTId(url: string) {
+export function getYTId(url: string) {
   const match = url.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([\w-]{11})/);
   return match ? match[1] : '';
 }
@@ -134,7 +134,7 @@ const SOCIAL_ICONS: Record<string, React.ReactNode> = {
   youtube: <Youtube size={14} />,
 };
 
-const TeacherCard: React.FC<{
+export const TeacherCard: React.FC<{
   teacher: typeof teachers[0];
   onWatchVideo: (url: string) => void;
 }> = ({ teacher, onWatchVideo }) => {
@@ -144,11 +144,11 @@ const TeacherCard: React.FC<{
       whileHover={{}}
     >
       {/* Photo */}
-      <div className="relative h-64 overflow-hidden">
+      <div className="relative h-64 md:h-80 lg:h-[24rem] overflow-hidden">
         <img
           src={teacher.avatar}
           alt={teacher.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />

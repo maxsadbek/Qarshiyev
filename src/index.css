@@ -138,9 +138,12 @@ h1, h2, h3, h4, h5, h6 {
   overflow: hidden;
 }
 
-/* Video player overrides */
-.react-player video {
-  object-fit: cover;
+/* Testimonials: equal card heights */
+.testimonials-swiper .swiper-slide {
+  height: auto;
+}
+.testimonials-swiper .swiper-slide > div {
+  height: 100%;
 }
 
 /* Marquee wrapper */

@@ -6,6 +6,9 @@ import { Badge } from '@/components/ui/Badge';
 import { CourseCard } from '@/components/ui/CourseCard';
 import { courses } from '@/data/courses';
 import { galleryItems } from '@/data/gallery';
+import { teachers } from '@/data/teachers';
+import { TeacherCard, getYTId } from '@/components/sections/TeachersSection';
+import { Modal } from '@/components/ui/Modal';
 
 const PageHero: React.FC<{ title: string, subtitle: string, image: string }> = ({ title, subtitle, image }) => (
   <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden bg-slate-950">
@@ -123,21 +126,51 @@ export const CoursesPage: React.FC = () => {
   );
 };
 
-export const TeachersPage: React.FC = () => (
-  <>
-    <Helmet><title>Teachers | Qarshiyev Education Center</title></Helmet>
-    <main>
-      <PageHero 
-        title="Our Teachers" 
-        subtitle="Meet the international experts behind our students' success." 
-        image="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&q=90" 
-      />
-      <section className="section-padding bg-white min-h-[50vh] flex items-center justify-center">
-        <SectionHeader title="Teachers Directory" description="Full teachers listing will be displayed here." />
-      </section>
-    </main>
-  </>
-);
+export const TeachersPage: React.FC = () => {
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+
+  return (
+    <>
+      <Helmet><title>Teachers | Qarshiyev Education Center</title></Helmet>
+      <main>
+        <PageHero
+          title="Our Teachers"
+          subtitle="Meet the international experts behind our students' success."
+          image="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&q=90"
+        />
+        <section className="section-padding bg-slate-950">
+          <div className="container-custom">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {teachers.map((teacher) => (
+                <TeacherCard
+                  key={teacher.id}
+                  teacher={teacher}
+                  onWatchVideo={setVideoUrl}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <Modal isOpen={!!videoUrl} onClose={() => setVideoUrl(null)} size="xl" title="Teacher Introduction">
+        <div className="p-4">
+          {videoUrl && (
+            <div className="aspect-video rounded-2xl overflow-hidden bg-black">
+              <iframe
+                src={`https://www.youtube.com/embed/${getYTId(videoUrl)}?autoplay=1`}
+                className="w-full h-full"
+                allow="autoplay; encrypted-media"
+                allowFullScreen
+                title="Teacher introduction video"
+              />
+            </div>
+          )}
+        </div>
+      </Modal>
+    </>
+  );
+};
 
 export const GalleryPage: React.FC = () => (
   <>

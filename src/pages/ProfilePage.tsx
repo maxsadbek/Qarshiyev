@@ -3,8 +3,8 @@ import { Helmet } from 'react-helmet-async';
 import { Navigate, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  User as UserIcon, Mail, Phone, MapPin, Calendar, Pencil, LogOut,
-  Award, Save, X, CheckCircle2, Sparkles, LayoutDashboard, Clock, ImageIcon,
+  Mail, Phone, MapPin, Calendar, Pencil, LogOut,
+  Save, X, CheckCircle2, Sparkles, LayoutDashboard, Clock, ImageIcon, User,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/context/AuthContext';
@@ -96,7 +96,6 @@ export const ProfilePage: React.FC = () => {
   const personalItems = [
     { icon: <Calendar size={16} />, label: "A'zo bo‘lgan", value: formatDate(user.joinedDate) },
     { icon: <CheckCircle2 size={16} />, label: 'Holat', value: 'Faol' },
-    { icon: <UserIcon size={16} />, label: 'Rol', value: 'Talaba' },
   ];
 
   const contactItems = [
@@ -108,7 +107,6 @@ export const ProfilePage: React.FC = () => {
   const quickStats = [
     { icon: <Clock size={18} />, label: "A'zo", value: user.joinedDate.slice(0, 4) },
     { icon: <CheckCircle2 size={18} />, label: 'Holat', value: 'Faol' },
-    { icon: <Award size={18} />, label: 'Rol', value: 'Talaba' },
   ];
 
   return (
@@ -208,7 +206,7 @@ export const ProfilePage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* LEFT COLUMN */}
             <div className="lg:col-span-1 space-y-6">
-              <InfoCard title="Shaxsiy ma'lumotlar" icon={<UserIcon size={18} />} items={personalItems} index={0} />
+              <InfoCard title="Shaxsiy ma'lumotlar" icon={<User size={18} />} items={personalItems} index={0} />
             </div>
 
             {/* RIGHT COLUMN */}
