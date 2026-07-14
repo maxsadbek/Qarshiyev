@@ -39,24 +39,11 @@ export const faqItems: FAQItem[] = [
     answer: 'Ko\'p holatlarda, ha — Umumiy Ingliz Tili kurslariga. Imtihon tayyorgarligi kurslari uchun barcha talab qilinadigan mavzularni qamrab olganligingizni ta\'minlash maqsadida tsiklning boshidan boshlashni tavsiya etamiz. Bizga murojaat qiling va jamoamiz sizning darajangiz va kurs taraqqiyotiga asoslanib eng yaxshi kirish nuqtasi haqida maslahat beradi.',
     category: 'Courses',
   },
-  // Ro'yxatdan o'tish
-  {
-    id: '7',
-    question: 'Kursga qanday ro\'yxatdan o\'tish mumkin?',
-    answer: 'Uch usulda ro\'yxatdan o\'tishingiz mumkin: (1) Markazimizga shaxsan tashrif buyuring va qabul jamoamiz bilan gaplashing, (2) Veb-saytimizda onlayn ro\'yxatdan o\'tish formasini to\'ldiring, yoki (3) Telegram yoki telefon orqali biz bilan bog\'laning. Biz darajani aniqlash testini tashkil etamiz va 24 soat ichida dars jadvalini tasdiqlaymiz.',
-    category: 'Enrollment',
-  },
-  {
-    id: '8',
-    question: 'Darajani aniqlash testi bormi?',
-    answer: 'Ha. Barcha yangi o\'quvchilar ro\'yxatdan o\'tishdan oldin bepul darajani aniqlash testini topshiradilar. Ushbu 45 daqiqalik test o\'qish, tinglash, grammatika va yozish ko\'nikmalarini baholaydi va sizni eng mos darajaga joylashtirish uchun mo\'ljallangan. O\'tish/yiqilish yo\'q — bu faqat aniq kurs joylashtirish uchun.',
-    category: 'Enrollment',
-  },
   // To'lov
   {
     id: '9',
     question: 'Qanday to\'lov usullarini qabul qilasiz?',
-    answer: 'Naqd pul, bank o\'tkazma va O\'zbekistonning barcha yirik to\'lov tizimlari (Payme, Click, Uzcard) qabul qilinadi. 3 oy va undan ko\'p davom etadigan barcha kurslar uchun oylik to\'lov rejalari mavjud. To\'liq kurs to\'lovini oldindan to\'lashda 10% erta ro\'yxatdan o\'tish chegirmasi qo\'llaniladi.',
+    answer: 'Naqd pul, bank o\'tkazma va O\'zbekistonning barcha yirik to\'lov tizimlari (Payme, Click, Uzcard) qabul qilinadi. 3 oy va undan ko\'p davom etadigan barcha kurslar uchun oylik to\'lov rejalari mavjud. To\'liq kurs to\'lovini oldindan to\'lashda 10% erta to\'lov chegirmasi qo\'llaniladi.',
     category: 'Fees & Payment',
   },
   {
@@ -96,7 +83,6 @@ export const faqItems: FAQItem[] = [
 export const faqCategories: FAQItem['category'][] = [
   'General',
   'Courses',
-  'Enrollment',
   'Fees & Payment',
   'Certificates',
   'Schedule',

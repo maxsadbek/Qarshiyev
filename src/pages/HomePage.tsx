@@ -16,7 +16,6 @@ import { FAQSection } from '@/components/sections/FAQSection';
 import { ParentReviews } from '@/components/sections/ParentReviews';
 import { Partners } from '@/components/sections/Partners';
 import { NewsletterSection } from '@/components/sections/NewsletterSection';
-import { ContactSection } from '@/components/sections/ContactSection';
 
 export const HomePage: React.FC = () => {
   return (
@@ -46,7 +45,6 @@ export const HomePage: React.FC = () => {
         <BlogSection />
         <FAQSection />
         <NewsletterSection />
-        <ContactSection />
       </main>
     </>
   );

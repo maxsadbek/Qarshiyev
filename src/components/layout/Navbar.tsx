@@ -81,7 +81,7 @@ export const Navbar: React.FC = () => {
           </Link>
 
           {/* Center navigation */}
-          <nav className="hidden lg:flex flex-1 items-center justify-center gap-10 h-full">
+          <nav className="hidden xl:flex flex-1 min-w-0 items-center justify-center gap-8 h-full">
             {HEADER_NAV.map((item) => {
               const active = isActive(item.href);
               return (
@@ -110,7 +110,7 @@ export const Navbar: React.FC = () => {
           {/* Right side */}
           <div className="flex items-center gap-3 flex-shrink-0">
             {user ? (
-              <div className="relative" ref={userRef}>
+              <div className="relative hidden xl:flex" ref={userRef}>
                 <button
                   onClick={() => setUserMenuOpen((o) => !o)}
                   className="flex items-center gap-2 rounded-full pl-1 pr-3 py-1 bg-white/10 hover:bg-white/20 transition-colors"
@@ -165,7 +165,7 @@ export const Navbar: React.FC = () => {
 
             {/* Mobile toggle */}
             <button
-              className="lg:hidden p-2 -mr-2 rounded-xl text-white hover:bg-white/10 transition-colors"
+              className="xl:hidden p-2 -mr-2 rounded-xl text-white hover:bg-white/10 transition-colors"
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label="Toggle menu"
             >
@@ -180,7 +180,7 @@ export const Navbar: React.FC = () => {
         {mobileOpen && (
           <>
             <motion.div
-              className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+              className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm xl:hidden"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}

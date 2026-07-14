@@ -5,7 +5,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import type { AuthResult, RegisterData, User } from '@/types';
+import type { AuthResult, User } from '@/types';
 
 const USERS_KEY = 'qarshiyev_users';
 const SESSION_KEY = 'qarshiyev_user';
@@ -14,7 +14,6 @@ interface AuthContextValue {
   user: User | null;
   users: User[];
   login: (email: string, password: string) => AuthResult;
-  register: (data: RegisterData) => AuthResult;
   logout: () => void;
   updateProfile: (data: Partial<User>) => void;
 }
@@ -39,9 +38,6 @@ const readUsers = (): User[] => {
 const writeUsers = (users: User[]) => {
   localStorage.setItem(USERS_KEY, JSON.stringify(users));
 };
-
-const generateId = () =>
-  `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [users, setUsers] = useState<User[]>(() => readUsers());
@@ -74,28 +70,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return { ok: true };
   };
 
-  const register = (data: RegisterData): AuthResult => {
-    const normalized = data.email.trim().toLowerCase();
-    if (users.some((u) => u.email.toLowerCase() === normalized)) {
-      return { ok: false, error: 'Bu email allaqachon ro‘yxatdan o‘tgan' };
-    }
-    const newUser: User = {
-      id: generateId(),
-      name: data.name.trim(),
-      email: data.email.trim(),
-      password: data.password,
-      phone: data.phone?.trim(),
-      role: 'student',
-      joinedDate: new Date().toISOString(),
-      enrolledCourses: [],
-    };
-    const nextUsers = [...users, newUser];
-    setUsers(nextUsers);
-    writeUsers(nextUsers);
-    setUser(newUser);
-    return { ok: true };
-  };
-
   const logout = () => {
     setUser(null);
   };
@@ -111,7 +85,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   return (
     <AuthContext.Provider
-      value={{ user, users, login, register, logout, updateProfile }}
+      value={{ user, users, login, logout, updateProfile }}
     >
       {children}
     </AuthContext.Provider>

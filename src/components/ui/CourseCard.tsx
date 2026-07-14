@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { Clock, Users, Star, BookOpen } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { formatPrice } from '@/utils';
@@ -92,11 +91,15 @@ export const CourseCard: React.FC<{ course: Course; className?: string }> = ({
             )}
             <div className="text-slate-400 text-xs mt-0.5">{course.schedule}</div>
           </div>
-          <Link to="/contact">
+          <a
+            href="https://telegram.me/SIROJIDDIN_QARSHIYEV"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <button className="bg-violet-500 text-white text-xs font-bold px-4 py-2 rounded-full hover:bg-violet-600 transition-colors">
-              Ro'yxatdan O'tish
+              Bog'lanish
             </button>
-          </Link>
+          </a>
         </div>
       </div>
     </div>

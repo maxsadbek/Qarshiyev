@@ -83,11 +83,15 @@ export const HeroSection: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.55 }}
             >
-              <Link to="/contact">
+              <a
+                href="https://telegram.me/SIROJIDDIN_QARSHIYEV"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Button variant="gold" size="xl" icon={<Play size={18} />}>
                   Safaringizni Boshlang
                 </Button>
-              </Link>
+              </a>
               <Link to="/courses">
                 <Button
                   variant="ghost"

@@ -266,7 +266,6 @@ export interface FAQItem {
 export type FAQCategory =
   | 'General'
   | 'Courses'
-  | 'Enrollment'
   | 'Fees & Payment'
   | 'Certificates'
   | 'Schedule';
@@ -303,17 +302,6 @@ export interface NavItem {
 
 // ============================================================
 
-export interface ContactFormData {
-  name: string;
-  email: string;
-  phone: string;
-  subject: string;
-  message: string;
-  course?: string;
-}
-
-// ============================================================
-
 export interface WhyChooseItem {
   id: string;
   icon: string;
@@ -339,13 +327,6 @@ export interface User {
   joinedDate: string;
   role: 'student' | 'admin';
   enrolledCourses: string[];
-}
-
-export interface RegisterData {
-  name: string;
-  email: string;
-  password: string;
-  phone?: string;
 }
 
 export interface AuthResult {

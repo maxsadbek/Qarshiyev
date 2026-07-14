@@ -284,18 +284,3 @@ export const FAQPage: React.FC = () => (
   </>
 );
 
-export const ContactPage: React.FC = () => (
-  <>
-    <Helmet><title>Contact Us | Qarshiyev Education Center</title></Helmet>
-    <main>
-      <PageHero 
-        title="Contact Us" 
-        subtitle="We're here to help you start your journey." 
-        image="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=1200&q=90" 
-      />
-      <section className="section-padding bg-white min-h-[50vh] flex items-center justify-center">
-        <SectionHeader title="Contact Details" description="Detailed contact form and maps will be placed here." />
-      </section>
-    </main>
-  </>
-);

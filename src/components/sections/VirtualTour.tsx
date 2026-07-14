@@ -18,7 +18,7 @@ const hotspots: Hotspot[] = [
     id: 'reception',
     x: 20, y: 45,
     label: 'Qabulxona',
-    description: 'Bizning mehmondo\'st qabulxona joyimiz, bu yerda do\'stona xodimlarimiz har bir o\'quvchi va ota-onani kutib oladi. Ro\'yxatdan o\'tish, jadval va umumiy so\'rovlar ham shu yerda amalga oshiriladi.',
+    description: 'Bizning mehmondo\'st qabulxona joyimiz, bu yerda do\'stona xodimlarimiz har bir o\'quvchi va ota-onani kutib oladi. Qabul, jadval va umumiy so\'rovlar ham shu yerda amalga oshiriladi.',
     icon: <Users size={16} />,
     color: 'bg-violet-500',
   },

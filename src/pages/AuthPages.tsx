@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import {
-  Mail, Lock, User as UserIcon, Phone, ArrowRight, GraduationCap,
+  Mail, Lock, ArrowRight,
   CheckCircle2, Eye, EyeOff,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -129,9 +129,14 @@ export const LoginPage: React.FC = () => {
 
             <p className="text-center text-sm text-slate-500 mt-6">
               Akkountingiz yo‘qmi?{' '}
-              <Link to="/register" className="text-violet-600 font-semibold hover:underline">
-                Ro‘yxatdan o‘ting
-              </Link>
+              <a
+                href="https://telegram.me/SIROJIDDIN_QARSHIYEV"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-violet-600 font-semibold hover:underline"
+              >
+                Biz bilan bog‘laning
+              </a>
             </p>
           </motion.div>
         </div>
@@ -140,169 +145,4 @@ export const LoginPage: React.FC = () => {
   );
 };
 
-const formatPhone = (value: string) => {
-  const digits = value
-    .replace(/\D/g, '')
-    .replace(/^998/, '')
-    .slice(0, 9);
-  const parts: string[] = [];
-  if (digits.length > 0) parts.push(digits.slice(0, 2));
-  if (digits.length > 2) parts.push(digits.slice(2, 5));
-  if (digits.length > 5) parts.push(digits.slice(5, 7));
-  if (digits.length > 7) parts.push(digits.slice(7, 9));
-  return parts.join('-');
-};
 
-export const RegisterPage: React.FC = () => {
-  const { register } = useAuth();
-  const navigate = useNavigate();
-  const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirm: '' });
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setForm((f) => ({ ...f, [key]: key === 'phone' ? formatPhone(value) : value }));
-  };
-
-  const isValid =
-    form.name.trim() !== '' &&
-    form.email.trim() !== '' &&
-    form.password.length >= 6 &&
-    form.password === form.confirm;
-
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    if (!form.name.trim() || !form.email.trim() || !form.password) {
-      setError('Barcha majburiy maydonlarni to‘ldiring');
-      return;
-    }
-    if (form.password.length < 6) {
-      setError('Parol kamida 6 ta belgadan iborat bo‘lishi kerak');
-      return;
-    }
-    if (form.password !== form.confirm) {
-      setError('Parollar mos kelmadi');
-      return;
-    }
-    setIsSubmitting(true);
-    const result = register({
-      name: form.name,
-      email: form.email,
-      password: form.password,
-      phone: form.phone ? `+998${form.phone.replace(/-/g, '')}` : '',
-    });
-    if (result.ok) {
-      navigate(ROUTES.PROFILE);
-    } else {
-      setError(result.error ?? 'Xatolik yuz berdi');
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
-    <>
-      <Helmet><title>Ro'yxatdan o'tish | Qarshiyev</title></Helmet>
-      <div className="min-h-screen grid lg:grid-cols-2">
-        <BrandPanel />
-        <div className="flex items-center justify-center px-6 py-16 bg-slate-50">
-          <motion.div
-            className="w-full max-w-md"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <h1 className="font-serif font-bold text-3xl text-slate-950 mb-2">Akkount yaratish</h1>
-            <p className="text-slate-500 text-sm mb-8">
-              O‘quv jarayonini boshqarish uchun ro‘yxatdan o‘ting.
-            </p>
-
-            {error && (
-              <div className="bg-red-50 text-red-600 text-sm rounded-xl px-4 py-3 mb-5 border border-red-100">
-                {error}
-              </div>
-            )}
-
-            <form onSubmit={onSubmit} className="space-y-5">
-              <div className="relative">
-                <UserIcon size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="text"
-                  value={form.name}
-                  onChange={set('name')}
-                  className={inputClass}
-                  placeholder="To'liq ismingiz"
-                />
-              </div>
-              <div className="relative">
-                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="email"
-                  value={form.email}
-                  onChange={set('email')}
-                  className={inputClass}
-                  placeholder="Email manzilingiz"
-                />
-              </div>
-              <div className="relative flex items-center">
-                <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                <span className="absolute left-11 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-medium select-none">
-                  +998
-                </span>
-                <input
-                  type="tel"
-                  inputMode="numeric"
-                  autoComplete="tel"
-                  value={form.phone}
-                  onChange={set('phone')}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-[5.25rem] pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
-                  placeholder="97-971-84-21"
-                />
-              </div>
-              <div className="relative">
-                <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={form.password}
-                  onChange={set('password')}
-                  className={inputClass}
-                  placeholder="Parol (kamida 6 belgi)"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((s) => !s)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                  aria-label="Parolni ko'rsatish"
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-              <div className="relative">
-                <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={form.confirm}
-                  onChange={set('confirm')}
-                  className={inputClass}
-                  placeholder="Parolni tasdiqlang"
-                />
-              </div>
-              <Button type="submit" variant="gradient" size="md" className="w-full" loading={isSubmitting} disabled={!isValid}>
-                Ro'yxatdan o'tish
-                <GraduationCap size={16} />
-              </Button>
-            </form>
-
-            <p className="text-center text-sm text-slate-500 mt-6">
-              Akkountingiz bormi?{' '}
-              <Link to="/login" className="text-violet-600 font-semibold hover:underline">
-                Kirish
-              </Link>
-            </p>
-          </motion.div>
-        </div>
-      </div>
-    </>
-  );
-};

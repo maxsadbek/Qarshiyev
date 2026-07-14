@@ -92,7 +92,7 @@ export const blogPosts: BlogPost[] = [
     title: 'Qarshiyev Ta\'lim Markazi Yangi Kompyuter Laboratoriyasi va Kutubxona Ochdi',
     slug: 'new-computer-lab-library-opening',
     category: 'Yangiliklar',
-    excerpt: '40 ta yuqori unumdor ish stantsiyali davlat darajasidagi Kompyuter Laboratoriyasi va barcha ro\'yxatdan o\'tgan o\'quvchilar uchun bepul mavjud bo\'lgan to\'liq jihozlangan akademik kutubxonaning ochilishini e\'lon qilishdan xursandmiz.',
+    excerpt: '40 ta yuqori unumdor ish stantsiyali davlat darajasidagi Kompyuter Laboratoriyasi va barcha o\'quvchilar uchun bepul mavjud bo\'lgan to\'liq jihozlangan akademik kutubxonaning ochilishini e\'lon qilishdan xursandmiz.',
     content: 'To\'liq maqola matni bu yerda...',
     author: 'Bobur Yusupov',
     authorAvatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&q=80',
