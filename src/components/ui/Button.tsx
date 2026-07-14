@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/utils';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'gold';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'gold' | 'gradient';
   size?: 'sm' | 'md' | 'lg' | 'xl';
   as?: 'button' | 'a';
   href?: string;
@@ -24,6 +24,8 @@ const variants = {
     'bg-transparent text-slate-700 hover:bg-slate-100 hover:text-slate-950',
   gold:
     'bg-violet-500 text-white hover:bg-violet-600 shadow-sm hover:shadow-violet-200 hover:shadow-lg',
+  gradient:
+    'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md shadow-violet-500/30 hover:shadow-lg hover:shadow-violet-500/40 hover:from-violet-500 hover:to-indigo-500 hover:-translate-y-0.5 active:translate-y-0',
 };
 
 const sizes = {

@@ -1,83 +1,34 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Menu,
-  X,
-  ChevronDown,
-  Phone,
-  Home,
-  Info,
-  GraduationCap,
-  Users,
-  Image,
-  Trophy,
-  Calendar,
-  FileText,
-  HelpCircle,
-  Sparkles,
-  MoreHorizontal,
-} from 'lucide-react';
+import { Menu, X, ChevronDown, Phone } from 'lucide-react';
 import { useScrollPosition } from '@/hooks/useScrollPosition';
-import { NAV_ITEMS, CONTACT_INFO, ROUTES } from '@/constants';
-import { Button } from '@/components/ui/Button';
+import { CONTACT_INFO, ROUTES } from '@/constants';
 import { cn } from '@/utils';
 import { useAuth } from '@/context/AuthContext';
 import logo from '@/assets/logo.png';
 
-const getIcon = (label: string) => {
-  switch (label.toLowerCase()) {
-    case 'bosh sahifa':
-      return <Home size={18} />;
-    case 'biz haqimizda':
-      return <Info size={18} />;
-    case 'kurslar':
-      return <GraduationCap size={18} />;
-    case "o'qituvchilar":
-      return <Users size={18} />;
-    case 'yana':
-      return <MoreHorizontal size={18} />;
-    case 'galereya':
-      return <Image size={16} />;
-    case "o'quvchi natijalari":
-      return <Trophy size={16} />;
-    case 'tadbirlar':
-      return <Calendar size={16} />;
-    case 'blog':
-      return <FileText size={16} />;
-    case 'savollar':
-      return <HelpCircle size={16} />;
-    default:
-      return <Sparkles size={18} />;
-  }
-};
+const HEADER_NAV = [
+  { label: 'Bosh Sahifa', href: ROUTES.HOME },
+  { label: 'Biz Haqimizda', href: ROUTES.ABOUT },
+  { label: 'Kurslar', href: ROUTES.COURSES },
+  { label: "O'qituvchilar", href: ROUTES.TEACHERS },
+  { label: 'Yangiliklar', href: ROUTES.BLOG },
+];
 
 export const Navbar: React.FC = () => {
   const { isScrolled } = useScrollPosition();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-  const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const location = useLocation();
-  const navRef = useRef<HTMLElement>(null);
   const userRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuth();
 
   const isActive = (href: string) =>
     href === '/' ? location.pathname === '/' : location.pathname.startsWith(href);
 
-  const hasActiveChild = (item: any) => {
-    return item.children?.some((child: any) => {
-      return child.href === '/' ? location.pathname === '/' : location.pathname.startsWith(child.href);
-    }) || false;
-  };
-
-  // Close dropdown on click outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (navRef.current && !navRef.current.contains(event.target as Node)) {
-        setActiveDropdown(null);
-      }
       if (userRef.current && !userRef.current.contains(event.target as Node)) {
         setUserMenuOpen(false);
       }
@@ -86,240 +37,157 @@ export const Navbar: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Close dropdown on keydown (Escape)
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setActiveDropdown(null);
-      }
+      if (event.key === 'Escape') setUserMenuOpen(false);
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Close dropdown on location change
   useEffect(() => {
-    setActiveDropdown(null);
-  }, [location]);
-
-  // Open mobile dropdown if any child is active when mobile menu is opened
-  useEffect(() => {
-    if (mobileOpen) {
-      const activeChild = NAV_ITEMS.find(item => item.children && hasActiveChild(item));
-      if (activeChild) {
-        setMobileDropdownOpen(true);
-      }
-    }
-  }, [mobileOpen, location.pathname]);
+    setUserMenuOpen(false);
+  }, [location.pathname]);
 
   return (
     <>
       <motion.header
         className={cn(
-          'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
+          'fixed top-0 inset-x-0 z-50 h-[82px] transition-all duration-500',
           isScrolled
-            ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-100'
-            : 'bg-transparent'
+            ? 'bg-[rgba(15,15,25,0.78)] backdrop-blur-[24px] border-b border-white/[0.08] shadow-[0_8px_30px_rgba(0,0,0,0.35)]'
+            : 'bg-[rgba(15,15,25,0.55)] backdrop-blur-[18px] border-b border-white/[0.08]'
         )}
-        initial={{ y: -80, opacity: 0 }}
+        initial={{ y: -82, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       >
-        <div className="container-custom">
-          <div className="flex items-center justify-between h-18 md:h-20">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-3 group">
-              <img src={logo} alt="Qarshiyev" className="w-12 h-12 rounded-xl object-cover shadow-sm group-hover:opacity-80 transition-opacity duration-300" />
-              <div>
-                <span
-                  className={cn(
-                    'font-serif font-bold text-lg leading-none transition-colors duration-300',
-                    isScrolled ? 'text-slate-950' : 'text-white'
-                  )}
-                >
-                  Qarshiyev
-                </span>
-                <p
-                  className={cn(
-                    'text-xs font-medium tracking-wider transition-colors duration-300',
-                    isScrolled ? 'text-slate-400' : 'text-white/70'
-                  )}
-                >
-                  Ta'lim Markazi
-                </p>
-              </div>
-            </Link>
-
-            {/* Desktop Navigation */}
-            <nav ref={navRef} className="hidden lg:flex items-center gap-1">
-              {NAV_ITEMS.map((item) => (
-                <div
-                  key={item.label}
-                  className="relative"
-                >
-                  {item.children ? (
-                    <button
-                      onClick={() => setActiveDropdown(activeDropdown === item.label ? null : item.label)}
-                      className={cn(
-                        'flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 cursor-pointer select-none outline-none',
-                        activeDropdown === item.label
-                          ? isScrolled
-                            ? 'text-slate-950 bg-slate-100'
-                            : 'text-white bg-white/15'
-                          : isScrolled
-                          ? 'text-slate-600 hover:text-slate-950 hover:bg-slate-100'
-                          : 'text-white/80 hover:text-white hover:bg-white/10'
-                      )}
-                    >
-                      {item.label}
-                      <ChevronDown
-                        size={14}
-                        className={cn(
-                          'transition-transform duration-200',
-                          activeDropdown === item.label && 'rotate-180'
-                        )}
-                      />
-                    </button>
-                  ) : (
-                    <Link
-                      to={item.href}
-                      className={cn(
-                        'flex items-center px-4 py-2 rounded-full text-sm font-medium transition-all duration-200',
-                        isActive(item.href)
-                          ? isScrolled
-                            ? 'text-slate-950 bg-slate-100'
-                            : 'text-white bg-white/15'
-                          : isScrolled
-                          ? 'text-slate-600 hover:text-slate-950 hover:bg-slate-100'
-                          : 'text-white/80 hover:text-white hover:bg-white/10'
-                      )}
-                    >
-                      {item.label}
-                    </Link>
-                  )}
-
-                  {/* Dropdown */}
-                  <AnimatePresence>
-                    {item.children && activeDropdown === item.label && (
-                      <motion.div
-                        className="absolute top-full left-0 mt-2 w-52 bg-white rounded-lg shadow-xl border border-slate-100 overflow-hidden"
-                        initial={{ opacity: 0, y: -8, scale: 0.96 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -8, scale: 0.96 }}
-                        transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                      >
-                        <div className="p-2">
-                          {item.children.map((child) => (
-                            <Link
-                              key={child.label}
-                              to={child.href}
-                              onClick={() => setActiveDropdown(null)}
-                              className={cn(
-                                'flex items-center px-4 py-2.5 rounded-xl text-sm font-medium transition-colors',
-                                isActive(child.href)
-                                  ? 'bg-violet-50 text-violet-700'
-                                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-950'
-                              )}
-                            >
-                              {child.label}
-                            </Link>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              ))}
-            </nav>
-
-            <div className="hidden lg:flex items-center gap-3">
-              {user ? (
-                <div className="relative" ref={userRef}>
-                  <button
-                    onClick={() => setUserMenuOpen((o) => !o)}
-                    className="flex items-center gap-2 rounded-full pl-1 pr-3 py-1 bg-white/10 hover:bg-white/15 transition-colors"
-                  >
-                    <span className="w-8 h-8 rounded-full bg-violet-500 text-white flex items-center justify-center text-sm font-bold">
-                      {user.avatar ? (
-                        <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full object-cover" />
-                      ) : (
-                        user.name.charAt(0).toUpperCase()
-                      )}
-                    </span>
-                    <span className={cn('text-sm font-medium', isScrolled ? 'text-slate-950' : 'text-white')}>
-                      {user.name.split(' ')[0]}
-                    </span>
-                    <ChevronDown size={14} className={cn(isScrolled ? 'text-slate-500' : 'text-white/70', userMenuOpen && 'rotate-180')} />
-                  </button>
-                  <AnimatePresence>
-                    {userMenuOpen && (
-                      <motion.div
-                        className="absolute top-full right-0 mt-2 w-52 bg-white rounded-lg shadow-xl border border-slate-100 overflow-hidden"
-                        initial={{ opacity: 0, y: -8, scale: 0.96 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -8, scale: 0.96 }}
-                        transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                      >
-                        <div className="p-2">
-                          <Link
-                            to={ROUTES.PROFILE}
-                            onClick={() => setUserMenuOpen(false)}
-                            className="flex items-center px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-950 transition-colors"
-                          >
-                            Kabinet
-                          </Link>
-                          <button
-                            onClick={() => { logout(); setUserMenuOpen(false); }}
-                            className="flex items-center w-full px-4 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
-                          >
-                            Chiqish
-                          </button>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              ) : (
-                <>
-                  <Link to={ROUTES.LOGIN}>
-                    <Button variant="gold" size="md">
-                      Kirish
-                    </Button>
-                  </Link>
-                </>
-              )}
+        <div className="container-custom h-full flex items-center justify-between gap-8 relative">
+          {/* Logo + Brand */}
+          <Link to="/" className="group flex items-center gap-3.5 flex-shrink-0">
+            <img
+              src={logo}
+              alt="Qarshiyev"
+              className="w-[52px] h-[52px] rounded-xl object-cover shadow-[0_4px_14px_rgba(0,0,0,0.35)] transition-transform duration-300 group-hover:scale-105"
+            />
+            <div className="flex flex-col">
+              <span className="font-sans font-bold text-white text-[22px] leading-none">
+                Qarshiyev
+              </span>
+              <span className="font-sans text-white/55 text-[13px] leading-none mt-2">
+                Ta'lim Markazi
+              </span>
             </div>
+          </Link>
 
-            {/* Mobile menu toggle */}
+          {/* Center navigation */}
+          <nav className="hidden lg:flex flex-1 items-center justify-center gap-10 h-full">
+            {HEADER_NAV.map((item) => {
+              const active = isActive(item.href);
+              return (
+                <Link
+                  key={item.label}
+                  to={item.href}
+                  className={cn(
+                    'group relative inline-flex items-center h-full px-2 text-[15px] font-medium tracking-wide transition-all duration-300 hover:-translate-y-0.5',
+                    active ? 'text-white' : 'text-white/70 hover:text-white'
+                  )}
+                >
+                  {item.label}
+                  <span
+                    className={cn(
+                      'absolute left-1/2 -translate-x-1/2 bottom-6 h-[2px] rounded-full bg-gold-500 transition-all duration-300',
+                      active
+                        ? 'w-7 opacity-100 shadow-[0_0_10px_2px_rgba(138,43,226,0.7)]'
+                        : 'w-0 opacity-0 group-hover:w-7 group-hover:opacity-80'
+                    )}
+                  />
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* Right side */}
+          <div className="flex items-center gap-3 flex-shrink-0">
+            {user ? (
+              <div className="relative" ref={userRef}>
+                <button
+                  onClick={() => setUserMenuOpen((o) => !o)}
+                  className="flex items-center gap-2 rounded-full pl-1 pr-3 py-1 bg-white/10 hover:bg-white/20 transition-colors"
+                >
+                  <span className="w-9 h-9 rounded-full bg-gradient-to-r from-gold-500 to-gold-600 text-white flex items-center justify-center text-sm font-bold">
+                    {user.avatar ? (
+                      <img src={user.avatar} alt={user.name} className="w-9 h-9 rounded-full object-cover" />
+                    ) : (
+                      user.name.charAt(0).toUpperCase()
+                    )}
+                  </span>
+                  <span className="text-sm font-medium text-white">{user.name.split(' ')[0]}</span>
+                  <ChevronDown size={14} className={cn('text-white/70 transition-transform', userMenuOpen && 'rotate-180')} />
+                </button>
+                <AnimatePresence>
+                  {userMenuOpen && (
+                    <motion.div
+                      className="absolute top-full right-0 mt-3 w-52 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden"
+                      initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                      transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      <div className="p-2">
+                        <Link
+                          to={ROUTES.PROFILE}
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-950 transition-colors"
+                        >
+                          Kabinet
+                        </Link>
+                        <button
+                          onClick={() => { logout(); setUserMenuOpen(false); }}
+                          className="flex items-center w-full px-4 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
+                        >
+                          Chiqish
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <Link
+                to={ROUTES.LOGIN}
+                className="group relative hidden sm:inline-flex items-center justify-center h-[46px] px-[30px] rounded-full bg-gradient-to-r from-gold-500 to-gold-600 text-white text-[15px] font-semibold shadow-[0_6px_20px_-8px_rgba(138,43,226,0.8)] transition-all duration-300 hover:scale-105 hover:shadow-[0_10px_30px_-6px_rgba(138,43,226,0.9)]"
+              >
+                <span className="absolute inset-0 rounded-full bg-gold-400 blur-md opacity-50 animate-[navGlow_3s_ease-in-out_infinite]" />
+                <span className="relative">Kirish</span>
+              </Link>
+            )}
+
+            {/* Mobile toggle */}
             <button
-              className={cn(
-                'lg:hidden p-2 rounded-xl transition-colors',
-                isScrolled
-                  ? 'text-slate-700 hover:bg-slate-100'
-                  : 'text-white hover:bg-white/10'
-              )}
+              className="lg:hidden p-2 -mr-2 rounded-xl text-white hover:bg-white/10 transition-colors"
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label="Toggle menu"
             >
-              {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+              {mobileOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
         </div>
       </motion.header>
 
-      {/* Mobile Menu */}
+      {/* Mobile menu */}
       <AnimatePresence>
         {mobileOpen && (
           <>
             <motion.div
-              className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+              className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileOpen(false)}
             />
             <motion.div
-              className="fixed top-0 right-0 bottom-0 z-50 w-80 bg-slate-950 shadow-2xl overflow-y-auto"
+              className="fixed top-0 right-0 bottom-0 z-50 w-[82%] max-w-[340px] bg-[rgba(15,15,25,0.92)] backdrop-blur-xl border-l border-white/10 overflow-y-auto"
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
@@ -328,9 +196,12 @@ export const Navbar: React.FC = () => {
               <div className="p-6">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
-                  <Link to="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-2">
-                    <img src={logo} alt="Qarshiyev" className="w-10 h-10 rounded-xl object-cover" />
-                    <span className="font-serif font-bold text-white">Qarshiyev</span>
+                  <Link to="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-3">
+                    <img src={logo} alt="Qarshiyev" className="w-11 h-11 rounded-xl object-cover" />
+                    <div className="flex flex-col">
+                      <span className="font-sans font-bold text-white text-lg leading-none">Qarshiyev</span>
+                      <span className="text-white/55 text-xs leading-none mt-1">Ta'lim Markazi</span>
+                    </div>
                   </Link>
                   <button
                     onClick={() => setMobileOpen(false)}
@@ -342,102 +213,31 @@ export const Navbar: React.FC = () => {
 
                 {/* Nav Links */}
                 <nav className="flex flex-col gap-1 mb-8">
-                  {NAV_ITEMS.map((item) => (
-                    <div key={item.label}>
-                      {item.children ? (
-                        <div className="mb-2">
-                          <button
-                            onClick={() => setMobileDropdownOpen(!mobileDropdownOpen)}
-                            className={cn(
-                              'flex items-center justify-between w-full px-4 py-3 rounded-xl text-sm font-semibold transition-colors cursor-pointer select-none outline-none',
-                              hasActiveChild(item)
-                                ? 'text-violet-400 bg-violet-500/20'
-                                : 'text-white/70 hover:bg-white/10 hover:text-white'
-                            )}
-                          >
-                            <div className="flex items-center gap-3">
-                              <span className={cn(
-                                'transition-colors',
-                                hasActiveChild(item) ? 'text-violet-400' : 'text-white/50'
-                              )}>
-                                {getIcon(item.label)}
-                              </span>
-                              <span>{item.label}</span>
-                            </div>
-                            <ChevronDown
-                              size={16}
-                              className={cn(
-                                'transition-transform duration-300',
-                                mobileDropdownOpen ? 'rotate-180 text-violet-400' : 'text-white/50'
-                              )}
-                            />
-                          </button>
-                          
-                          <AnimatePresence initial={false}>
-                            {mobileDropdownOpen && (
-                              <motion.div
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: 'auto', opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                                className="overflow-hidden"
-                              >
-                                <div className="py-1 flex flex-col gap-1 border-l-2 border-white/10 ml-6 pl-2 mt-1">
-                                  {item.children.map((child) => (
-                                    <Link
-                                      key={child.label}
-                                      to={child.href}
-                                      onClick={() => setMobileOpen(false)}
-                                      className={cn(
-                                        'flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors',
-                                        isActive(child.href)
-                                          ? 'bg-violet-50 text-violet-700'
-                                          : 'text-slate-600 hover:bg-slate-50 hover:text-slate-950'
-                                      )}
-                                    >
-                                      <span className={cn(
-                                        'transition-colors',
-                                        isActive(child.href) ? 'text-violet-600' : 'text-slate-400'
-                                      )}>
-                                        {getIcon(child.label)}
-                                      </span>
-                                      <span>{child.label}</span>
-                                    </Link>
-                                  ))}
-                                </div>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </div>
-                      ) : (
-                        <Link
-                          to={item.href}
-                          onClick={() => setMobileOpen(false)}
-                          className={cn(
-                            'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors',
-                            isActive(item.href)
-                              ? 'bg-slate-950 text-white shadow-md shadow-slate-950/10'
-                              : 'text-slate-700 hover:bg-slate-50 hover:text-slate-950'
-                          )}
-                        >
-                          <span className={cn(
-                            'transition-colors',
-                            isActive(item.href) ? 'text-white' : 'text-slate-400'
-                          )}>
-                            {getIcon(item.label)}
-                          </span>
-                          <span>{item.label}</span>
-                        </Link>
-                      )}
-                    </div>
-                  ))}
+                  {HEADER_NAV.map((item) => {
+                    const active = isActive(item.href);
+                    return (
+                      <Link
+                        key={item.label}
+                        to={item.href}
+                        onClick={() => setMobileOpen(false)}
+                        className={cn(
+                          'flex items-center px-4 py-3.5 rounded-xl text-[15px] font-semibold transition-colors',
+                          active
+                            ? 'bg-gold-500/15 text-white shadow-[inset_0_0_0_1px_rgba(138,43,226,0.4)]'
+                            : 'text-white/70 hover:bg-white/10 hover:text-white'
+                        )}
+                      >
+                        {item.label}
+                      </Link>
+                    );
+                  })}
                 </nav>
 
-                {/* Contact */}
-                <div className="border-t border-slate-100 pt-6 space-y-3">
+                {/* Contact + Auth */}
+                <div className="border-t border-white/10 pt-6 space-y-3">
                   <a
                     href={`tel:${CONTACT_INFO.phone}`}
-                    className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 text-slate-700 hover:bg-slate-100 transition-colors"
+                    className="flex items-center gap-3 p-3 rounded-xl bg-white/5 text-white/80 hover:bg-white/10 transition-colors"
                   >
                     <Phone size={16} />
                     <span className="text-sm font-medium">{CONTACT_INFO.phone}</span>
@@ -447,27 +247,25 @@ export const Navbar: React.FC = () => {
                       <Link
                         to={ROUTES.PROFILE}
                         onClick={() => setMobileOpen(false)}
-                        className="flex items-center justify-center w-full py-3.5 bg-slate-950 text-white font-semibold rounded-xl hover:bg-slate-800 transition-colors"
+                        className="flex items-center justify-center w-full h-[46px] rounded-full bg-white/10 text-white font-semibold transition-colors hover:bg-white/20"
                       >
                         Kabinet
                       </Link>
                       <button
                         onClick={() => { logout(); setMobileOpen(false); }}
-                        className="flex items-center justify-center w-full py-3.5 bg-red-500 text-white font-semibold rounded-xl hover:bg-red-600 transition-colors"
+                        className="flex items-center justify-center w-full h-[46px] rounded-full bg-red-500/90 text-white font-semibold transition-colors hover:bg-red-500"
                       >
                         Chiqish
                       </button>
                     </>
                   ) : (
-                    <>
-                      <Link
-                        to={ROUTES.LOGIN}
-                        onClick={() => setMobileOpen(false)}
-                        className="flex items-center justify-center w-full py-3.5 bg-violet-500 text-white font-semibold rounded-xl hover:bg-violet-600 transition-colors"
-                      >
-                        Kirish
-                      </Link>
-                    </>
+                    <Link
+                      to={ROUTES.LOGIN}
+                      onClick={() => setMobileOpen(false)}
+                      className="flex items-center justify-center w-full h-[46px] rounded-full bg-gradient-to-r from-gold-500 to-gold-600 text-white font-semibold shadow-[0_6px_20px_-8px_rgba(138,43,226,0.8)]"
+                    >
+                      Kirish
+                    </Link>
                   )}
                 </div>
               </div>

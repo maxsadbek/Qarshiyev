@@ -79,10 +79,6 @@ export const LoginPage: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <Link to="/" className="lg:hidden flex items-center gap-2 mb-8">
-              <img src={logo} alt="Qarshiyev" className="w-11 h-11 rounded-xl object-cover" />
-              <span className="font-serif font-bold text-lg">Qarshiyev</span>
-            </Link>
             <h1 className="font-serif font-bold text-3xl text-slate-950 mb-2">Xush kelibsiz!</h1>
             <p className="text-slate-500 text-sm mb-8">
               Kabinetingizga kirish uchun ma'lumotlaringizni kiriting.
@@ -125,7 +121,7 @@ export const LoginPage: React.FC = () => {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
-              <Button type="submit" variant="primary" size="lg" className="w-full">
+              <Button type="submit" variant="gradient" size="md" className="w-full">
                 Kirish
                 <ArrowRight size={16} />
               </Button>
@@ -217,10 +213,6 @@ export const RegisterPage: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <Link to="/" className="lg:hidden flex items-center gap-2 mb-8">
-              <img src={logo} alt="Qarshiyev" className="w-11 h-11 rounded-xl object-cover" />
-              <span className="font-serif font-bold text-lg">Qarshiyev</span>
-            </Link>
             <h1 className="font-serif font-bold text-3xl text-slate-950 mb-2">Akkount yaratish</h1>
             <p className="text-slate-500 text-sm mb-8">
               O‘quv jarayonini boshqarish uchun ro‘yxatdan o‘ting.
@@ -296,7 +288,7 @@ export const RegisterPage: React.FC = () => {
                   placeholder="Parolni tasdiqlang"
                 />
               </div>
-              <Button type="submit" variant="primary" size="lg" className="w-full" loading={isSubmitting} disabled={!isValid}>
+              <Button type="submit" variant="gradient" size="md" className="w-full" loading={isSubmitting} disabled={!isValid}>
                 Ro'yxatdan o'tish
                 <GraduationCap size={16} />
               </Button>
