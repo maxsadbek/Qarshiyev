@@ -9,6 +9,7 @@ export const ROUTES = {
   BLOG: '/blog',
   FAQ: '/faq',
   LOGIN: '/login',
+  REGISTER: '/register',
   PROFILE: '/profile',
 } as const;
 
@@ -17,17 +18,11 @@ export const NAV_ITEMS = [
   { label: 'Biz Haqimizda', href: ROUTES.ABOUT },
   { label: 'Kurslar', href: ROUTES.COURSES },
   { label: 'O\'qituvchilar', href: ROUTES.TEACHERS },
-  {
-    label: 'Yana',
-    href: '#',
-    children: [
-      { label: 'Galereya', href: ROUTES.GALLERY },
-      { label: 'O\'quvchi Natijalari', href: ROUTES.RESULTS },
-      { label: 'Tadbirlar', href: ROUTES.EVENTS },
-      { label: 'Blog', href: ROUTES.BLOG },
-      { label: 'Savollar', href: ROUTES.FAQ },
-    ],
-  },
+  { label: 'Galereya', href: ROUTES.GALLERY },
+  { label: 'O\'quvchi Natijalari', href: ROUTES.RESULTS },
+  { label: 'Tadbirlar', href: ROUTES.EVENTS },
+  { label: 'Blog', href: ROUTES.BLOG },
+  { label: 'Savollar', href: ROUTES.FAQ },
 ];
 
 export const CONTACT_INFO = {

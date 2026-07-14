@@ -13,15 +13,28 @@ const HEADER_NAV = [
   { label: 'Biz Haqimizda', href: ROUTES.ABOUT },
   { label: 'Kurslar', href: ROUTES.COURSES },
   { label: "O'qituvchilar", href: ROUTES.TEACHERS },
-  { label: 'Yangiliklar', href: ROUTES.BLOG },
+  {
+    label: 'Yana',
+    href: '#',
+    children: [
+      { label: 'Galereya', href: ROUTES.GALLERY },
+      { label: "O'quvchi Natijalari", href: ROUTES.RESULTS },
+      { label: 'Tadbirlar', href: ROUTES.EVENTS },
+      { label: 'Blog', href: ROUTES.BLOG },
+      { label: 'Savollar', href: ROUTES.FAQ },
+    ],
+  },
 ];
 
 export const Navbar: React.FC = () => {
   const { isScrolled } = useScrollPosition();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false);
   const location = useLocation();
   const userRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuth();
 
   const isActive = (href: string) =>
@@ -31,6 +44,9 @@ export const Navbar: React.FC = () => {
     const handleClickOutside = (event: MouseEvent) => {
       if (userRef.current && !userRef.current.contains(event.target as Node)) {
         setUserMenuOpen(false);
+      }
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -83,6 +99,31 @@ export const Navbar: React.FC = () => {
           {/* Center navigation */}
           <nav className="hidden xl:flex flex-1 min-w-0 items-center justify-center gap-8 h-full">
             {HEADER_NAV.map((item) => {
+              if (item.children) {
+                return (
+                  <div key={item.label} className="relative" ref={dropdownRef}>
+                    <button
+                      onClick={() => setDropdownOpen(!dropdownOpen)}
+                      className="group relative inline-flex items-center h-full px-2 text-[15px] font-medium tracking-wide transition-all duration-300 hover:-translate-y-0.5 text-white/70 hover:text-white"
+                    >
+                      {item.label}
+                      <ChevronDown size={14} className={`ml-1 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    <div className={`absolute top-full left-1/2 -translate-x-1/2 mt-4 w-48 bg-white rounded-xl shadow-2xl border border-slate-100 overflow-hidden transition-all duration-200 ${dropdownOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
+                      {item.children.map((child) => (
+                        <Link
+                          key={child.label}
+                          to={child.href}
+                          onClick={() => setDropdownOpen(false)}
+                          className="block px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 hover:text-violet-600 transition-colors"
+                        >
+                          {child.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                );
+              }
               const active = isActive(item.href);
               return (
                 <Link
@@ -214,6 +255,31 @@ export const Navbar: React.FC = () => {
                 {/* Nav Links */}
                 <nav className="flex flex-col gap-1 mb-8">
                   {HEADER_NAV.map((item) => {
+                    if (item.children) {
+                      return (
+                        <div key={item.label} className="flex flex-col">
+                          <button
+                            onClick={() => setMobileDropdownOpen(!mobileDropdownOpen)}
+                            className="flex items-center justify-between px-4 py-3.5 rounded-xl text-[15px] font-semibold text-white/70 hover:bg-white/10 hover:text-white transition-colors"
+                          >
+                            {item.label}
+                            <ChevronDown size={16} className={`transition-transform ${mobileDropdownOpen ? 'rotate-180' : ''}`} />
+                          </button>
+                          <div className={`flex flex-col gap-1 pl-4 mt-1 transition-all duration-200 ${mobileDropdownOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
+                            {item.children.map((child) => (
+                              <Link
+                                key={child.label}
+                                to={child.href}
+                                onClick={() => { setMobileOpen(false); setMobileDropdownOpen(false); }}
+                                className="flex items-center px-4 py-3 rounded-xl text-[14px] font-medium text-white/60 hover:bg-white/10 hover:text-white transition-colors"
+                              >
+                                {child.label}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    }
                     const active = isActive(item.href);
                     return (
                       <Link

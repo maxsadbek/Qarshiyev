@@ -14,7 +14,7 @@ import {
   AboutPage, CoursesPage, TeachersPage, GalleryPage,
   ResultsPage, EventsPage, BlogPage, FAQPage
 } from '@/pages/SecondaryPages';
-import { LoginPage } from '@/pages/AuthPages';
+import { LoginPage, RegisterPage } from '@/pages/AuthPages';
 import { ProfilePage } from '@/pages/ProfilePage';
 
 // Scroll to top on route change
@@ -52,6 +52,7 @@ const App: React.FC = () => {
                     <Route path={ROUTES.BLOG} element={<BlogPage />} />
                     <Route path={ROUTES.FAQ} element={<FAQPage />} />
                     <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+                    <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
                     <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
                     <Route path="*" element={<HomePage />} />
                   </Routes>
