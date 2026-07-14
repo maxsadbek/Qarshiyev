@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Play, Users, GraduationCap, Star, Award, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import heroPhoneVideo from '@/assets/5318996866413656030.mp4';
 
-const HERO_VIDEO_URL = 'https://www.youtube.com/embed/LXb3EKWsInQ?autoplay=1&controls=1&rel=0&modestbranding=1';
 const THUMBNAIL = 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&q=90';
 
 const stats = [
