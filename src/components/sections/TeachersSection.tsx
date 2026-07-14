@@ -107,13 +107,23 @@ export const TeachersSection: React.FC = () => {
         <div className="p-4">
           {videoUrl && (
             <div className="aspect-video rounded-2xl overflow-hidden bg-black">
-              <iframe
-                src={`https://www.youtube.com/embed/${getYTId(videoUrl)}?autoplay=1`}
-                className="w-full h-full"
-                allow="autoplay; encrypted-media"
-                allowFullScreen
-                title="Teacher introduction video"
-              />
+              {videoUrl.endsWith('.mp4') ? (
+                <video
+                  src={videoUrl}
+                  className="w-full h-full object-cover"
+                  controls
+                  autoPlay
+                  playsInline
+                />
+              ) : (
+                <iframe
+                  src={`https://www.youtube.com/embed/${getYTId(videoUrl)}?autoplay=1`}
+                  className="w-full h-full"
+                  allow="autoplay; encrypted-media"
+                  allowFullScreen
+                  title="Teacher introduction video"
+                />
+              )}
             </div>
           )}
         </div>

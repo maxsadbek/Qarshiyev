@@ -178,12 +178,13 @@ export const HeroSection: React.FC = () => {
                   <div className="absolute inset-0 flex items-center justify-center bg-black">
                     {videoPlaying ? (
                       <div className="relative w-full h-full overflow-hidden">
-                        <iframe
-                          src={HERO_VIDEO_URL}
-                          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-full aspect-[16/9] max-w-none border-0"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                          allowFullScreen
-                          title="Qarshiyev Ta'lim Markazi - Bizning Hikoyamiz"
+                        <video
+                          src={heroPhoneVideo}
+                          className="absolute inset-0 w-full h-full object-cover"
+                          autoPlay
+                          controls
+                          playsInline
+                          title="Qarshiyev Ta'lim Markazi - Tanishuv"
                         />
                         <button
                           className="absolute top-14 right-4 z-30 w-8 h-8 rounded-full bg-black/70 hover:bg-black/95 flex items-center justify-center text-white transition-colors border border-white/10"

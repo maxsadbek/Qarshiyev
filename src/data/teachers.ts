@@ -4,6 +4,7 @@ import teacherImg2 from '../assets/teachers/5287239582334263341_119.jpg';
 import teacherImg3 from '../assets/teachers/5287239582334263354_119.jpg';
 import teacherImg4 from '../assets/teachers/5287239582334263356_119.jpg';
 import teacherImg5 from '../assets/teachers/5287239582334263365_121.jpg';
+import sirojVideo from '@/assets/Sirojiddin ustoz video.mp4';
 
 export const teachers: Teacher[] = [
   {
@@ -26,7 +27,7 @@ export const teachers: Teacher[] = [
       instagram: 'https://instagram.com',
       telegram: 'https://t.me',
     },
-    introVideoUrl: '',
+    introVideoUrl: sirojVideo,
     featured: true,
     languages: ['Ingliz tili', 'O\'zbek tili'],
     achievements: ['HIPO xalqaro olimpiadasi Respublika Finali', 'BEE xalqaro olimpiadasi Respublika Finali'],
