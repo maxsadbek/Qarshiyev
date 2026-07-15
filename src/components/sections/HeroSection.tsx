@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Play, Users, GraduationCap, Star, Award, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { useIntro } from '@/context/IntroContext';
 import heroPhoneVideo from '@/assets/5318996866413656030.mp4';
 
 const THUMBNAIL = 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&q=90';
@@ -16,6 +17,7 @@ const stats = [
 
 export const HeroSection: React.FC = () => {
   const [videoPlaying, setVideoPlaying] = useState(false);
+  const { isIntroComplete } = useIntro();
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden bg-slate-950">
@@ -36,13 +38,13 @@ export const HeroSection: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <motion.div
             initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
+            animate={isIntroComplete ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           >
             <motion.div
               className="inline-flex items-center gap-2 mb-6"
               initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
+              animate={isIntroComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
               transition={{ delay: 0.2 }}
             >
               <div className="flex items-center gap-1.5 bg-violet-500/15 border border-violet-500/30 rounded-full px-4 py-1.5">
@@ -56,7 +58,7 @@ export const HeroSection: React.FC = () => {
             <motion.h1
               className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-[1.08] mb-6"
               initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
+              animate={isIntroComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
               transition={{ delay: 0.3, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             >
               O'z{' '}
@@ -71,7 +73,7 @@ export const HeroSection: React.FC = () => {
             <motion.p
               className="text-slate-400 text-sm sm:text-base md:text-lg leading-relaxed mb-8 max-w-lg"
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              animate={isIntroComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ delay: 0.45 }}
             >
               IELTS Band 7+ dan xalqaro universitetlargacha — biz sertifikatlangan o'qituvchilar va isbotlangan 96% muvaffaqiyat ko'rsatkichi bilan dunyo darajasidagi ingliz tili ta'limini taqdim etamiz.
@@ -80,7 +82,7 @@ export const HeroSection: React.FC = () => {
             <motion.div
               className="flex flex-col sm:flex-row gap-4 mb-12"
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              animate={isIntroComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ delay: 0.55 }}
             >
               <a
@@ -106,7 +108,7 @@ export const HeroSection: React.FC = () => {
             <motion.div
               className="grid grid-cols-2 sm:grid-cols-4 gap-4"
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              animate={isIntroComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ delay: 0.65 }}
             >
               {stats.map(({ icon: Icon, value, label }) => (
@@ -124,7 +126,7 @@ export const HeroSection: React.FC = () => {
           <motion.div
             className="flex items-center justify-center lg:justify-end relative"
             initial={{ opacity: 0, x: 60 }}
-            animate={{ opacity: 1, x: 0 }}
+            animate={isIntroComplete ? { opacity: 1, x: 0 } : { opacity: 0, x: 60 }}
             transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
           >
             <div

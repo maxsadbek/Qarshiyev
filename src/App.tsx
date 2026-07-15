@@ -42,7 +42,7 @@ const App: React.FC = () => {
               <Router>
                 <ScrollToTop />
                 <CinematicIntro />
-                <div className="flex flex-col min-h-screen">
+                <div id="site-reveal" className="flex flex-col min-h-screen">
                 <Navbar />
                 <div className="flex-grow">
                   <Routes>
@@ -63,7 +63,7 @@ const App: React.FC = () => {
                 </div>
                 <Footer />
                 <FloatingButtons />
-              </div>
+                </div>
               </Router>
             </AuthProvider>
           </IntroProvider>

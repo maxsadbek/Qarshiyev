@@ -1,7 +1,6 @@
-import { useEffect, useRef, type RefObject } from 'react';
+import { useEffect, type RefObject } from 'react';
 import gsap from 'gsap';
 import {
-  INTRO_COLORS,
   INTRO_EASE,
   INTRO_LOGO_SIZE,
   INTRO_SCENES,
@@ -11,9 +10,11 @@ import type { IntroSoundEngine } from './IntroSoundEngine';
 
 interface IntroRefs {
   overlay: RefObject<HTMLDivElement | null>;
+  mask: RefObject<HTMLDivElement | null>;
   stage: RefObject<HTMLDivElement | null>;
-  glowPoint: RefObject<HTMLDivElement | null>;
-  network: RefObject<SVGSVGElement | null>;
+  glow: RefObject<HTMLDivElement | null>;
+  orb: RefObject<HTMLDivElement | null>;
+  rings: RefObject<HTMLDivElement | null>;
   logoSvg: RefObject<SVGSVGElement | null>;
   logoContainer: RefObject<HTMLDivElement | null>;
   typography: RefObject<HTMLDivElement | null>;
@@ -27,8 +28,10 @@ interface UseIntroTimelineOptions {
 }
 
 /**
- * GSAP master timeline orchestrating all 6 intro scenes.
- * Uses GPU-accelerated transforms and SVG stroke animations.
+ * GSAP master timeline — one continuous animation from black silence to the
+ * live homepage. GPU-only transforms/opacity; the page behind is revealed
+ * through a growing radial hole (blur -> sharp) and the emblem flies into
+ * the navbar.
  */
 export function useIntroTimeline({
   refs,
@@ -36,15 +39,15 @@ export function useIntroTimeline({
   onScene6Start,
   onComplete,
 }: UseIntroTimelineOptions): void {
-  const timelineRef = useRef<gsap.core.Timeline | null>(null);
-
   useEffect(() => {
-    const { overlay, stage, glowPoint, network, logoSvg, logoContainer, typography } = refs;
+    const { overlay, mask, stage, glow, orb, rings, logoSvg, logoContainer, typography } = refs;
     if (
       !overlay.current ||
+      !mask.current ||
       !stage.current ||
-      !glowPoint.current ||
-      !network.current ||
+      !glow.current ||
+      !orb.current ||
+      !rings.current ||
       !logoSvg.current ||
       !logoContainer.current ||
       !typography.current
@@ -52,30 +55,60 @@ export function useIntroTimeline({
       return;
     }
 
+    let master: gsap.core.Timeline | null = null;
+    let floats: gsap.core.Tween[] = [];
+    let ringTweens: gsap.core.Tween[] = [];
+
     const ctx = gsap.context(() => {
-      const lines = network.current!.querySelectorAll('.intro-network-line');
-      const nodesGroup = network.current!.querySelector('.intro-network-nodes');
-      const linesGroup = network.current!.querySelector('.intro-network-lines');
-      const nodeElements = network.current!.querySelectorAll('.intro-network-node');
       const logoGroup = logoSvg.current!.querySelector('.intro-logo-group');
       const lightSweep = logoSvg.current!.querySelector('.intro-light-sweep');
-      const symbols = overlay.current!.querySelectorAll('.intro-symbol');
+      const tagWords = overlay.current!.querySelectorAll('.intro-tag-word');
+      const ringEls = rings.current!.querySelectorAll('.intro-ring');
+      const site = document.getElementById('site-reveal');
 
-      // Initial states
-      gsap.set(glowPoint.current, { scale: 0, opacity: 0 });
-      gsap.set(network.current, { opacity: 1, scale: 0.3, transformOrigin: 'center center' });
-      gsap.set(logoContainer.current, { opacity: 0, scale: 0.8 });
-      gsap.set(typography.current, { opacity: 0, y: 24 });
-      gsap.set(stage.current, { perspective: 900, transformStyle: 'preserve-3d' });
+      // ── Initial states (pure black, nothing visible) ──
+      // The mask layer is an opaque black element. A radial mask-image with a
+      // negative transparent stop keeps it fully black at rest; growing the
+      // transparent center carves a hole that reveals the site behind it.
+      const fullyBlackMask = 'radial-gradient(circle at 50% 50%, transparent -10%, #050505 0%)';
+      const setMask = (css: string) => {
+        mask.current!.style.webkitMaskImage = css;
+        mask.current!.style.maskImage = css;
+      };
+      setMask(fullyBlackMask);
+
+      // Center every element on the viewport (composes with GSAP x/y/scale)
+      gsap.set([glow.current, orb.current, rings.current, logoContainer.current], {
+        xPercent: -50,
+        yPercent: -50,
+      });
+      gsap.set(typography.current, { xPercent: -50 });
+
+      gsap.set(glow.current, { scale: 0, opacity: 0 });
+      gsap.set(orb.current, { scale: 0.18, opacity: 0 });
+      gsap.set(rings.current, { scale: 0.55, opacity: 0 });
+      gsap.set(logoContainer.current, { scale: 0.55, opacity: 0 });
+      gsap.set(logoGroup, { opacity: 0 });
+      gsap.set(typography.current, { opacity: 0, y: 26 });
+      gsap.set(tagWords, { opacity: 0, y: 12 });
+
+      // Hidden site starts blurred + slightly scaled for the radial reveal
+      if (site) {
+        site.style.filter = 'blur(22px) brightness(0.5)';
+        site.style.transform = 'scale(1.06)';
+        site.style.transformOrigin = '50% 46%';
+        site.style.willChange = 'filter, transform';
+      }
 
       const tl = gsap.timeline({
         onComplete,
         defaults: { ease: INTRO_EASE.premium },
       });
 
-      // ─── Scene 1: Pure white pause, then glowing point ───
-      tl.to({}, { duration: INTRO_SCENES.pause });
+      // ── 0.0s — hold on black ──
+      tl.to({}, { duration: INTRO_SCENES.glowAppear });
 
+      // ── 0.5s — a tiny purple light appears ──
       tl.add(() => {
         sound.init().then((ok) => {
           if (ok) {
@@ -86,311 +119,202 @@ export function useIntroTimeline({
       }, INTRO_SCENES.glowAppear);
 
       tl.fromTo(
-        glowPoint.current,
+        glow.current,
         { scale: 0, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 0.35, ease: INTRO_EASE.reveal },
+        { scale: 1, opacity: 1, duration: 0.4, ease: INTRO_EASE.reveal },
         INTRO_SCENES.glowAppear,
       );
 
-      // ─── Scene 2: Point expands, network draws itself ───
+      // ── 1.2s — the light expands into a polished glass orb ──
       tl.to(
-        glowPoint.current,
-        {
-          scale: 6,
-          opacity: 0.25,
-          duration: 0.9,
-          ease: 'power2.out',
-        },
-        INTRO_SCENES.networkExpand,
+        glow.current,
+        { scale: 2.6, opacity: 0, duration: 0.9, ease: 'power2.out' },
+        INTRO_SCENES.orbExpand,
       );
-
-      tl.to(
-        network.current,
-        { scale: 1, duration: 1, ease: INTRO_EASE.reveal },
-        INTRO_SCENES.networkExpand,
-      );
-
-      tl.to(
-        linesGroup,
-        { opacity: 1, duration: 0.2 },
-        INTRO_SCENES.networkDraw,
-      );
-
-      tl.to(
-        lines,
-        {
-          strokeDashoffset: 0,
-          duration: 0.9,
-          stagger: { each: 0.025, from: 'center' },
-          ease: 'power1.inOut',
-          onStart: () => sound.play('pulse'),
-        },
-        INTRO_SCENES.networkDraw + 0.05,
-      );
-
-      tl.to(
-        nodesGroup,
-        { opacity: 1, duration: 0.3 },
-        INTRO_SCENES.networkDraw + 0.15,
-      );
-
       tl.fromTo(
-        nodeElements,
-        { scale: 0, opacity: 0, transformOrigin: 'center center' },
-        {
-          scale: 1,
-          opacity: 1,
-          duration: 0.4,
-          stagger: { each: 0.03, from: 'center' },
-          ease: INTRO_EASE.reveal,
-        },
-        INTRO_SCENES.networkDraw + 0.2,
+        orb.current,
+        { scale: 0.18, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.95, ease: INTRO_EASE.premium },
+        INTRO_SCENES.orbExpand,
       );
 
-      // ─── Scene 3: 3D rotation, glowing connections, symbols ───
-      tl.to(
-        network.current,
-        {
-          rotationY: 14,
-          rotationX: -10,
-          duration: 0.85,
-          ease: INTRO_EASE.premium,
-        },
-        INTRO_SCENES.rotation3d,
-      );
-
-      // Pulse select connection lines with accent glow
-      const glowLines = Array.from(lines).filter((_, i) => i % 4 === 0);
-      tl.to(
-        glowLines,
-        {
-          stroke: INTRO_COLORS.accent,
-          opacity: 1,
-          strokeWidth: 1.2,
-          duration: 0.3,
+      // Tiny floating motion — the emblem breathes gently
+      floats.push(
+        gsap.to([orb.current, rings.current], {
+          y: -7,
+          duration: 3.2,
+          ease: 'sine.inOut',
           yoyo: true,
-          repeat: 1,
-          stagger: 0.08,
-          onStart: () => sound.play('shimmer'),
-        },
-        INTRO_SCENES.rotation3d + 0.1,
+          repeat: -1,
+        }),
+      );
+      floats.push(
+        gsap.to(logoContainer.current, {
+          y: -7,
+          duration: 3.2,
+          ease: 'sine.inOut',
+          yoyo: true,
+          repeat: -1,
+          delay: 2.7,
+        }),
       );
 
-      // Futuristic symbols flash in and out
-      tl.fromTo(
-        symbols,
-        { opacity: 0, scale: 0.7 },
-        {
-          opacity: 0.45,
-          scale: 1,
-          duration: 0.25,
-          stagger: 0.06,
-          ease: INTRO_EASE.reveal,
-        },
-        INTRO_SCENES.symbolsFlash,
-      );
-
+      // ── 2.0s — thin, slow light rings rotate around the orb ──
       tl.to(
-        symbols,
-        {
-          opacity: 0,
-          scale: 0.8,
-          duration: 0.3,
-          stagger: 0.04,
-        },
-        INTRO_SCENES.symbolsFlash + 0.5,
+        rings.current,
+        { scale: 1, opacity: 1, duration: 0.8, ease: INTRO_EASE.premium },
+        INTRO_SCENES.ringsAppear,
       );
+      ringTweens = [
+        gsap.to(ringEls[0], { rotation: 360, duration: 26, ease: 'none', repeat: -1 }),
+        gsap.to(ringEls[1], { rotation: -360, duration: 34, ease: 'none', repeat: -1 }),
+        gsap.to(ringEls[2], { rotation: 360, duration: 44, ease: 'none', repeat: -1 }),
+      ];
 
-      // ─── Scene 4: Converge to center, morph into logo ───
-      // Nodes attract toward center hub
+      // ── 2.7s — the orb fluidly morphs into the Qarshiyev emblem ──
       tl.to(
-        nodeElements,
-        {
-          attr: { transform: 'translate(0, 0)' },
-          duration: 0.7,
-          ease: INTRO_EASE.morph,
-          onStart: () => sound.play('whoosh'),
-        },
+        orb.current,
+        { scale: 0.9, opacity: 0, duration: 0.6, ease: INTRO_EASE.morph },
         INTRO_SCENES.morphStart,
       );
-
-      // Animate each node toward center (200, 200 in viewBox = center)
-      nodeElements.forEach((node) => {
-        const nodeId = node.getAttribute('data-node-id');
-        if (nodeId === 'center') return;
-
-        const core = node.querySelector('.intro-node-core');
-        if (!core) return;
-
-        const cx = parseFloat(core.getAttribute('cx') || '200');
-        const cy = parseFloat(core.getAttribute('cy') || '200');
-
-        tl.to(
-          core,
-          {
-            attr: { cx: 200, cy: 200 },
-            duration: 0.65,
-            ease: INTRO_EASE.morph,
-          },
-          INTRO_SCENES.morphStart,
-        );
-
-        // Also move the glow circle
-        const glow = node.querySelector('circle:first-child');
-        if (glow) {
-          tl.to(
-            glow,
-            {
-              attr: { cx: 200, cy: 200 },
-              duration: 0.65,
-              ease: INTRO_EASE.morph,
-            },
-            INTRO_SCENES.morphStart,
-          );
-        }
-
-        // Prevent unused variable warning
-        void cx;
-        void cy;
-      });
-
-      // Lines morph — shrink toward center
       tl.to(
-        lines,
-        {
-          attr: { x2: 200, y2: 200 },
-          opacity: 0,
-          duration: 0.55,
-          stagger: 0.015,
-          ease: INTRO_EASE.morph,
-        },
-        INTRO_SCENES.morphStart + 0.1,
+        rings.current,
+        { opacity: 0, scale: 1.15, duration: 0.5, ease: INTRO_EASE.morph },
+        INTRO_SCENES.morphStart,
       );
-
-      // Network fades as logo emerges (true morph feel — no pop)
-      tl.to(
-        network.current,
-        {
-          scale: 0.15,
-          opacity: 0,
-          rotationY: 0,
-          rotationX: 0,
-          duration: 0.5,
-          ease: INTRO_EASE.morph,
-        },
-        INTRO_SCENES.logoReveal,
-      );
-
-      tl.to(
-        glowPoint.current,
-        { scale: 0, opacity: 0, duration: 0.3 },
-        INTRO_SCENES.logoReveal,
-      );
-
-      // Logo emerges from the converged network
-      tl.to(
-        logoGroup,
-        { opacity: 1, duration: 0.45, ease: INTRO_EASE.reveal },
-        INTRO_SCENES.logoReveal,
-      );
-
       tl.to(
         logoContainer.current,
         {
-          opacity: 1,
           scale: 1,
-          duration: 0.5,
+          opacity: 1,
+          duration: 0.6,
           ease: INTRO_EASE.morph,
-          onComplete: () => sound.play('logoComplete'),
+          onStart: () => sound.play('logoComplete'),
         },
-        INTRO_SCENES.logoReveal,
+        INTRO_SCENES.morphStart,
       );
+      tl.to(logoGroup, { opacity: 1, duration: 0.5, ease: INTRO_EASE.reveal }, INTRO_SCENES.morphStart);
 
-      // ─── Scene 5: Logo still, light sweep, typography ───
-      tl.to({}, { duration: 0.15 }, INTRO_SCENES.lightSweep);
-
+      // ── 3.3s — a light reflection slides across the emblem ──
       tl.to(
         lightSweep,
         {
           opacity: 1,
           attr: { x: 300 },
-          duration: 0.7,
-          ease: 'power1.inOut',
-          onComplete: () => {
-            gsap.set(lightSweep, { opacity: 0, attr: { x: -100 } });
-          },
+          duration: 0.8,
+          ease: INTRO_EASE.soft,
+          onComplete: () => gsap.set(lightSweep, { opacity: 0, attr: { x: -100 } }),
         },
         INTRO_SCENES.lightSweep,
       );
 
+      // ── 4.0s — the brand lockup fades in ──
+      tl.fromTo(
+        typography.current!.querySelector('.intro-brand-title'),
+        { opacity: 0, y: 18 },
+        { opacity: 1, y: 0, duration: 0.6, ease: INTRO_EASE.reveal },
+        INTRO_SCENES.brandTitle,
+      );
+      tl.fromTo(
+        typography.current!.querySelector('.intro-brand-subtitle'),
+        { opacity: 0, y: 12 },
+        { opacity: 0.75, y: 0, duration: 0.6, ease: INTRO_EASE.reveal },
+        INTRO_SCENES.brandSubtitle,
+      );
       tl.to(
-        typography.current,
+        tagWords,
         {
           opacity: 1,
           y: 0,
-          duration: 0.55,
+          duration: 0.45,
+          stagger: 0.18,
           ease: INTRO_EASE.reveal,
         },
-        INTRO_SCENES.typography,
+        INTRO_SCENES.taglineStart,
       );
 
-      // ─── Scene 6: Logo flies to navbar, hero reveals ───
+      // ── 5.5s — radial blur reveal: the homepage emerges behind the emblem ──
+      const revealProxy = { hole: -8 };
+      tl.to(
+        revealProxy,
+        {
+          hole: 165,
+          duration: 1.5,
+          ease: INTRO_EASE.premium,
+          onUpdate: () => {
+            const h = revealProxy.hole;
+            setMask(`radial-gradient(circle at 50% 50%, transparent ${h}%, #050505 ${h + 26}%)`);
+          },
+        },
+        INTRO_SCENES.revealStart,
+      );
+
+      if (site) {
+        const siteProxy = { blur: 22, bright: 0.5, scale: 1.06 };
+        tl.to(
+          siteProxy,
+          {
+            blur: 0,
+            bright: 1,
+            scale: 1,
+            duration: 1.5,
+            ease: INTRO_EASE.premium,
+            onUpdate: () => {
+              site.style.filter = `blur(${siteProxy.blur}px) brightness(${siteProxy.bright})`;
+              site.style.transform = `scale(${siteProxy.scale})`;
+            },
+            onComplete: () => {
+              site.style.filter = '';
+              site.style.transform = '';
+              site.style.willChange = '';
+            },
+          },
+          INTRO_SCENES.revealStart,
+        );
+      }
+
+      // ── 6.0s — the emblem shrinks and flies into the navbar ──
       tl.to(
         typography.current,
-        { opacity: 0, y: -12, duration: 0.25, ease: INTRO_EASE.premium },
+        { opacity: 0, y: -16, duration: 0.4, ease: INTRO_EASE.premium },
         INTRO_SCENES.flyToNav,
       );
 
       tl.add(() => {
         onScene6Start();
         sound.play('transition');
+        floats.forEach((t) => t.kill());
+        ringTweens.forEach((t) => t.kill());
+        gsap.killTweensOf(logoContainer.current);
       }, INTRO_SCENES.flyToNav);
 
-      // Fade white background to reveal the site underneath
-      tl.to(
-        overlay.current,
-        {
-          backgroundColor: 'rgba(255, 255, 255, 0)',
-          duration: 0.5,
-          ease: INTRO_EASE.premium,
-        },
-        INTRO_SCENES.flyToNav,
-      );
-
-      // Calculate navbar logo position for precise landing
       tl.add(() => {
         const navLogo = document.getElementById('navbar-logo');
         if (!navLogo || !logoContainer.current) return;
-
         const navRect = navLogo.getBoundingClientRect();
-        const containerRect = logoContainer.current.getBoundingClientRect();
-
-        const deltaX =
-          navRect.left + navRect.width / 2 - (containerRect.left + containerRect.width / 2);
-        const deltaY =
-          navRect.top + navRect.height / 2 - (containerRect.top + containerRect.height / 2);
+        const box = logoContainer.current.getBoundingClientRect();
+        const dx = navRect.left + navRect.width / 2 - (box.left + box.width / 2);
+        const dy = navRect.top + navRect.height / 2 - (box.top + box.height / 2);
         const scale = NAVBAR_LOGO_SIZE / INTRO_LOGO_SIZE;
-
         gsap.to(logoContainer.current, {
-          x: deltaX,
-          y: deltaY,
+          x: dx,
+          y: dy,
           scale,
-          duration: 0.65,
+          duration: 0.7,
           ease: INTRO_EASE.fly,
           onComplete: () => {
-            // Hand off to navbar logo
             gsap.set(navLogo, { opacity: 1 });
             gsap.set(logoContainer.current, { opacity: 0 });
           },
         });
       }, INTRO_SCENES.flyToNav + 0.05);
 
-      // Remove overlay
+      // ── 6.7s — let the live site take over ──
       tl.to(
         overlay.current,
         {
           opacity: 0,
-          duration: 0.25,
+          duration: 0.35,
           ease: INTRO_EASE.reveal,
           onComplete: () => {
             if (overlay.current) {
@@ -402,11 +326,13 @@ export function useIntroTimeline({
         INTRO_SCENES.overlayExit,
       );
 
-      timelineRef.current = tl;
+      master = tl;
     }, overlay);
 
     return () => {
-      timelineRef.current?.kill();
+      master?.kill();
+      floats.forEach((t) => t.kill());
+      ringTweens.forEach((t) => t.kill());
       ctx.revert();
     };
   }, [refs, sound, onScene6Start, onComplete]);

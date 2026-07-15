@@ -1,16 +1,18 @@
-import { forwardRef } from 'react';
+import { forwardRef, type CSSProperties } from 'react';
 import { INTRO_COLORS } from './constants';
 
 interface IntroLogoSvgProps {
   className?: string;
+  style?: CSSProperties;
 }
 
 /**
- * Vector representation of the Qarshiyev logo for morph and light-sweep animations.
- * Simplified circular emblem with swirl — matches the official PNG aesthetic.
+ * Vector Qarshiyev emblem used for the morph + light-sweep animations.
+ * A polished purple crystal disc with a stylised "Q" mark — matches the
+ * official brand geometry and the glass orb it grows out of.
  */
 export const IntroLogoSvg = forwardRef<SVGSVGElement, IntroLogoSvgProps>(
-  ({ className }, ref) => {
+  ({ className, style }, ref) => {
     return (
       <svg
         ref={ref}
@@ -18,23 +20,24 @@ export const IntroLogoSvg = forwardRef<SVGSVGElement, IntroLogoSvgProps>(
         viewBox="0 0 200 200"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        style={{ willChange: 'transform, opacity' }}
+        style={{ willChange: 'transform, opacity', ...style }}
         aria-hidden="true"
       >
         <defs>
-          <radialGradient id="logoBgGrad" cx="40%" cy="60%" r="65%">
-            <stop offset="0%" stopColor="#4c1d95" />
-            <stop offset="40%" stopColor={INTRO_COLORS.primary} />
-            <stop offset="100%" stopColor="#1a0533" />
+          <radialGradient id="logoBgGrad" cx="36%" cy="30%" r="80%">
+            <stop offset="0%" stopColor="#b98bff" />
+            <stop offset="34%" stopColor={INTRO_COLORS.primary} />
+            <stop offset="72%" stopColor="#5b16a8" />
+            <stop offset="100%" stopColor="#2a0a4d" />
           </radialGradient>
           <linearGradient id="rimGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={INTRO_COLORS.accent} stopOpacity="0.9" />
-            <stop offset="50%" stopColor={INTRO_COLORS.primary} stopOpacity="0.7" />
-            <stop offset="100%" stopColor="#c084fc" stopOpacity="0.5" />
+            <stop offset="0%" stopColor={INTRO_COLORS.highlight} stopOpacity="0.85" />
+            <stop offset="50%" stopColor={INTRO_COLORS.secondary} stopOpacity="0.7" />
+            <stop offset="100%" stopColor={INTRO_COLORS.primary} stopOpacity="0.5" />
           </linearGradient>
           <linearGradient id="swirlGrad" x1="0%" y1="100%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="#ffffff" stopOpacity="0.95" />
-            <stop offset="100%" stopColor="#e9d5ff" stopOpacity="0.85" />
+            <stop offset="100%" stopColor={INTRO_COLORS.secondary} stopOpacity="0.85" />
           </linearGradient>
           <clipPath id="logoCircleClip">
             <circle cx="100" cy="100" r="88" />
@@ -42,12 +45,12 @@ export const IntroLogoSvg = forwardRef<SVGSVGElement, IntroLogoSvgProps>(
           <linearGradient id="lightSweepGrad" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="white" stopOpacity="0" />
             <stop offset="45%" stopColor="white" stopOpacity="0" />
-            <stop offset="50%" stopColor="white" stopOpacity="0.35" />
+            <stop offset="50%" stopColor="white" stopOpacity="0.45" />
             <stop offset="55%" stopColor="white" stopOpacity="0" />
             <stop offset="100%" stopColor="white" stopOpacity="0" />
           </linearGradient>
-          <filter id="logoShadow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="4" stdDeviation="8" floodColor={INTRO_COLORS.primary} floodOpacity="0.3" />
+          <filter id="logoShadow" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="6" stdDeviation="12" floodColor={INTRO_COLORS.primary} floodOpacity="0.4" />
           </filter>
         </defs>
 
@@ -63,7 +66,7 @@ export const IntroLogoSvg = forwardRef<SVGSVGElement, IntroLogoSvgProps>(
             className="intro-logo-rim"
           />
 
-          {/* Main circular body */}
+          {/* Main crystal body */}
           <circle
             cx="100"
             cy="100"
@@ -72,25 +75,25 @@ export const IntroLogoSvg = forwardRef<SVGSVGElement, IntroLogoSvgProps>(
             className="intro-logo-body"
           />
 
-          {/* Swirl emblem — stylized Q shape */}
+          {/* Stylised "Q" swirl mark */}
           <g clipPath="url(#logoCircleClip)">
             <path
               className="intro-logo-swirl"
-              d="M100 175 C60 175 35 140 40 100 C45 65 75 40 110 45 C130 48 145 60 150 75 C155 90 148 105 135 110 C122 115 108 108 105 95 C102 82 112 72 125 75 C138 78 148 92 145 108 C140 130 120 148 95 155 C85 158 78 165 82 172 C86 179 95 178 100 175 Z"
+              d="M100 168 C62 168 38 136 43 100 C48 68 76 44 110 49 C132 52 148 66 152 82 C156 98 148 113 135 118 C123 123 108 116 105 102 C102 89 113 79 126 82 C139 85 149 100 146 116 C141 138 120 154 95 160 C85 163 78 170 82 177 C86 184 95 183 100 168 Z"
               fill="url(#swirlGrad)"
-              opacity="0.95"
+              opacity="0.92"
             />
             <path
-              d="M130 55 C145 62 155 78 152 95 C148 115 128 130 108 132"
+              d="M132 56 C147 63 157 80 154 98 C150 118 130 133 109 135"
               fill="none"
               stroke="white"
               strokeWidth="3"
               strokeLinecap="round"
-              opacity="0.6"
+              opacity="0.55"
             />
           </g>
 
-          {/* Light sweep overlay */}
+          {/* Glass reflection sweep */}
           <rect
             className="intro-light-sweep"
             x="-100"

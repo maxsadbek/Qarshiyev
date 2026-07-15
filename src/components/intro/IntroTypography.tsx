@@ -1,54 +1,70 @@
-import { forwardRef } from 'react';
+import { forwardRef, type CSSProperties } from 'react';
 import { INTRO_COLORS } from './constants';
 
 interface IntroTypographyProps {
   className?: string;
+  style?: CSSProperties;
 }
 
 /**
- * Scene 5 typography — brand name, subtitle, and tagline.
- * Fades in with premium easing, no typing or bounce effects.
+ * Brand lockup shown after the emblem settles.
+ *  - "QARSHIYEV"  elegant serif, wide tracking, white highlight
+ *  - "Education Center" thin sans-serif, 75% opacity
+ *  - "Learn. Create. Lead." staggered, one word at a time
+ * Each piece is animated independently by the GSAP timeline (no bounce).
  */
 export const IntroTypography = forwardRef<HTMLDivElement, IntroTypographyProps>(
-  ({ className }, ref) => {
+  ({ className, style }, ref) => {
     return (
       <div
         ref={ref}
         className={className}
-        style={{ willChange: 'opacity, transform' }}
+        style={{ willChange: 'opacity, transform', ...style }}
         aria-hidden="true"
       >
         <h1
-          className="intro-brand-title font-sans font-bold tracking-[0.35em] text-center uppercase"
+          className="intro-brand-title font-serif text-center uppercase"
           style={{
-            fontSize: 'clamp(1.5rem, 4vw, 2.25rem)',
-            color: INTRO_COLORS.primary,
-            letterSpacing: '0.35em',
+            fontSize: 'clamp(1.7rem, 4.6vw, 2.6rem)',
+            color: INTRO_COLORS.highlight,
+            letterSpacing: '0.42em',
+            fontWeight: 700,
+            marginRight: '-0.42em',
+            textShadow: '0 0 28px rgba(138,43,226,0.35)',
           }}
         >
           QARSHIYEV
         </h1>
 
         <p
-          className="intro-brand-subtitle font-sans text-center mt-3"
+          className="intro-brand-subtitle font-sans text-center mt-4"
           style={{
-            fontSize: 'clamp(0.75rem, 2vw, 0.95rem)',
-            color: 'rgba(138, 43, 226, 0.55)',
-            letterSpacing: '0.2em',
+            fontSize: 'clamp(0.78rem, 2vw, 0.95rem)',
+            color: INTRO_COLORS.highlight,
+            opacity: 0.75,
+            letterSpacing: '0.34em',
+            fontWeight: 300,
+            marginRight: '-0.34em',
           }}
         >
           Education Center
         </p>
 
         <div
-          className="intro-brand-tagline flex items-center justify-center gap-6 mt-6"
-          style={{ fontSize: 'clamp(0.65rem, 1.5vw, 0.8rem)' }}
+          className="intro-brand-tagline flex items-center justify-center gap-5 mt-7"
+          style={{ fontSize: 'clamp(0.7rem, 1.6vw, 0.85rem)' }}
         >
-          {['Learn.', 'Create.', 'Lead.'].map((word) => (
+          {['Learn.', 'Create.', 'Lead.'].map((word, i) => (
             <span
               key={word}
-              className="font-sans font-medium"
-              style={{ color: 'rgba(0, 0, 0, 0.35)', letterSpacing: '0.08em' }}
+              className="intro-tag-word font-sans font-medium"
+              data-index={i}
+              style={{
+                color: INTRO_COLORS.secondary,
+                letterSpacing: '0.16em',
+                opacity: 0,
+                willChange: 'opacity, transform',
+              }}
             >
               {word}
             </span>

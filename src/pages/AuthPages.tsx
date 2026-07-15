@@ -60,6 +60,7 @@ interface AnimatedRegisterButtonProps {
 }
 
 const AnimatedRegisterButton: React.FC<AnimatedRegisterButtonProps> = ({
+  
   onClick,
   disabled = false,
   loading = false,

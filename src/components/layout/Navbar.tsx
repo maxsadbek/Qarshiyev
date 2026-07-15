@@ -37,7 +37,7 @@ export const Navbar: React.FC = () => {
   const userRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuth();
-  const { isIntroComplete, shouldPlayIntro } = useIntro();
+  const { isIntroComplete } = useIntro();
 
   const isActive = (href: string) =>
     href === '/' ? location.pathname === '/' : location.pathname.startsWith(href);
@@ -88,7 +88,7 @@ export const Navbar: React.FC = () => {
               src={logo}
               alt="Qarshiyev"
               className="w-[52px] h-[52px] rounded-xl object-cover shadow-[0_4px_14px_rgba(0,0,0,0.35)] transition-transform duration-300 group-hover:scale-105"
-              style={{ opacity: shouldPlayIntro ? 0 : 1 }}
+              style={{ opacity: isIntroComplete ? 1 : 0 }}
             />
             <div className="flex flex-col">
               <span className="font-sans font-bold text-white text-[22px] leading-none">

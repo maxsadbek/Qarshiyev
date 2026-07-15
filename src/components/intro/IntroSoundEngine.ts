@@ -253,14 +253,38 @@ export class IntroSoundEngine {
     this.playWhoosh();
   }
 
-  /** Clean up all active audio nodes */
-  destroy(): void {
+  /** Stop every currently playing node and tear down the audio context */
+  stopAll(): void {
+    for (const node of this.activeNodes) {
+      try {
+        if (node instanceof AudioBufferSourceNode || node instanceof OscillatorNode) {
+          node.stop();
+        }
+        node.disconnect();
+      } catch {
+        /* node may already be stopped */
+      }
+    }
     this.activeNodes = [];
-    if (this.ctx) {
+
+    if (this.masterGain) {
+      try {
+        this.masterGain.disconnect();
+      } catch {
+        /* silent */
+      }
+      this.masterGain = null;
+    }
+
+    if (this.ctx && this.ctx.state !== 'closed') {
       this.ctx.close().catch(() => {});
       this.ctx = null;
     }
-    this.masterGain = null;
     this.initialized = false;
+  }
+
+  /** Clean up all active audio nodes */
+  destroy(): void {
+    this.stopAll();
   }
 }
