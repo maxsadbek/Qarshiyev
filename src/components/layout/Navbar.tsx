@@ -6,6 +6,7 @@ import { useScrollPosition } from '@/hooks/useScrollPosition';
 import { CONTACT_INFO, ROUTES } from '@/constants';
 import { cn } from '@/utils';
 import { useAuth } from '@/context/AuthContext';
+import { useIntro } from '@/context/IntroContext';
 import logo from '@/assets/logo.png';
 
 const HEADER_NAV = [
@@ -36,6 +37,7 @@ export const Navbar: React.FC = () => {
   const userRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuth();
+  const { isIntroComplete, shouldPlayIntro } = useIntro();
 
   const isActive = (href: string) =>
     href === '/' ? location.pathname === '/' : location.pathname.startsWith(href);
@@ -75,16 +77,18 @@ export const Navbar: React.FC = () => {
             : 'bg-[rgba(15,15,25,0.55)] backdrop-blur-[18px] border-b border-white/[0.08]'
         )}
         initial={{ y: -82, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
+        animate={isIntroComplete ? { y: 0, opacity: 1 } : { y: -82, opacity: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       >
         <div className="container-custom h-full flex items-center justify-between gap-8 relative">
           {/* Logo + Brand */}
           <Link to="/" className="group flex items-center gap-3.5 flex-shrink-0">
             <img
+              id="navbar-logo"
               src={logo}
               alt="Qarshiyev"
               className="w-[52px] h-[52px] rounded-xl object-cover shadow-[0_4px_14px_rgba(0,0,0,0.35)] transition-transform duration-300 group-hover:scale-105"
+              style={{ opacity: shouldPlayIntro ? 0 : 1 }}
             />
             <div className="flex flex-col">
               <span className="font-sans font-bold text-white text-[22px] leading-none">

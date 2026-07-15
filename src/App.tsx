@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { HelmetProvider } from 'react-helmet-async';
 import { SmoothScrollProvider, useLenis } from '@/context/SmoothScrollProvider';
 import { AuthProvider } from '@/context/AuthContext';
+import { IntroProvider } from '@/context/IntroContext';
+import { CinematicIntro } from '@/components/intro';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { FloatingButtons } from '@/components/layout/FloatingButtons';
@@ -35,10 +37,12 @@ const App: React.FC = () => {
   return (
       <HelmetProvider>
         <SmoothScrollProvider>
-          <AuthProvider>
-            <Router>
-              <ScrollToTop />
-              <div className="flex flex-col min-h-screen">
+          <IntroProvider>
+            <AuthProvider>
+              <Router>
+                <ScrollToTop />
+                <CinematicIntro />
+                <div className="flex flex-col min-h-screen">
                 <Navbar />
                 <div className="flex-grow">
                   <Routes>
@@ -60,8 +64,9 @@ const App: React.FC = () => {
                 <Footer />
                 <FloatingButtons />
               </div>
-            </Router>
-          </AuthProvider>
+              </Router>
+            </AuthProvider>
+          </IntroProvider>
         </SmoothScrollProvider>
       </HelmetProvider>
   );
