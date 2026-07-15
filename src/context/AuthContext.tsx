@@ -62,11 +62,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     try {
       if (user) {
-        // Strip heavy fields (e.g. base64 avatar) so we stay well under the
-        // localStorage quota and never throw a QuotaExceededError.
-        const sessionUser = { ...user };
-        delete sessionUser.avatar;
-        localStorage.setItem(SESSION_KEY, JSON.stringify(sessionUser));
+        localStorage.setItem(SESSION_KEY, JSON.stringify(user));
       } else {
         localStorage.removeItem(SESSION_KEY);
       }

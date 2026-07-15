@@ -16,6 +16,40 @@ const ACCENT = '#7C3AED';
 const DARK = '#0F172A';
 const TEXT = '#111827';
 
+// Downscale + re-encode the uploaded image to a small JPEG so the resulting
+// base64 string fits comfortably in localStorage (prevents quota errors and
+// keeps the avatar persisted across refreshes).
+const compressImage = (
+  file: File,
+  maxSize = 256,
+  quality = 0.8
+): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+        const w = Math.max(1, Math.round(img.width * scale));
+        const h = Math.max(1, Math.round(img.height * scale));
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Canvas not supported'));
+          return;
+        }
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => reject(new Error('Image load failed'));
+      img.src = reader.result as string;
+    };
+    reader.onerror = () => reject(new Error('File read failed'));
+    reader.readAsDataURL(file);
+  });
+
 const inputClass =
   'w-full bg-white border rounded-xl px-4 py-3 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/60 focus:border-transparent transition-all';
 
@@ -64,17 +98,17 @@ export const ProfilePage: React.FC = () => {
   const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64 = reader.result as string;
+    try {
+      const base64 = await compressImage(file);
       setForm((f) => ({ ...f, avatar: base64 }));
       setAvatarPreview(base64);
-    };
-    reader.readAsDataURL(file);
+    } catch {
+      // If compression fails, ignore the upload
+    }
   };
 
   const removeAvatar = () => {
