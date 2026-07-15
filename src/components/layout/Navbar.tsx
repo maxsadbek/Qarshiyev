@@ -19,7 +19,7 @@ const HEADER_NAV = [
     href: '#',
     children: [
       { label: 'Galereya', href: ROUTES.GALLERY },
-      { label: "O'quvchi Natijalari", href: ROUTES.RESULTS },
+      { label: "O'quvchilarning Yutuqlari", href: ROUTES.RESULTS },
       { label: 'Tadbirlar', href: ROUTES.EVENTS },
       { label: 'Blog', href: ROUTES.BLOG },
       { label: 'Savollar', href: ROUTES.FAQ },

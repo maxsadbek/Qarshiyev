@@ -105,7 +105,7 @@ export const Footer: React.FC = () => {
                     size={12}
                     className="opacity-0 group-hover:opacity-100 transition-opacity -ml-1"
                   />
-                  O'quvchi Natijalari
+                  O'quvchilarning Yutuqlari
                 </Link>
               </li>
             </ul>
