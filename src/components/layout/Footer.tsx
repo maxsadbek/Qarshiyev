@@ -82,7 +82,7 @@ export const Footer: React.FC = () => {
               Tezkor Havolalar
             </h4>
             <ul className="space-y-3">
-              {NAV_ITEMS.filter((n) => !n.children).map((item) => (
+              {NAV_ITEMS.filter((n) => !('children' in n)).map((item) => (
                 <li key={item.label}>
                   <Link
                     to={item.href}

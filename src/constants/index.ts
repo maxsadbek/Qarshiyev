@@ -8,8 +8,8 @@ export const ROUTES = {
   EVENTS: '/events',
   BLOG: '/blog',
   FAQ: '/faq',
-  LOGIN: '/login',
   REGISTER: '/register',
+  LOGIN: '/login',
   PROFILE: '/profile',
 } as const;
 

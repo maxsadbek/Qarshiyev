@@ -7,6 +7,7 @@ import {
   CheckCircle2, Eye, EyeOff,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { cn } from '@/utils';
 import { useAuth } from '@/context/AuthContext';
 import { ROUTES } from '@/constants';
 import logo from '@/assets/logo.png';
@@ -69,94 +70,117 @@ const AnimatedRegisterButton: React.FC<AnimatedRegisterButtonProps> = ({
   const [isPressed, setIsPressed] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
 
+  const isInteractive = !disabled && !loading && !success && !panelOpen;
+
   const handleClick = () => {
-    if (!disabled && !loading && !success) {
+    if (isInteractive) {
       setIsPressed(true);
       setPanelOpen(true);
-      setTimeout(() => {
+      window.setTimeout(() => {
         onClick();
-        setTimeout(() => {
+        window.setTimeout(() => {
           setPanelOpen(false);
           setIsPressed(false);
-        }, 300);
-      }, 200);
+        }, 320);
+      }, 220);
     }
   };
+
+  const baseGradient = 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 55%, #6d28d9 100%)';
+  const hoverGradient = 'linear-gradient(135deg, #a78bfa 0%, #8b5cf6 55%, #7c3aed 100%)';
 
   return (
     <motion.button
       type="submit"
-      disabled={disabled || loading || success}
+      disabled={!isInteractive}
       onClick={handleClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onMouseDown={() => setIsPressed(true)}
       onMouseUp={() => setIsPressed(false)}
-      className={`
-        relative w-full h-14 rounded-2xl font-semibold text-white
-        overflow-hidden cursor-pointer
-        disabled:cursor-not-allowed disabled:opacity-70
-        ${error ? 'bg-red-500' : ''}
-      `}
+      className={cn(
+        'relative w-full h-14 rounded-2xl font-semibold text-white overflow-hidden cursor-pointer select-none',
+        'disabled:cursor-not-allowed disabled:opacity-70',
+        error ? 'bg-red-500' : ''
+      )}
       style={{
-        background: error ? undefined : 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%)',
+        background: error ? undefined : isHovered ? hoverGradient : baseGradient,
         boxShadow: isHovered && !error
-          ? '0 0 30px rgba(139, 92, 246, 0.5), 0 0 60px rgba(139, 92, 246, 0.3)'
-          : '0 0 20px rgba(139, 92, 246, 0.3), 0 0 40px rgba(139, 92, 246, 0.1)',
+          ? '0 10px 30px -8px rgba(124,58,237,0.7), 0 0 24px rgba(139,92,246,0.45)'
+          : '0 8px 24px -10px rgba(124,58,237,0.6), 0 0 18px rgba(139,92,246,0.25)',
       }}
       animate={{
         scale: isHovered && !isPressed && !loading && !success ? 1.02 : isPressed ? 0.98 : 1,
       }}
-      transition={{
-        duration: 0.3,
-        ease: [0.22, 1, 0.36, 1],
-      }}
+      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
     >
-      {/* Shimmer effect */}
-      <motion.div
-        className="absolute inset-0"
-        animate={loading ? {
-          backgroundPosition: ['200% 0', '-200% 0'],
-        } : {}}
-        transition={{
-          duration: 1.5,
-          repeat: Infinity,
-          ease: 'linear',
-        }}
-        style={{
-          background: loading
-            ? 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%)'
-            : undefined,
-          backgroundSize: '200% 100%',
-        }}
-      />
+      {/* Loading shimmer: moving light traveling across the button */}
+      {loading && (
+        <motion.div
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(100deg, transparent 20%, rgba(255,255,255,0.4) 50%, transparent 80%)',
+            backgroundSize: '220% 100%',
+          }}
+          animate={{ backgroundPositionX: ['220%', '-220%'] }}
+          transition={{ duration: 1.4, repeat: Infinity, ease: 'linear' }}
+        />
+      )}
 
-      {/* Glow pulse */}
-      <motion.div
-        className="absolute inset-0 rounded-2xl"
-        animate={isHovered && !loading && !success ? {
-          opacity: [0.3, 0.6, 0.3],
-        } : {}}
-        transition={{
-          duration: 2,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-        style={{
-          background: 'radial-gradient(circle at center, rgba(255,255,255,0.3) 0%, transparent 70%)',
-        }}
-      />
+      {/* Hover glow pulse */}
+      {isHovered && !loading && !success && !error && (
+        <motion.div
+          className="absolute inset-0 rounded-2xl pointer-events-none"
+          style={{ background: 'radial-gradient(circle at center, rgba(255,255,255,0.25) 0%, transparent 70%)' }}
+          animate={{ opacity: [0.25, 0.5, 0.25] }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+        />
+      )}
 
-      {/* Panel door animation */}
+      {/* Futuristic door + glowing arrow entering on click */}
       <AnimatePresence>
         {panelOpen && (
-          <motion.div
-            className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-violet-400/20 to-transparent"
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          />
+          <>
+            <motion.div
+              key="door"
+              className="absolute right-0 top-0 bottom-0 w-14 rounded-r-2xl pointer-events-none"
+              style={{ background: 'linear-gradient(90deg, rgba(167,139,250,0) 0%, rgba(196,181,253,0.85) 100%)' }}
+              initial={{ x: '110%', opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: '110%', opacity: 0 }}
+              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+            />
+            <motion.div
+              key="arrow"
+              className="absolute top-1/2 -translate-y-1/2 text-white pointer-events-none"
+              initial={{ right: '10%', opacity: 0 }}
+              animate={{ right: ['10%', '24%'], opacity: [0, 1, 1, 0] }}
+              transition={{ duration: 0.6, ease: 'easeInOut' }}
+            >
+              <ArrowRight size={18} className="drop-shadow-[0_0_8px_rgba(255,255,255,0.9)]" />
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Success particle / glow burst */}
+      <AnimatePresence>
+        {success && (
+          <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+            {[...Array(10)].map((_, i) => {
+              const angle = (i / 10) * Math.PI * 2;
+              return (
+                <motion.span
+                  key={i}
+                  className="absolute w-1.5 h-1.5 rounded-full bg-white"
+                  style={{ boxShadow: '0 0 8px rgba(255,255,255,0.9)' }}
+                  initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+                  animate={{ x: Math.cos(angle) * 56, y: Math.sin(angle) * 56, opacity: 0, scale: 0.2 }}
+                  transition={{ duration: 0.7, ease: 'easeOut' }}
+                />
+              );
+            })}
+          </div>
         )}
       </AnimatePresence>
 
@@ -169,41 +193,41 @@ const AnimatedRegisterButton: React.FC<AnimatedRegisterButtonProps> = ({
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             className="flex items-center gap-2"
           >
-            <CheckCircle2 size={20} className="text-white" />
+            <CheckCircle2 size={20} />
             <span>Muvaffaqiyatli!</span>
           </motion.div>
         ) : loading ? (
           <motion.div
             className="flex items-center gap-2"
-            animate={{ opacity: [0.5, 1, 0.5] }}
+            animate={{ opacity: [0.6, 1, 0.6] }}
             transition={{ duration: 1, repeat: Infinity, ease: 'easeInOut' }}
           >
-            <motion.div
-              className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
+            <motion.span
+              className="block w-4 h-4 rounded-full border-2 border-white/30 border-t-white"
               animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+              transition={{ duration: 0.9, repeat: Infinity, ease: 'linear' }}
             />
-            <span>Ro'yxatdan o'tilmoqda...</span>
+            <span>Ro‘yxatdan o‘tilmoqda…</span>
           </motion.div>
         ) : (
           <motion.span
-            animate={{ x: panelOpen ? -20 : 0 }}
+            animate={{ x: panelOpen ? -22 : 0 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className="flex items-center gap-2"
           >
-            <span>Ro'yxatdan o'tish</span>
+            <span>Ro‘yxatdan o‘tish</span>
             <ArrowRight size={16} />
           </motion.span>
         )}
       </div>
 
-      {/* Ripple effect on click */}
+      {/* Ripple on click */}
       <AnimatePresence>
         {isPressed && (
           <motion.div
-            className="absolute inset-0 rounded-2xl bg-white/20"
-            initial={{ scale: 0, opacity: 1 }}
-            animate={{ scale: 1.5, opacity: 0 }}
+            className="absolute inset-0 rounded-2xl bg-white/20 pointer-events-none"
+            initial={{ scale: 0, opacity: 0.8 }}
+            animate={{ scale: 1.4, opacity: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
           />
@@ -214,6 +238,7 @@ const AnimatedRegisterButton: React.FC<AnimatedRegisterButtonProps> = ({
 };
 
 export const RegisterPage: React.FC = () => {
+  const { register } = useAuth();
   const navigate = useNavigate();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -226,20 +251,27 @@ export const RegisterPage: React.FC = () => {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (!name.trim() || !email.trim() || !password) {
+      setError('Barcha maydonlarni to‘ldiring');
+      return;
+    }
+
+    // Let the click/door animation play first, then show the loading state
+    await new Promise((resolve) => setTimeout(resolve, 500));
     setLoading(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    // Premium loading animation
+    await new Promise((resolve) => setTimeout(resolve, 1200));
 
-    // Simple validation (in real app, this would be an API call)
-    if (email && password && name) {
+    const result = register({ name, email, password });
+    if (result.ok) {
       setSuccess(true);
-      setTimeout(() => {
-        navigate(ROUTES.LOGIN);
-      }, 1000);
+      // User is now authenticated — go straight to the profile
+      setTimeout(() => navigate(ROUTES.PROFILE), 900);
     } else {
       setLoading(false);
-      setError('Barcha maydonlarni to\'ldiring');
+      setError(result.error ?? 'Xatolik yuz berdi');
     }
   };
 

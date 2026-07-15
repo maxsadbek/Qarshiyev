@@ -329,6 +329,12 @@ export interface User {
   enrolledCourses: string[];
 }
 
+export interface RegisterData {
+  name: string;
+  email: string;
+  password: string;
+}
+
 export interface AuthResult {
   ok: boolean;
   error?: string;
