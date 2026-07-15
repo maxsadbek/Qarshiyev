@@ -37,7 +37,12 @@ const readUsers = (): User[] => {
 };
 
 const writeUsers = (users: User[]) => {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+  try {
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+  } catch {
+    // Storage may be full (e.g. large base64 avatars) — fail silently
+    // so the app never crashes.
+  }
 };
 
 const generateId = () =>
@@ -55,10 +60,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   });
 
   useEffect(() => {
-    if (user) {
-      localStorage.setItem(SESSION_KEY, JSON.stringify(user));
-    } else {
-      localStorage.removeItem(SESSION_KEY);
+    try {
+      if (user) {
+        // Strip heavy fields (e.g. base64 avatar) so we stay well under the
+        // localStorage quota and never throw a QuotaExceededError.
+        const sessionUser = { ...user };
+        delete sessionUser.avatar;
+        localStorage.setItem(SESSION_KEY, JSON.stringify(sessionUser));
+      } else {
+        localStorage.removeItem(SESSION_KEY);
+      }
+    } catch {
+      // Ignore quota / serialization errors — never crash the UI.
     }
   }, [user]);
 

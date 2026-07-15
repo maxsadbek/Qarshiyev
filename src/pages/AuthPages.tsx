@@ -70,7 +70,7 @@ const AnimatedRegisterButton: React.FC<AnimatedRegisterButtonProps> = ({
   const [isPressed, setIsPressed] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
 
-  const isInteractive = !disabled && !loading && !success && !panelOpen;
+  const isInteractive = !disabled && !loading && !success;
 
   const handleClick = () => {
     if (isInteractive) {
@@ -92,7 +92,7 @@ const AnimatedRegisterButton: React.FC<AnimatedRegisterButtonProps> = ({
   return (
     <motion.button
       type="submit"
-      disabled={!isInteractive}
+      disabled={disabled || loading || success}
       onClick={handleClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
