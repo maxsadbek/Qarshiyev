@@ -1,93 +1,99 @@
 /// <reference types="node" />
 
-import { GoogleGenAI, type Content } from '@google/genai';
+import OpenAI from "openai";
 
-export const config = { runtime: 'nodejs' };
+export const config = {
+  runtime: "nodejs",
+};
+
+const client = new OpenAI({
+  apiKey: process.env.OPENROUTER_API_KEY!,
+  baseURL: "https://openrouter.ai/api/v1",
+});
 
 export default async function handler(req: Request): Promise<Response> {
-  if (req.method !== 'POST') {
-    return new Response(
-      JSON.stringify({ error: 'Method not allowed' }),
-      { status: 405, headers: { 'Content-Type': 'application/json' } }
-    );
+  if (req.method !== "POST") {
+    return new Response("Method Not Allowed", {
+      status: 405,
+    });
   }
-
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    return new Response(
-      JSON.stringify({ error: 'GEMINI_API_KEY is not configured' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
-  }
-
-  let body: { messages: { role: string; content: string }[]; query: string; systemPrompt?: string };
-  try {
-    body = await req.json();
-  } catch {
-    return new Response(
-      JSON.stringify({ error: 'Invalid request body' }),
-      { status: 400, headers: { 'Content-Type': 'application/json' } }
-    );
-  }
-
-  const { messages, query, systemPrompt } = body;
-  if (!query || typeof query !== 'string') {
-    return new Response(
-      JSON.stringify({ error: 'Missing query' }),
-      { status: 400, headers: { 'Content-Type': 'application/json' } }
-    );
-  }
-
-  const ai = new GoogleGenAI({ apiKey });
-
-  const contents: Content[] = messages
-    .filter((m) => m.role === 'user' || m.role === 'assistant')
-    .map((m) => ({
-      role: m.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: m.content }],
-    }));
 
   try {
-    const result = await ai.models.generateContentStream({
-      model: 'gemini-2.0-flash',
-      contents,
-      config: {
-        systemInstruction: systemPrompt
-          ? { role: 'system', parts: [{ text: systemPrompt }] }
-          : undefined,
-        temperature: 0.3,
-        maxOutputTokens: 1024,
-      },
+    const body = await req.json();
+
+    const messages = body.messages ?? [];
+    const query = body.query ?? "";
+    const systemPrompt = body.systemPrompt ?? "";
+
+    const finalMessages: any[] = [];
+
+    if (systemPrompt) {
+      finalMessages.push({
+        role: "system",
+        content: systemPrompt,
+      });
+    }
+
+    if (messages.length > 0) {
+      for (const msg of messages) {
+        finalMessages.push({
+          role: msg.role,
+          content: msg.content,
+        });
+      }
+    } else {
+      finalMessages.push({
+        role: "user",
+        content: query,
+      });
+    }
+
+    const completion = await client.chat.completions.create({
+      model: "qwen/qwen3-30b-a3b:free",
+      messages: finalMessages,
+      stream: true,
+      temperature: 0.5,
     });
 
+    const encoder = new TextEncoder();
+
     const stream = new ReadableStream({
-      start(controller) {
-        const encoder = new TextEncoder();
-        const pump = async () => {
-          try {
-            for await (const chunk of result) {
-              const text = chunk.text;
-              if (text) {
-                controller.enqueue(encoder.encode(text));
-              }
+      async start(controller) {
+        try {
+          for await (const chunk of completion) {
+            const text = chunk.choices?.[0]?.delta?.content;
+
+            if (text) {
+              controller.enqueue(encoder.encode(text));
             }
-          } catch {
-            // Stream ended or errored silently
-          } finally {
-            controller.close();
           }
-        };
-        void pump();
+        } catch (error) {
+          console.error("OpenRouter Stream Error:", error);
+        } finally {
+          controller.close();
+        }
       },
     });
 
     return new Response(stream, {
-      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-cache",
+      },
     });
-  } catch {
+  } catch (error: any) {
+    console.error("OpenRouter Error:", error);
+
     return new Response(
-      JSON.stringify({ error: 'Gemini API error' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      JSON.stringify({
+        error: error?.message || "Unknown error",
+      }),
+      {
+        status: 500,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
     );
   }
 }
