@@ -1,0 +1,18 @@
+{
+  "name": "Qarshiyev School",
+  "legalName": "Qarshiyev Ta'lim Markazi",
+  "tagline": "Xalqaro imkoniyatlarga poydevor yaratamiz",
+  "founded": 2016,
+  "description": "Qarshiyev School — IELTS, CEFR, SAT, Cambridge va milliy imtihonlarga tayyorgarlik beruvchi premium ta'lim markazi. Xalqaro sertifikatlangan o'qituvchilar, kichik guruhlar (maksimum 12 kishi) va ma'lumotlarga asoslangan o'qitish metodologiyasi bilan 96% muvaffaqiyat ko'rsatkichiga erishganmiz.",
+  "mission": "Har bir o'quvchiga xalqaro darajadagi ta'lim va shaxsiy e'tibor taqdim etish.",
+  "values": ["Sifat", "Shaffoflik", "Shaxsiy yondashuv", "Xalqaro standartlar", "Natija"],
+  "ageGroups": [
+    { "group": "Yosh o'quvchilar", "range": "8–14 yosh" },
+    { "group": "O'smirlar", "range": "14–18 yosh" },
+    { "group": "Kattalar", "range": "18+ yosh" }
+  ],
+  "successRate": 96,
+  "branches": 2,
+  "teachersCount": 25,
+  "studentsCount": 8000
+}

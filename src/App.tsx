@@ -8,6 +8,8 @@ import { CinematicIntro } from '@/components/intro';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { FloatingButtons } from '@/components/layout/FloatingButtons';
+import { Assistant } from '@/components/assistant';
+import { AssistantProvider } from '@/assistant/AssistantContext';
 import { ROUTES } from '@/constants';
 
 // Pages
@@ -39,6 +41,7 @@ const App: React.FC = () => {
         <SmoothScrollProvider>
           <IntroProvider>
             <AuthProvider>
+              <AssistantProvider>
               <Router>
                 <ScrollToTop />
                 <CinematicIntro />
@@ -63,8 +66,10 @@ const App: React.FC = () => {
                 </div>
                 <Footer />
                 <FloatingButtons />
+                <Assistant />
                 </div>
               </Router>
+              </AssistantProvider>
             </AuthProvider>
           </IntroProvider>
         </SmoothScrollProvider>

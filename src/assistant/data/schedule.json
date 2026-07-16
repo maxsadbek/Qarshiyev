@@ -1,0 +1,29 @@
+{
+  "timezone": "Asia/Tashkent (UTC+5)",
+  "weekdays": [
+    { "day": "Dushanba", "hours": "08:00–21:00" },
+    { "day": "Seshanba", "hours": "08:00–21:00" },
+    { "day": "Chorshanba", "hours": "08:00–21:00" },
+    { "day": "Payshanba", "hours": "08:00–21:00" },
+    { "day": "Juma", "hours": "08:00–21:00" },
+    { "day": "Shanba", "hours": "09:00–18:00" },
+    { "day": "Yakshanba", "hours": "Yopiq" }
+  ],
+  "slots": [
+    { "period": "Ertalab", "time": "08:00–12:00" },
+    { "period": "Kunduzi", "time": "13:00–17:00" },
+    { "period": "Kechqurun", "time": "17:00–21:00" }
+  ],
+  "onlineAvailable": true,
+  "today": {
+    "date": "Bugun",
+    "lessons": [
+      { "course": "Umumiy Ingliz Tili", "time": "08:00–09:30", "room": "Online / A-101", "type": "group" },
+      { "course": "IELTS Intensiv", "time": "09:00–11:00", "room": "B-204", "type": "group" },
+      { "course": "Ingliz tili — IELTS/CEFR/DTM", "time": "12:00–14:00", "room": "A-105", "type": "group" },
+      { "course": "DTM — Ona tili va Adabiyot", "time": "10:00–12:00", "room": "C-301", "type": "group" },
+      { "course": "DTM — Tarix", "time": "14:00–16:00", "room": "C-302", "type": "group" },
+      { "course": "Biznes Ingliz Tili", "time": "18:00–20:00", "room": "B-201", "type": "group" }
+    ]
+  }
+}

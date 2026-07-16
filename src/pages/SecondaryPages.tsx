@@ -274,7 +274,7 @@ export const ResultsPage: React.FC = () => {
               <div className="bg-slate-50 rounded-2xl p-5 text-center border border-slate-100 col-span-2 md:col-span-1">
                 <div className="flex items-center justify-center gap-2 text-violet-600 mb-1">
                   <Sparkles size={18} />
-                  <span className="text-2xl font-bold text-slate-950">{achievementItems.length}</span>
+                  <span className="text-2xl font-bold text-slate-950">2500+</span>
                 </div>
                 <p className="text-sm text-slate-500 font-medium">Jami yutuq</p>
               </div>

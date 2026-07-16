@@ -1,0 +1,18 @@
+{
+  "phone": "+998 90 123 45 67",
+  "phone2": "+998 91 234 56 78",
+  "email": "info@qarshiyev.uz",
+  "email2": "admissions@qarshiyev.uz",
+  "telegram": "https://t.me/QARSHIYEV_SCHOOL",
+  "instagram": "https://www.instagram.com/qarshiyev_school/",
+  "facebook": "https://facebook.com/qarshiyev_edu",
+  "youtube": "https://youtube.com/@qarshiyev_edu",
+  "address": "Nuriston, Qashqadaryo Region, Uzbekistan",
+  "workingHours": [
+    { "day": "Dushanba – Juma", "hours": "08:00 – 21:00" },
+    { "day": "Shanba", "hours": "09:00 – 18:00" },
+    { "day": "Yakshanba", "hours": "Yopiq" }
+  ],
+  "admissionEmail": "admissions@qarshiyev.uz",
+  "supportEmail": "info@qarshiyev.uz"
+}

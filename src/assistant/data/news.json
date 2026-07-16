@@ -1,0 +1,42 @@
+[
+  {
+    "id": "1",
+    "type": "event",
+    "title": "Ochiq Eshiklar Kuni",
+    "date": "2026-08-05",
+    "summary": "Maktabimizni bepul tashrif buyuring, o'qituvchilar bilan tanishing va daraja aniqlash testini topshiring.",
+    "category": "Open Day"
+  },
+  {
+    "id": "2",
+    "type": "news",
+    "title": "Yangi IELTS 8+ guruhiga qabul boshlandi",
+    "date": "2026-07-20",
+    "summary": "15-avgustdan boshlab Academic IELTS 8+ ball dasturi yangi guruh bilan start oladi.",
+    "category": "News"
+  },
+  {
+    "id": "3",
+    "type": "event",
+    "title": "Cambridge B2 First imtihon simulyatsiyasi",
+    "date": "2026-08-12",
+    "summary": "Bepul to'liq hajmli Cambridge B2 mock testi va shaxsiy natija tahlili.",
+    "category": "Exam Prep"
+  },
+  {
+    "id": "4",
+    "type": "news",
+    "title": "Yozgi tanlov: 15 nafar o'quvchimiz xalqaro olimpiada finalchisi",
+    "date": "2026-06-30",
+    "summary": "HIPO va BEE xalqaro olimpiadalari respublika finaliga 15 nafar shogirdimiz yo'llandi.",
+    "category": "News"
+  },
+  {
+    "id": "5",
+    "type": "event",
+    "title": "Ota-onalar uchun vebinar",
+    "date": "2026-08-18",
+    "summary": "Farzandingizning xorijda o'qish yo'nalishlari va moliyaviy rejalashtirish bo'yicha bepul vebinar.",
+    "category": "Online"
+  }
+]

@@ -1,0 +1,86 @@
+[
+  {
+    "id": "1",
+    "question": "Qarshiyev maktabi boshqa til maktablaridan nimasi bilan farq qiladi?",
+    "answer": "Qarshiyev School xalqaro sertifikatlangan o'qituvchilar, premium ta'lim muhiti va ma'lumotlarga asoslangan o'qitish metodologiyasini birlashtiradi. O'qituvchilarimiz Cambridge CELTA, DELTA va boshqa xalqaro malakaga ega. Guruh hajmini maksimum 12 o'quvchi bilan cheklaymiz va 96% muvaffaqiyat ko'rsatkichiga erishganmiz.",
+    "category": "General",
+    "keywords": ["farq", "afzallik", "nima uchun", "why"]
+  },
+  {
+    "id": "2",
+    "question": "Men uchun to'g'ri kursni qanday tanlash kerak?",
+    "answer": "Har bir o'quvchiga bepul 30 daqiqalik maslahat va darajani aniqlash testi taklif etamiz. Akademik maslahatchilarimiz joriy darajangizni baholaydi va eng mos dasturni tavsiya etadi. Buni veb-sayt yoki ofisga qo'ng'iroq qilib band qilishingiz mumkin.",
+    "category": "General",
+    "keywords": ["kurs tanlash", "maslahat", "qaysi kurs"]
+  },
+  {
+    "id": "3",
+    "question": "Qaysi yosh guruhlarini qabul qilasiz?",
+    "answer": "8 yoshdan boshlab qabul qilamiz. Yosh o'quvchilar dasturi 8–14 yosh, O'smirlar 14–18 yosh, Kattalar 18+ yosh uchun. Har bir dastur yoshga mos materiallardan foydalanadi.",
+    "category": "General",
+    "keywords": ["yosh", "age", "bola", "o'quvchi"]
+  },
+  {
+    "id": "4",
+    "question": "IELTS tayyorgarlik kursi qancha davom etadi?",
+    "answer": "Standart IELTS Intensiv kursi 3 oy (haftada 6 soat). 8+ ball uchun 2 oylik Ilg'or IELTS dasturi. Boshlang'ichlardan boshlasangiz 6 oylik Yo'nalish tavsiya etamiz.",
+    "category": "Courses",
+    "keywords": ["ielts", "davomiyligi", "vaqt"]
+  },
+  {
+    "id": "5",
+    "question": "Guruh hajmi qanday?",
+    "answer": "Imtihon tayyorgarligi kurslari (IELTS, SAT, Cambridge) uchun bir guruhda maksimum 12 o'quvchi. Umumiy Ingliz Tili kurslarida maksimum 15 kishi.",
+    "category": "Courses",
+    "keywords": ["guruh", "group", "necha kishi"]
+  },
+  {
+    "id": "6",
+    "question": "Kurs boshlanib ketgandan so'ng unga kirish mumkinmi?",
+    "answer": "Ko'p holatlarda ha — Umumiy Ingliz Tili kurslariga. Imtihon tayyorgarligi uchun tsikl boshidan boshlash tavsiya etiladi. Jamoamiz darajangizga qarab maslahat beradi.",
+    "category": "Courses",
+    "keywords": ["kirish", "join", "boshlandi"]
+  },
+  {
+    "id": "9",
+    "question": "Qanday to'lov usullarini qabul qilasiz?",
+    "answer": "Naqd pul, bank o'tkazma va O'zbekistonning barcha yirik to'lov tizimlari (Payme, Click, Uzcard) qabul qilinadi. 3 oy va undan uzoq kurslar uchun oylik to'lov rejalari mavjud. To'liq to'lovda 10% chegirma.",
+    "category": "Fees & Payment",
+    "keywords": ["tolov", "payment", "pul", "click", "payme"]
+  },
+  {
+    "id": "10",
+    "question": "Qaytarish siyosati bormi?",
+    "answer": "Ha. Dastlabki 7 kun ichida chiqib ketgan o'quvchi ma'muriy to'lovni ayirib to'liq qaytarish oladi. 7–30 kun orasida 50% qaytariladi. 30 kundan keyin qaytarilmaydi.",
+    "category": "Fees & Payment",
+    "keywords": ["qaytarish", "refund", "pul qaytishi"]
+  },
+  {
+    "id": "11",
+    "question": "Kursni tugatganda sertifikat olamanmi?",
+    "answer": "To'liq kursni tugatgan va 80% davomat qilgan har bir o'quvchi Qarshiyev School Bitirish Sertifikatini oladi. Shuningdek rasmiy xalqaro imtihonlarga (IELTS, Cambridge, SAT) tayyorlaymiz va yo'llaymiz.",
+    "category": "Certificates",
+    "keywords": ["sertifikat", "certificate", "guvohnoma"]
+  },
+  {
+    "id": "12",
+    "question": "Sertifikatlaringiz xalqaro darajada tan olinadimi?",
+    "answer": "Ichki bitirish sertifikatlarimiz O'zbekistondagi hamkor universitetlar va ish beruvchilar tomonidan tan olingan. Xalqaro tan olinish uchun rasmiy imtihon sertifikati (IELTS, Cambridge B2/C1, TOEFL) talab qilinadi, biz sizni bunga to'liq tayyorlaymiz.",
+    "category": "Certificates",
+    "keywords": ["xalqaro", "international", "tan olinish"]
+  },
+  {
+    "id": "13",
+    "question": "Ish vaqtingiz qanday?",
+    "answer": "Markaz dushanba–shanba 08:00–21:00 ochiq. Darslar ertalab (08:00–12:00), kunduzi (13:00–17:00) va kechqurun (17:00–21:00) slotlarida. Yakshanba va bayramlarda yopiq.",
+    "category": "Schedule",
+    "keywords": ["ish vaqti", "hours", "ochiq", "vaqt"]
+  },
+  {
+    "id": "14",
+    "question": "Onlayn o'qish mumkinmi?",
+    "answer": "Ha! Barcha kurslar uchun to'liq onlayn ta'lim mavjud. Jonli video seanslari, interaktiv doskalar va 30 kunlik yozib olingan dars kirish imkoniyati. Onlayn tajriba shaxsiy darslar kabi samarali.",
+    "category": "Schedule",
+    "keywords": ["onlayn", "online", "zoom", "masofaviy"]
+  }
+]

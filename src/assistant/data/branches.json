@@ -1,0 +1,24 @@
+[
+  {
+    "id": "1",
+    "name": "Nuriston (Asosiy filial)",
+    "city": "Qarshi",
+    "region": "Qashqadaryo",
+    "address": "Nuriston, Qashqadaryo Region, Uzbekistan",
+    "phone": "+998 90 123 45 67",
+    "isMain": true,
+    "facilities": ["Sinflar", "Onlayn studio", "Kutubxona", "O'qish zonalari"],
+    "hours": "Dush–Shan 08:00–21:00"
+  },
+  {
+    "id": "2",
+    "name": "Kasbiy Markaz (Ikkinchi filial)",
+    "city": "Qarshi",
+    "region": "Qashqadaryo",
+    "address": "Markaziy tuman, Qarshi shahri",
+    "phone": "+998 91 234 56 78",
+    "isMain": false,
+    "facilities": ["Sinflar", "Laboratoriya", "Konsultatsiya xonasi"],
+    "hours": "Dush–Shan 09:00–20:00"
+  }
+]

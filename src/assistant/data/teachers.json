@@ -1,0 +1,52 @@
+[
+  {
+    "id": "1",
+    "name": "Sirojiddin Qarshiyev",
+    "title": "Ingliz Tili O'qituvchisi",
+    "specialization": ["IELTS", "CEFR", "English Grammar"],
+    "experience": 10,
+    "rating": 4.9,
+    "bio": "MULTILEVEL (CEFR) C1+2 sohibi. Shogirdlari IELTS va CEFR dan C1 darajagacha erishgan. HIPO, BEE xalqaro olimpiadalari respublika finalchilari bor.",
+    "languages": ["Ingliz tili", "O'zbek tili"]
+  },
+  {
+    "id": "2",
+    "name": "Sirojiddin Qarshiyev",
+    "title": "Tarix O'qituvchisi",
+    "specialization": ["Milliy Sertifikat", "Attestatsiya", "DTM"],
+    "experience": 10,
+    "rating": 4.8,
+    "bio": "Milliy Sertifikat A+ sohibi. Shogirdlari Milliy Sertifikatdan A va A+ darajagacha erishgan.",
+    "languages": ["O'zbek tili", "Rus tili"]
+  },
+  {
+    "id": "3",
+    "name": "Sirojiddin Qarshiyev",
+    "title": "Ona Tili va Adabiyot O'qituvchisi",
+    "specialization": ["Milliy Sertifikat", "Attestatsiya", "DTM"],
+    "experience": 10,
+    "rating": 4.8,
+    "bio": "Milliy Sertifikat A+ sohibi. Ona tili va adabiyot bo'yicha chuqur tayyorgarlik beradi.",
+    "languages": ["O'zbek tili", "Rus tili"]
+  },
+  {
+    "id": "4",
+    "name": "Nurbek Qarshiyev",
+    "title": "Ingliz Tili O'qituvchisi",
+    "specialization": ["CEFR", "English Grammar", "B2"],
+    "experience": 2,
+    "rating": 4.7,
+    "bio": "O'zbekiston Davlat Jahon Tillari Universiteti bitiruvchisi. Shogirdlari CEFR dan B2 darajagacha erishgan.",
+    "languages": ["Ingliz tili", "O'zbek tili"]
+  },
+  {
+    "id": "5",
+    "name": "Munira Qarshiyeva",
+    "title": "Ingliz Tili O'qituvchisi",
+    "specialization": ["CEFR", "English Grammar"],
+    "experience": 3,
+    "rating": 4.8,
+    "bio": "Qarshi Davlat Universiteti bitiruvchisi. Yuzlab mamnun o'quvchilarning sevimli ustozi.",
+    "languages": ["Ingliz tili", "O'zbek tili"]
+  }
+]

@@ -1,0 +1,37 @@
+{
+  "steps": [
+    {
+      "step": 1,
+      "title": "Ariza qoldirish",
+      "description": "Veb-sayt orqali ro'yxatdan o'ting yoki ofisga qo'ng'iroq qiling. Telegram orqali ham yozishingiz mumkin."
+    },
+    {
+      "step": 2,
+      "title": "Bepul maslahat va daraja testi",
+      "description": "30 daqiqalik bepul maslahat va darajani aniqlash testi. Sizga mos kurs tavsiya etiladi."
+    },
+    {
+      "step": 3,
+      "title": "Guruh tanlash va to'lov",
+      "description": "Sizga qulay vaqtni tanlang. Naqd, bank yoki Click/Payme/Uzcard orqali to'lov qiling."
+    },
+    {
+      "step": 4,
+      "title": "O'qishni boshlash",
+      "description": "Dars jadvalingiz tayyor. Offline yoki onlayn formatda o'qishingiz mumkin."
+    }
+  ],
+  "requirements": [
+    "Yosh chegarasi: 8 yoshdan katta bo'lishi kerak",
+    "Daraja aniqlash testi natijasi",
+    "To'lov kvitansiyasi"
+  ],
+  "freeConsultation": true,
+  "consultationDuration": "30 daqiqa",
+  "startAnytime": "Umumiy Ingliz Tili kurslariga istalgan vaqtda qo'shilish mumkin",
+  "contact": {
+    "admissionsEmail": "admissions@qarshiyev.uz",
+    "phone": "+998 90 123 45 67",
+    "telegram": "https://t.me/QARSHIYEV_SCHOOL"
+  }
+}
