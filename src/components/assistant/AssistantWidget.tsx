@@ -121,10 +121,32 @@ export const AssistantWidget: React.FC = memo(() => {
     };
   }, [isOpen, close]);
 
+  // Prevent background scroll on mobile and lock body overflow when chat is open.
+  useEffect(() => {
+    if (!isOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    const originalTouchAction = document.body.style.touchAction;
+    document.body.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none';
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.touchAction = originalTouchAction;
+    };
+  }, [isOpen]);
+
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
+        <>
+          <motion.div
+            key="assistant-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-[9999] bg-black/10 backdrop-blur-[2px]"
+          />
+          <motion.div
           key="assistant-panel"
           ref={panelRef}
           initial={{ opacity: 0, y: 24, scale: 0.92 }}
@@ -200,8 +222,9 @@ export const AssistantWidget: React.FC = memo(() => {
             </p>
           </div>
         </motion.div>
-      )}
-    </AnimatePresence>
+      </>
+    )}
+  </AnimatePresence>
   );
 });
 

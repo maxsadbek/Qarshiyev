@@ -3,11 +3,11 @@ import { resolveFromKnowledge } from './searchEngine';
 import type { ChatMessage, QuickReply } from './types';
 
 export const SUGGESTED_QUESTIONS: QuickReply[] = [
-  { label: 'What courses do you offer?', value: 'What courses do you offer?' },
-  { label: 'How much is the Frontend course?', value: 'How much is the Frontend course?' },
-  { label: 'How can I register?', value: 'How can I register?' },
-  { label: 'Where is the school located?', value: 'Where is the school located?' },
-  { label: "What's today's schedule?", value: "What's today's schedule?" },
+  { label: 'Courses', value: 'Courses' },
+  { label: 'Tuition Fees', value: 'Tuition Fees' },
+  { label: 'Admission', value: 'Admission' },
+  { label: 'Teachers', value: 'Teachers' },
+  { label: 'Contact', value: 'Contact' },
 ];
 
 export function getGreeting(): string {
