@@ -12,26 +12,23 @@ export const CourseCard: React.FC<{ course: Course; className?: string }> = ({
     <div
       className={`bg-white rounded-xl overflow-hidden card-shadow hover:shadow-xl transition-all duration-300 group border border-slate-100 flex flex-col h-full ${className ?? ''}`}
     >
-      {/* Image */}
-      <div className="relative h-48 overflow-hidden">
-        <img
-          src={course.image}
-          alt={course.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          loading="lazy"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 to-transparent" />
-        <div className="absolute top-4 left-4 flex gap-2">
+      {/* Header (text-based, no image) */}
+      <div className="relative bg-gradient-to-br from-slate-950 to-violet-950 p-5 overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.07] bg-[radial-gradient(circle_at_top_right,theme(colors.violet.400),transparent_60%)]" />
+        <div className="relative flex items-center justify-between gap-2">
           <Badge variant="gold">{course.category}</Badge>
-          {course.featured && <Badge variant="dark">Tavsiya Etilgan</Badge>}
-        </div>
-        <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-          <div className="flex items-center gap-1">
-            <Star size={12} fill="#f59e0b" className="text-violet-400" />
-            <span className="text-white text-xs font-semibold">{course.rating}</span>
-            <span className="text-white/60 text-xs">({course.reviewCount})</span>
+          <div className="flex items-center gap-2">
+            {course.featured && <Badge variant="dark">Tavsiya Etilgan</Badge>}
+            <Badge variant="dark">{course.level}</Badge>
           </div>
-          <Badge variant="dark">{course.level}</Badge>
+        </div>
+        <p className="relative text-slate-300 text-sm leading-relaxed mt-4 line-clamp-4">
+          {course.description}
+        </p>
+        <div className="relative flex items-center gap-1 mt-3">
+          <Star size={13} fill="#f59e0b" className="text-amber-400" />
+          <span className="text-white text-xs font-semibold">{course.rating}</span>
+          <span className="text-white/60 text-xs">({course.reviewCount})</span>
         </div>
       </div>
 
