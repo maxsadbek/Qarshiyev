@@ -46,7 +46,7 @@ export const FloatingAssistantButton: React.FC = () => {
           onMouseEnter={() => setShowTip(true)}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
-          aria-label={isOpen ? 'Close AI assistant' : 'Open AI assistant'}
+          aria-label={isOpen ? 'Close information' : 'Open information'}
           aria-expanded={isOpen}
           className={cn(
             'assistant-violet assistant-ripple fixed bottom-6 right-20 md:right-24',
@@ -87,7 +87,7 @@ export const FloatingAssistantButton: React.FC = () => {
                   className="pointer-events-none absolute right-[4.5rem] top-1/2 -translate-y-1/2 hidden whitespace-nowrap rounded-2xl bg-slate-950/92 px-3.5 py-2 text-xs font-medium text-white shadow-xl backdrop-blur md:block"
                 >
                   <Bot size={13} className="mr-1 inline text-violet-300" />
-                  👋 Hi! I&apos;m your AI School Assistant.
+                   👋 School Info
                 </motion.span>
               )}
             </AnimatePresence>

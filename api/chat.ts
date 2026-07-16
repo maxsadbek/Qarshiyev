@@ -17,7 +17,8 @@ export default async function handler(req: Request): Promise<Response> {
       status: 405,
     });
   }
-
+  console.log("API STARTED");
+  console.log("Has API Key:", !!process.env.OPENROUTER_API_KEY);
   try {
     const body = await req.json();
 
