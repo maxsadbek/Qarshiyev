@@ -1,4 +1,6 @@
-import { GoogleGenAI, Content } from '@google/genai';
+/// <reference types="node" />
+
+import { GoogleGenAI, type Content } from '@google/genai';
 
 export const config = { runtime: 'nodejs' };
 
