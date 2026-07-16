@@ -1,19 +1,8 @@
 import { knowledgeBase } from './knowledgeBase';
 import { searchKnowledge } from './searchEngine';
-import type { LLMConfig, LLMMessage } from './types';
+import type { LLMMessage } from './types';
 
-const DEFAULT_CONFIG: LLMConfig = {
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY ?? '',
-  baseURL: import.meta.env.VITE_OPENAI_BASE_URL ?? 'https://api.openai.com/v1',
-  model: import.meta.env.VITE_OPENAI_MODEL ?? 'gpt-4o-mini',
-  temperature: 0.3,
-  maxTokens: 600,
-  enabled: Boolean(import.meta.env.VITE_OPENAI_API_KEY),
-};
-
-export function getLLMConfig(): LLMConfig {
-  return { ...DEFAULT_CONFIG };
-}
+const API_URL = '/api/chat';
 
 const FALLBACK_MESSAGE =
   "Kechirasiz, hozircha ishonchli ma'lumot topa olmadim. Aniq javob uchun maktab ma'muriyati bilan bog'laning: info@qarshiyev.uz yoki +998 90 123 45 67.";
@@ -49,41 +38,28 @@ function buildUserContext(query: string): string {
 }
 
 /**
- * Calls an OpenAI-compatible chat completions endpoint.
- * Returns streamed tokens via async generator. Falls back gracefully on error.
+ * Calls the local Vercel serverless function at /api/chat.
+ * The backend holds the Gemini API key and never exposes it to the client.
+ * Returns streamed tokens via async generator.
  */
 export async function* streamLLM(
   messages: LLMMessage[],
   query: string,
   signal?: AbortSignal
 ): AsyncGenerator<string, void, unknown> {
-  const config = getLLMConfig();
-
-  if (!config.enabled || !config.apiKey) {
-    yield FALLBACK_MESSAGE;
-    return;
-  }
+  const systemPrompt = buildSystemPrompt();
+  const userContext = buildUserContext(query);
 
   const fullMessages: LLMMessage[] = [
-    { role: 'system', content: buildSystemPrompt() },
     ...messages.filter((m) => m.role !== 'system'),
-    { role: 'user', content: buildUserContext(query) },
+    { role: 'user', content: userContext },
   ];
 
   try {
-    const res = await fetch(`${config.baseURL}/chat/completions`, {
+    const res = await fetch(API_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${config.apiKey}`,
-      },
-      body: JSON.stringify({
-        model: config.model,
-        messages: fullMessages,
-        temperature: config.temperature,
-        max_tokens: config.maxTokens,
-        stream: true,
-      }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: fullMessages, query, systemPrompt }),
       signal,
     });
 
@@ -94,27 +70,13 @@ export async function* streamLLM(
 
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
-    let buffer = '';
 
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop() ?? '';
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (!trimmed.startsWith('data:')) continue;
-        const data = trimmed.slice(5).trim();
-        if (data === '[DONE]') return;
-        try {
-          const json = JSON.parse(data);
-          const token = json.choices?.[0]?.delta?.content;
-          if (token) yield token;
-        } catch {
-          /* ignore partial chunks */
-        }
-      }
+      if (signal?.aborted) return;
+      const text = decoder.decode(value, { stream: true });
+      yield text;
     }
   } catch (err) {
     if ((err as Error).name === 'AbortError') return;

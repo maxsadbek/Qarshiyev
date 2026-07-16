@@ -154,7 +154,7 @@ export const AssistantWidget: React.FC = memo(() => {
           exit={{ opacity: 0, y: 24, scale: 0.92 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           className={cn(
-            'assistant-violet fixed bottom-24 right-4 z-[10000] flex h-[70vh] w-[calc(100vw-2rem)] max-w-[400px] flex-col overflow-hidden rounded-3xl md:bottom-24 md:right-6 md:h-[640px]',
+            'assistant-violet fixed bottom-24 right-4 z-[10000] flex h-[70vh] w-[calc(100vw-2rem)] max-w-[400px] flex-col overflow-hidden rounded-3xl md:bottom-24 md:right-24 md:h-[640px]',
             dark ? 'assistant-glass-dark' : 'assistant-glass'
           )}
           role="dialog"

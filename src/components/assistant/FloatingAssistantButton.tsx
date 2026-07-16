@@ -38,7 +38,7 @@ export const FloatingAssistantButton: React.FC = () => {
   };
 
   return (
-    <AnimatePresence>
+    <>
       {ready && (
         <motion.button
           type="button"
@@ -49,9 +49,10 @@ export const FloatingAssistantButton: React.FC = () => {
           aria-label={isOpen ? 'Close AI assistant' : 'Open AI assistant'}
           aria-expanded={isOpen}
           className={cn(
-            'assistant-violet assistant-ripple fixed bottom-6 right-5 z-[10000] md:right-6',
+            'assistant-violet assistant-ripple fixed bottom-6 right-20 md:right-24',
             'h-16 w-16 rounded-full flex items-center justify-center',
-            'text-white shadow-2xl cursor-pointer group select-none'
+            'text-white shadow-2xl cursor-pointer group select-none pointer-events-auto',
+            isOpen ? 'z-[10000]' : 'z-[99999]'
           )}
           initial={{ opacity: 0, scale: 0.3, y: 30 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -93,6 +94,6 @@ export const FloatingAssistantButton: React.FC = () => {
           </motion.div>
         </motion.button>
       )}
-    </AnimatePresence>
+    </>
   );
 };

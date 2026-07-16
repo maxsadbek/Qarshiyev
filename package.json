@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@google/genai": "^0.13.0",
     "@photo-sphere-viewer/core": "^5.14.3",
     "@photo-sphere-viewer/markers-plugin": "^5.14.3",
     "@tailwindcss/vite": "^4.3.2",
