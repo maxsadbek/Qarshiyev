@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion, useMotionValue, useSpring } from 'framer-motion';
-import { Bot, Sparkles, X } from 'lucide-react';
+import { Info, X } from 'lucide-react';
 import { useAssistant } from '@/assistant/AssistantContext';
 import { cn } from '@/utils';
 
@@ -14,12 +14,11 @@ export const FloatingAssistantButton: React.FC = () => {
   const springX = useSpring(hoverX, { stiffness: 300, damping: 20 });
   const springY = useSpring(hoverY, { stiffness: 300, damping: 20 });
 
-  // Entrance: 2s after mount, animate in above everything (incl. intro overlay).
   useEffect(() => {
     const t = setTimeout(() => {
       setReady(true);
       setShowTip(true);
-      setTimeout(() => setShowTip(false), 5000);
+      setTimeout(() => setShowTip(false), 4000);
     }, 2000);
     return () => clearTimeout(t);
   }, []);
@@ -49,9 +48,10 @@ export const FloatingAssistantButton: React.FC = () => {
           aria-label={isOpen ? 'Close information' : 'Open information'}
           aria-expanded={isOpen}
           className={cn(
-            'assistant-violet assistant-ripple fixed bottom-6 right-20 md:right-24',
-            'h-16 w-16 rounded-full flex items-center justify-center',
-            'text-white shadow-2xl cursor-pointer group select-none pointer-events-auto',
+            'fixed bottom-6 right-20 md:right-24',
+            'h-14 w-14 rounded-full flex items-center justify-center',
+            'bg-white text-slate-900 shadow-xl cursor-pointer select-none',
+            'border border-white/20',
             isOpen ? 'z-[10000]' : 'z-[99999]'
           )}
           initial={{ opacity: 0, scale: 0.3, y: 30 }}
@@ -61,37 +61,28 @@ export const FloatingAssistantButton: React.FC = () => {
           whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.92 }}
         >
-          <motion.div style={{ x: springX, y: springY }} className="absolute inset-0">
-            {/* Gentle pulse glow every few seconds */}
-            {!isOpen && <span className="assistant-pulse-glow" />}
-            <span className="absolute inset-0 rounded-full assistant-conic opacity-90" />
-            <span className="absolute inset-[1.5px] rounded-full bg-gradient-to-br from-violet-500 to-indigo-600" />
-
-            <span className="relative z-10 flex items-center justify-center">
-              <motion.span
-                animate={isOpen ? { rotate: 90, scale: 0.9 } : { rotate: 0, scale: 1 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-              >
-                {isOpen ? <X size={24} strokeWidth={2.2} /> : <Sparkles size={24} strokeWidth={2.2} />}
-              </motion.span>
-            </span>
-
-            {/* Floating intro message — auto-hides, reappears on hover */}
-            <AnimatePresence>
-              {showTip && !isOpen && (
-                <motion.span
-                  initial={{ opacity: 0, x: 10, scale: 0.9 }}
-                  animate={{ opacity: 1, x: 0, scale: 1 }}
-                  exit={{ opacity: 0, x: 10, scale: 0.9 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 24 }}
-                  className="pointer-events-none absolute right-[4.5rem] top-1/2 -translate-y-1/2 hidden whitespace-nowrap rounded-2xl bg-slate-950/92 px-3.5 py-2 text-xs font-medium text-white shadow-xl backdrop-blur md:block"
-                >
-                  <Bot size={13} className="mr-1 inline text-violet-300" />
-                   👋 School Info
-                </motion.span>
-              )}
-            </AnimatePresence>
+          <motion.div style={{ x: springX, y: springY }} className="absolute inset-0 flex items-center justify-center">
+            <motion.span
+              animate={isOpen ? { rotate: 90, scale: 0.9 } : { rotate: 0, scale: 1 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+            >
+              {isOpen ? <X size={20} strokeWidth={2.2} /> : <Info size={20} strokeWidth={2.2} />}
+            </motion.span>
           </motion.div>
+
+          <AnimatePresence>
+            {showTip && !isOpen && (
+              <motion.span
+                initial={{ opacity: 0, x: 10, scale: 0.9 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                exit={{ opacity: 0, x: 10, scale: 0.9 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+                className="pointer-events-none absolute right-[4.5rem] top-1/2 -translate-y-1/2 hidden whitespace-nowrap rounded-xl bg-slate-900/95 px-3.5 py-2 text-xs font-medium text-white shadow-xl backdrop-blur md:block border border-white/10"
+              >
+                Information Center
+              </motion.span>
+            )}
+          </AnimatePresence>
         </motion.button>
       )}
     </>
