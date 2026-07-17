@@ -20,8 +20,8 @@ export class IntroSoundEngine {
   private initialized = false;
   private activeNodes: AudioNode[] = [];
 
-  /** Master volume — deliberately quiet */
-  private readonly MASTER_VOLUME = 0.12;
+  /** Master volume */
+  private readonly MASTER_VOLUME = 0.8;
 
   get isMuted(): boolean {
     return this.muted;
@@ -114,7 +114,7 @@ export class IntroSoundEngine {
 
     const gain = ctx.createGain();
     gain.gain.setValueAtTime(0, ctx.currentTime);
-    gain.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 1.5);
+    gain.gain.linearRampToValueAtTime(0.4, ctx.currentTime + 1.5);
 
     source.connect(filter);
     filter.connect(gain);
@@ -136,8 +136,8 @@ export class IntroSoundEngine {
 
     const gain = ctx.createGain();
     gain.gain.setValueAtTime(0, ctx.currentTime);
-    gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 1.2);
-    gain.gain.linearRampToValueAtTime(0.05, ctx.currentTime + 3);
+    gain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 1.2);
+    gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 3);
 
     osc.connect(gain);
     gain.connect(masterGain);
@@ -157,7 +157,7 @@ export class IntroSoundEngine {
     osc.frequency.value = 880;
 
     const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.06, ctx.currentTime);
+    gain.gain.setValueAtTime(0.2, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
 
     osc.connect(gain);
@@ -190,7 +190,7 @@ export class IntroSoundEngine {
     filter.Q.value = 1;
 
     const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.55);
 
     source.connect(filter);
@@ -211,7 +211,7 @@ export class IntroSoundEngine {
     osc.frequency.value = 2400;
 
     const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.03, ctx.currentTime);
+    gain.gain.setValueAtTime(0.08, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
 
     osc.connect(gain);
@@ -236,7 +236,7 @@ export class IntroSoundEngine {
       const gain = ctx.createGain();
       const start = ctx.currentTime + i * 0.05;
       gain.gain.setValueAtTime(0, start);
-      gain.gain.linearRampToValueAtTime(0.06, start + 0.02);
+      gain.gain.linearRampToValueAtTime(0.15, start + 0.02);
       gain.gain.exponentialRampToValueAtTime(0.001, start + 0.6);
 
       osc.connect(gain);

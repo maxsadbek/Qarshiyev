@@ -1,15 +1,9 @@
-import { memo, useCallback, useState } from 'react';
+import { memo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   X,
   BookOpen,
   Languages,
-  MapPin,
-  Phone,
-  Send,
-  Clock,
-  ChevronRight,
-  Globe,
   Code2,
   PenTool,
   Star,
@@ -17,8 +11,6 @@ import {
 } from 'lucide-react';
 import { useAssistant } from '@/assistant/AssistantContext';
 import { cn } from '@/utils';
-import { useLenis } from '@/context/SmoothScrollProvider';
-import { CONTACT_INFO } from '@/constants';
 import logo from '@/assets/logo.png';
 
 const cardVariants = {
@@ -146,12 +138,6 @@ const InfoCard: React.FC<InfoCardProps> = ({ icon, title, description, items, in
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <h3 className="text-sm font-bold text-white tracking-tight">{title}</h3>
-              <motion.div
-                animate={{ x: isHovered ? 4 : 0, opacity: isHovered ? 1 : 0 }}
-                transition={{ type: 'spring' as const, stiffness: 400, damping: 20 }}
-              >
-                <ChevronRight size={14} className="text-violet-400" />
-              </motion.div>
             </div>
             <p className="text-[0.72rem] text-slate-400 leading-relaxed mb-3">{description}</p>
             <ul className="space-y-1.5">
@@ -177,146 +163,8 @@ const InfoCard: React.FC<InfoCardProps> = ({ icon, title, description, items, in
   );
 };
 
-const ContactCard: React.FC<{ index: number }> = ({ index }) => {
-  const [isHovered, setIsHovered] = useState(false);
-
-  const contactItems = [
-    {
-      icon: <Send size={16} />,
-      label: 'Telegram',
-      value: CONTACT_INFO.telegram,
-      href: CONTACT_INFO.telegram,
-      color: 'from-sky-400 to-cyan-500',
-      glow: '#06b6d4',
-    },
-    {
-      icon: <Phone size={16} />,
-      label: 'Phone',
-      value: CONTACT_INFO.phone,
-      href: `tel:${CONTACT_INFO.phone}`,
-      color: 'from-emerald-400 to-teal-500',
-      glow: '#10b981',
-    },
-    {
-      icon: <MapPin size={16} />,
-      label: 'Address',
-      value: CONTACT_INFO.address,
-      href: undefined,
-      color: 'from-violet-400 to-purple-500',
-      glow: '#8b5cf6',
-    },
-    {
-      icon: <Clock size={16} />,
-      label: 'Working Hours',
-      value: CONTACT_INFO.workingHours.map((h) => `${h.day}: ${h.hours}`).join('\n'),
-      href: undefined,
-      color: 'from-amber-400 to-orange-500',
-      glow: '#f59e0b',
-    },
-  ];
-
-  return (
-    <motion.div
-      custom={index}
-      variants={cardVariants}
-      initial="hidden"
-      animate="visible"
-      className="rounded-3xl border border-white/[0.08] bg-white/[0.04] p-5"
-    >
-      <div className="flex items-center gap-3 mb-4">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 text-white shadow-lg shadow-cyan-500/25">
-          <Globe size={20} />
-        </div>
-        <div>
-          <h3 className="text-sm font-bold text-white tracking-tight">Contact Us</h3>
-          <p className="text-[0.65rem] text-slate-400">We'd love to hear from you</p>
-        </div>
-      </div>
-      <div className="grid grid-cols-1 gap-2.5">
-        {contactItems.map((item) => (
-          <motion.div
-            key={item.label}
-            onHoverStart={() => setIsHovered(true)}
-            onHoverEnd={() => setIsHovered(false)}
-            whileHover={{ scale: 1.02, x: 4 }}
-            whileTap={{ scale: 0.98 }}
-            className="group relative"
-          >
-            {item.href ? (
-              <a
-                href={item.href}
-                target={item.label !== 'Phone' ? '_blank' : undefined}
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 rounded-2xl bg-white/[0.04] p-3 transition-all duration-300 hover:bg-white/[0.08] border border-white/[0.06] hover:border-white/[0.12]"
-                style={
-                  isHovered
-                    ? {
-                        boxShadow: `0 0 20px ${item.glow}15, 0 8px 24px -8px ${item.glow}25`,
-                      }
-                    : undefined
-                }
-              >
-                <div
-                  className={cn(
-                    'flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-lg transition-transform duration-300 group-hover:scale-110',
-                    item.color
-                  )}
-                >
-                  {item.icon}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[0.65rem] text-slate-400 uppercase tracking-wider font-semibold mb-0.5">
-                    {item.label}
-                  </p>
-                  <p className="text-[0.8rem] text-slate-200 font-medium truncate">{item.value}</p>
-                </div>
-                <ChevronRight
-                  size={14}
-                  className="text-slate-500 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-white"
-                />
-              </a>
-            ) : (
-              <div className="flex items-center gap-3 rounded-2xl bg-white/[0.04] p-3 border border-white/[0.06]">
-                <div
-                  className={cn(
-                    'flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-lg',
-                    item.color
-                  )}
-                >
-                  {item.icon}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[0.65rem] text-slate-400 uppercase tracking-wider font-semibold mb-0.5">
-                    {item.label}
-                  </p>
-                  <p className="text-[0.8rem] text-slate-200 font-medium whitespace-pre-line leading-relaxed">
-                    {item.value}
-                  </p>
-                </div>
-              </div>
-            )}
-          </motion.div>
-        ))}
-      </div>
-    </motion.div>
-  );
-};
-
 export const AssistantWidget: React.FC = memo(() => {
   const { isOpen, close } = useAssistant();
-  const lenis = useLenis();
-
-  const handleContactUs = useCallback(() => {
-    close();
-    const footer = document.querySelector('footer');
-    if (footer) {
-      if (lenis) {
-        lenis.scrollTo(footer, { duration: 1.4, offset: 0 });
-      } else {
-        footer.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  }, [close, lenis]);
 
   return (
     <AnimatePresence>
@@ -421,31 +269,7 @@ export const AssistantWidget: React.FC = memo(() => {
                   iconBg="bg-gradient-to-br from-amber-500 to-orange-600"
                   glowColor="#f59e0b"
                 />
-
-                <ContactCard index={5} />
               </motion.div>
-            </div>
-
-            <div className="relative px-4 pb-5 pt-2">
-              <div className="absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.08] to-transparent" />
-              <motion.button
-                type="button"
-                onClick={handleContactUs}
-                whileHover={{ scale: 1.02, y: -1 }}
-                whileTap={{ scale: 0.98 }}
-                className="group relative w-full overflow-hidden rounded-2xl bg-gradient-to-r from-violet-600 via-indigo-600 to-violet-600 bg-[length:200%_100%] px-6 py-4 text-sm font-bold text-white shadow-xl shadow-violet-500/20 transition-all duration-500 hover:shadow-2xl hover:shadow-violet-500/30 animate-[shimmer_3s_linear_infinite]"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                <div className="relative flex items-center justify-center gap-2">
-                  <span>Contact Us</span>
-                  <motion.div
-                    animate={{ x: [0, 4, 0] }}
-                    transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
-                  >
-                    <ChevronRight size={18} />
-                  </motion.div>
-                </div>
-              </motion.button>
             </div>
           </motion.div>
         </>
