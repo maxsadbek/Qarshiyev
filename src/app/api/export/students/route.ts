@@ -4,7 +4,7 @@
  */
 import { NextResponse } from 'next/server';
 import prisma from '../../../../lib/prisma';
-import { Prisma } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 import * as XLSX from 'xlsx';
 import { requirePermission } from '../../../../lib/auth';
 import { withApiHandler, securityHeadersInit, rateLimitHeaders } from '@/lib/security/api-response';

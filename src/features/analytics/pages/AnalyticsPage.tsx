@@ -9,7 +9,6 @@ import {
 import { useAnalyticsData } from '../hooks/useAnalyticsData';
 import { useExport } from '../hooks/useExport';
 import { StatCard, FilterBar, GlobalSearch, ExportButtons, ChartsSection } from '../components';
-import { ROUTES } from '@/constants';
 import { useAuth } from '@/context/AuthContext';
 import type { AnalyticsFilters, TimePeriod, SearchResult } from '../types';
 

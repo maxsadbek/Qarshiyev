@@ -55,11 +55,6 @@ const filenames = [
   "5424769644487547954.mp4"
 ];
 
-function getFileName(path: string): string {
-  const parts = path.split('/');
-  return parts[parts.length - 1] ?? path;
-}
-
 function isVideo(name: string): boolean {
   return /\.(mp4|webm|ogg|mov|m4v)$/i.test(name);
 }

@@ -1,11 +1,8 @@
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '../../../lib/auth';
 import prisma from '../../../lib/prisma';
-import { Prisma } from '@prisma/client';
 
 export const dynamic = 'force-dynamic';
-
-type NotificationWithUser = Prisma.NotificationGetPayload<{}>;
 
 export default async function NotificationsPage() {
   const user = await getCurrentUser();
