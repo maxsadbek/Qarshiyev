@@ -15,13 +15,21 @@
 import crypto from 'node:crypto';
 import { requireAuthSecret } from '../env';
 
-const AUTH_SECRET = requireAuthSecret();
+let cachedAuthSecret: string | null = null;
+
+function getAuthSecret(): string {
+  if (cachedAuthSecret === null) {
+    cachedAuthSecret = requireAuthSecret();
+  }
+  return cachedAuthSecret;
+}
 
 const base64url = (buf: Buffer) => buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 const fromBase64url = (s: string) => Buffer.from(s.replace(/-/g, '+').replace(/_/g, '/'), 'base64');
 
 function sign(data: string): string {
-  return base64url(crypto.createHmac('sha256', AUTH_SECRET).update(data).digest());
+  const secret = Buffer.from(getAuthSecret(), 'utf8');
+  return base64url(crypto.createHmac('sha256', secret).update(data).digest());
 }
 
 function verifySignature(data: string, sig: string): boolean {
