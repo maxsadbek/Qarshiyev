@@ -55,48 +55,6 @@ export const AnalyticsPage: React.FC = () => {
   };
 
   // ============================================================
-  // Authorization Guard
-  // ============================================================
-  // TODO: Replace with proper role-based access control
-  // TODO: Add teacher-specific data filtering
-  if (!user || user.role !== 'admin') {
-    return <Navigate to={ROUTES.HOME} replace />;
-  }
-
-  // ============================================================
-  // Loading State
-  // ============================================================
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-violet-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-slate-600 font-medium">Ma'lumotlar yuklanmoqda...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // ============================================================
-  // Error State
-  // ============================================================
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="text-center">
-          <p className="text-rose-600 font-medium mb-4">{error}</p>
-          <button
-            onClick={refetch}
-            className="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors"
-          >
-            Qayta yuklash
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // ============================================================
   // Statistics Cards
   // ============================================================
   const statCards = useMemo(() => {
@@ -167,6 +125,48 @@ export const AnalyticsPage: React.FC = () => {
     if (!overview || overview.totalApplications === 0) return 0;
     return Math.round((overview.acceptedStudents / overview.totalApplications) * 100);
   }, [overview]);
+
+  // ============================================================
+  // Authorization Guard
+  // ============================================================
+  // TODO: Replace with proper role-based access control
+  // TODO: Add teacher-specific data filtering
+  if (!user || user.role !== 'admin') {
+    return <Navigate to={ROUTES.HOME} replace />;
+  }
+
+  // ============================================================
+  // Loading State
+  // ============================================================
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-violet-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-slate-600 font-medium">Ma'lumotlar yuklanmoqda...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ============================================================
+  // Error State
+  // ============================================================
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <p className="text-rose-600 font-medium mb-4">{error}</p>
+          <button
+            onClick={refetch}
+            className="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors"
+          >
+            Qayta yuklash
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

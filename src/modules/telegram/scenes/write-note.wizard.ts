@@ -23,7 +23,7 @@ export const writeNoteWizard = new Scenes.WizardScene<ProtectedContext>(
       try {
         await teacherCrmService.addNote(state.applicationId, note, state.actionUserId);
         await ctx.reply('✅ Izoh muvaffaqiyatli saqlandi.', Markup.removeKeyboard());
-      } catch (err) {
+      } catch {
         await ctx.reply('❌ Xatolik yuz berdi.', Markup.removeKeyboard());
       }
       return ctx.scene.leave();

@@ -35,7 +35,7 @@ function PrismaSessionStore() {
         await prisma.telegramSession.delete({
           where: { key },
         });
-      } catch (err) {
+      } catch {
         // Ignore if not found
       }
     },

@@ -53,7 +53,7 @@ export function validateUpload(file: File, opts?: { maxSize?: number; allowed?: 
 /** Sanitize a filename to prevent path traversal / null bytes. */
 export function sanitizeFilename(name: string): string {
   return name
-    .replace(/[^\w.\-]+/g, '_')
+    .replace(/[^\w.-]+/g, '_')
     .replace(/\.{2,}/g, '_')
     .slice(0, 100);
 }

@@ -23,7 +23,7 @@ export function greetingMessage(): ChatMessage {
   return {
     id: 'greeting',
     role: 'assistant',
-    content: `${greet}! 👋 **Qarshiyev School**ga xush kelibsiz.\n\nQanday yordam bera olaman? Kurslar, narxlar, qabul jarayoni yoki dars jadvali bo\'yicha savollaringizni bering.`,
+    content: `${greet}! 👋 **Qarshiyev School**ga xush kelibsiz.\n\nQanday yordam bera olaman? Kurslar, narxlar, qabul jarayoni yoki dars jadvali bo'yicha savollaringizni bering.`,
     timestamp: Date.now(),
     source: 'knowledge-base',
   };
