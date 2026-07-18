@@ -10,12 +10,37 @@ import { withApiHandler, securityHeadersInit, rateLimitHeaders } from '@/lib/sec
 import { rateLimit, RATE_LIMITS } from '@/lib/security/rate-limit';
 import { getClientIp } from '@/lib/security/request-context';
 
-// Note: previously this type was declared explicitly as
-//   type StudentWithRelations = Prisma.StudentGetPayload<{ include: {...} }>;
-// Prisma 7 no longer exports a `Prisma` namespace from `@prisma/client`, so that
-// pattern is gone. Instead we let TypeScript infer the exact payload shape
-// directly from the `include` clause passed to `prisma.student.findMany` below —
-// no manual cast is required, and the type stays perfectly in sync with the query.
+/**
+ * Local interface matching the exact shape returned by `prisma.student.findMany`
+ * with the `include: { user: true, district: { include: { region: true } } }`
+ * clause used below.
+ *
+ * Why this exists: Prisma 7 no longer exports a `Prisma` namespace from
+ * `@prisma/client`, so `Prisma.StudentGetPayload<...>` is no longer available.
+ * Relying purely on inference from the bare `await prisma.student.findMany(...)`
+ * call (with no assignment-site annotation) turned out to widen the result to
+ * `any[]` in this build, which is what caused `s` in `.map((s) => ...)` to
+ * implicitly become `any`. Declaring this interface explicitly and pinning the
+ * query result to it removes the implicit-any error without disabling strict
+ * mode, without `@ts-ignore`, without `any`, and without reintroducing a Prisma
+ * namespace import. Only the fields actually used in this file are included.
+ */
+interface StudentWithRelations {
+  id: string;
+  createdAt: Date;
+  user: {
+    firstName: string;
+    lastName: string;
+    phone: string | null;
+    email: string;
+  };
+  district: {
+    name: string;
+    region: {
+      name: string;
+    };
+  } | null;
+}
 
 export const GET = withApiHandler(async (req) => {
   const session = await requirePermission('reports:export').catch(() => null);
@@ -30,12 +55,14 @@ export const GET = withApiHandler(async (req) => {
   const { searchParams } = new URL(req.url);
   const format = searchParams.get('format') || 'csv';
 
-  const students = await prisma.student.findMany({
+  const studentsQuery: Promise<StudentWithRelations[]> = prisma.student.findMany({
     include: { user: true, district: { include: { region: true } } },
     orderBy: { createdAt: 'desc' },
-  });
+  }) as Promise<StudentWithRelations[]>;
 
-  const flatData = students.map((s) => ({
+  const students: StudentWithRelations[] = await studentsQuery;
+
+  const flatData = students.map((s: StudentWithRelations) => ({
     ID: s.id,
     FirstName: s.user.firstName,
     LastName: s.user.lastName,
