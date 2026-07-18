@@ -4,19 +4,18 @@
  */
 import { NextResponse } from 'next/server';
 import prisma from '../../../../lib/prisma';
-import type { Prisma } from '@prisma/client';
 import * as XLSX from 'xlsx';
 import { requirePermission } from '../../../../lib/auth';
 import { withApiHandler, securityHeadersInit, rateLimitHeaders } from '@/lib/security/api-response';
 import { rateLimit, RATE_LIMITS } from '@/lib/security/rate-limit';
 import { getClientIp } from '@/lib/security/request-context';
 
-type StudentWithRelations = Prisma.StudentGetPayload<{
-  include: {
-    user: true;
-    district: { include: { region: true } };
-  };
-}>;
+// Note: previously this type was declared explicitly as
+//   type StudentWithRelations = Prisma.StudentGetPayload<{ include: {...} }>;
+// Prisma 7 no longer exports a `Prisma` namespace from `@prisma/client`, so that
+// pattern is gone. Instead we let TypeScript infer the exact payload shape
+// directly from the `include` clause passed to `prisma.student.findMany` below —
+// no manual cast is required, and the type stays perfectly in sync with the query.
 
 export const GET = withApiHandler(async (req) => {
   const session = await requirePermission('reports:export').catch(() => null);
@@ -34,7 +33,7 @@ export const GET = withApiHandler(async (req) => {
   const students = await prisma.student.findMany({
     include: { user: true, district: { include: { region: true } } },
     orderBy: { createdAt: 'desc' },
-  }) as StudentWithRelations[];
+  });
 
   const flatData = students.map((s) => ({
     ID: s.id,
@@ -72,4 +71,3 @@ export const GET = withApiHandler(async (req) => {
     },
   });
 });
-

@@ -1,16 +1,7 @@
 import prisma from '../../../lib/prisma';
-import type { Prisma } from '@prisma/client';
 import { requirePermission } from '../../../lib/auth';
 
 export const dynamic = 'force-dynamic';
-
-type StudentWithRelations = Prisma.StudentGetPayload<{
-  include: {
-    user: true;
-    district: { include: { region: true } };
-  };
-}>;
-
 export default async function StudentsPage({
   searchParams,
 }: {
@@ -26,16 +17,21 @@ export default async function StudentsPage({
 
   const where = query
     ? {
-        user: {
-          OR: [
-            { firstName: { contains: query, mode: 'insensitive' as const } },
-            { lastName: { contains: query, mode: 'insensitive' as const } },
-            { phone: { contains: query } },
-          ],
-        },
-      }
+      user: {
+        OR: [
+          { firstName: { contains: query, mode: 'insensitive' as const } },
+          { lastName: { contains: query, mode: 'insensitive' as const } },
+          { phone: { contains: query } },
+        ],
+      },
+    }
     : {};
 
+  // Note: the previous version cast this query's result to `StudentWithRelations[]`,
+  // a type that relied on `Prisma.StudentGetPayload` (and, in this file, wasn't even
+  // imported). Prisma 7 no longer exports a `Prisma` namespace from `@prisma/client`,
+  // so we drop the cast entirely — TypeScript infers the exact shape (including the
+  // `user` and `district.region` relations) directly from the `include` clause below.
   const [students, total] = await Promise.all([
     prisma.student.findMany({
       where,
@@ -43,7 +39,7 @@ export default async function StudentsPage({
       take,
       skip,
       orderBy: { createdAt: 'desc' },
-    }) as Promise<StudentWithRelations[]>,
+    }),
     prisma.student.count({ where }),
   ]);
 
@@ -116,4 +112,3 @@ export default async function StudentsPage({
     </div>
   );
 }
-

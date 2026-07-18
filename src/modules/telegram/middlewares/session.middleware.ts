@@ -1,10 +1,20 @@
 import { session as telegrafSession } from 'telegraf';
 import type { SessionStore } from 'telegraf';
-import type { Prisma } from '@prisma/client';
 import prisma from '../../../lib/prisma';
 import { logger } from '../../../lib/security/logger';
 
-type SessionData = Record<string, Prisma.JsonValue>;
+/**
+ * Local structural replacement for Prisma's `JsonValue`.
+ * Prisma 7 no longer exposes a `Prisma` namespace export from `@prisma/client`,
+ * so instead of importing `Prisma.JsonValue` we declare an equivalent
+ * recursive JSON type here. TypeScript checks this structurally against the
+ * generated `TelegramSession.session` (Json) field at each call site below,
+ * so compatibility with Prisma's Json column is preserved without the import.
+ */
+type JsonPrimitive = string | number | boolean | null;
+type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
+
+type SessionData = Record<string, JsonValue>;
 
 /**
  * A custom Telegraf session store backed by Prisma
@@ -51,4 +61,3 @@ export const sessionMiddleware = () => {
     store: PrismaSessionStore(),
   });
 };
-

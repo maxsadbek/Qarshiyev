@@ -6,7 +6,6 @@
  */
 
 import prisma from '../prisma';
-import type { Prisma } from '@prisma/client';
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -50,6 +49,17 @@ export type SecurityEventType =
   | 'STATUS_CHANGED'
   | 'ADMIN_ACTION';
 
+/**
+ * Local structural replacement for Prisma's `InputJsonValue`.
+ * Prisma 7 no longer exposes a `Prisma` namespace export from `@prisma/client`,
+ * so instead of importing `Prisma.InputJsonValue` we declare an equivalent
+ * recursive JSON type here. TypeScript checks this structurally against the
+ * generated `ActivityLogCreateInput.details` field at the call site in
+ * `logSecurityEvent`, so compatibility is preserved without any import.
+ */
+export type JsonPrimitive = string | number | boolean | null;
+export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
+
 export interface SecurityEventInput {
   action: SecurityEventType;
   userId?: string | null;
@@ -57,7 +67,7 @@ export interface SecurityEventInput {
   entityId?: string;
   ipAddress?: string;
   userAgent?: string;
-  details?: Prisma.InputJsonValue;
+  details?: JsonValue;
 }
 
 export async function logSecurityEvent(input: SecurityEventInput): Promise<void> {
@@ -78,4 +88,3 @@ export async function logSecurityEvent(input: SecurityEventInput): Promise<void>
     logger.error('Failed to persist security event', { error: String(err), action: input.action });
   }
 }
-
