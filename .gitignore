@@ -1,3 +1,9 @@
+# Next.js env files
+.env.local
+.env
+.env.production.local
+.env.development.local
+
 # Logs
 logs
 *.log
@@ -22,3 +28,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+/src/generated/prisma
+.aider*

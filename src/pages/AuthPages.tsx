@@ -265,7 +265,16 @@ export const RegisterPage: React.FC = () => {
     // Premium loading animation
     await new Promise((resolve) => setTimeout(resolve, 1200));
 
-    const result = register({ name, email, password });
+    const nameParts = name.trim().split(/\s+/);
+    const firstName = nameParts.shift() ?? name.trim();
+    const lastName = nameParts.join(' ') || name.trim();
+    const result = await register({
+      firstName,
+      lastName,
+      email,
+      password,
+      confirmPassword: password,
+    });
     if (result.ok) {
       setSuccess(true);
       // User is now authenticated — go straight to the profile
@@ -375,10 +384,10 @@ export const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    const result = login(email, password);
+    const result = await login(email, password);
     if (result.ok) {
       navigate(ROUTES.PROFILE);
     } else {

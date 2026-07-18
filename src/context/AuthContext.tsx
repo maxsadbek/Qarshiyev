@@ -6,17 +6,24 @@ import {
   type ReactNode,
 } from 'react';
 import type { AuthResult, RegisterData, User } from '@/types';
+import { csrfFetch } from '@/lib/client/csrf';
 
-const USERS_KEY = 'qarshiyev_users';
-const SESSION_KEY = 'qarshiyev_user';
+// ============================================================
+// Auth Context (client-side)
+// ============================================================
+// Delegates authentication to the secured Next.js API (/api/auth/*).
+// The session is stored in an HttpOnly, Secure, SameSite=Strict cookie set
+// by the server — NEVER in localStorage. This context only holds the
+// client-side view of the authenticated user (no secrets, no passwords).
+// ============================================================
 
 interface AuthContextValue {
   user: User | null;
-  users: User[];
-  login: (email: string, password: string) => AuthResult;
-  register: (data: RegisterData) => AuthResult;
-  logout: () => void;
+  login: (email: string, password: string, rememberMe?: boolean) => Promise<AuthResult>;
+  register: (data: RegisterData) => Promise<AuthResult>;
+  logout: () => Promise<void>;
   updateProfile: (data: Partial<User>) => void;
+  refresh: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -27,100 +34,74 @@ export const useAuth = () => {
   return ctx;
 };
 
-const readUsers = (): User[] => {
+async function fetchMe(): Promise<User | null> {
   try {
-    const raw = localStorage.getItem(USERS_KEY);
-    return raw ? (JSON.parse(raw) as User[]) : [];
+    const res = await fetch('/api/auth/me', { credentials: 'same-origin' });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data?.user ?? null;
   } catch {
-    return [];
+    return null;
   }
-};
-
-const writeUsers = (users: User[]) => {
-  try {
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
-  } catch {
-    // Storage may be full (e.g. large base64 avatars) — fail silently
-    // so the app never crashes.
-  }
-};
-
-const generateId = () =>
-  `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [users, setUsers] = useState<User[]>(() => readUsers());
-  const [user, setUser] = useState<User | null>(() => {
-    try {
-      const raw = localStorage.getItem(SESSION_KEY);
-      return raw ? (JSON.parse(raw) as User) : null;
-    } catch {
-      return null;
-    }
-  });
+  const [user, setUser] = useState<User | null>(null);
+
+  const refresh = async () => {
+    const me = await fetchMe();
+    setUser(me);
+  };
 
   useEffect(() => {
+    void refresh();
+  }, []);
+
+  const login = async (email: string, password: string, rememberMe = false): Promise<AuthResult> => {
     try {
-      if (user) {
-        localStorage.setItem(SESSION_KEY, JSON.stringify(user));
-      } else {
-        localStorage.removeItem(SESSION_KEY);
+      const res = await csrfFetch('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password, rememberMe }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success) {
+        await refresh();
+        return { ok: true };
       }
+      return { ok: false, error: data.error ?? 'Email yoki parol noto‘g‘ri' };
     } catch {
-      // Ignore quota / serialization errors — never crash the UI.
+      return { ok: false, error: 'Tarmoq xatosi' };
     }
-  }, [user]);
-
-  const login = (email: string, password: string): AuthResult => {
-    const normalized = email.trim().toLowerCase();
-    const found = users.find(
-      (u) => u.email.toLowerCase() === normalized && u.password === password
-    );
-    if (!found) {
-      return { ok: false, error: 'Email yoki parol noto‘g‘ri' };
-    }
-    setUser(found);
-    return { ok: true };
   };
 
-  const register = (data: RegisterData): AuthResult => {
-    const normalized = data.email.trim().toLowerCase();
-    if (users.some((u) => u.email.toLowerCase() === normalized)) {
-      return { ok: false, error: 'Bu email allaqachon ro‘yxatdan o‘tgan' };
+  const register = async (data: RegisterData): Promise<AuthResult> => {
+    try {
+      const res = await csrfFetch('/api/auth/register', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+      const result = await res.json().catch(() => ({}));
+      if (res.ok && result.success) {
+        await refresh();
+        return { ok: true };
+      }
+      return { ok: false, error: result.error ?? 'Ro‘yxatdan o‘tib bo‘lmadi' };
+    } catch {
+      return { ok: false, error: 'Tarmoq xatosi' };
     }
-    const newUser: User = {
-      id: generateId(),
-      name: data.name.trim(),
-      email: data.email.trim(),
-      password: data.password,
-      role: 'student',
-      joinedDate: new Date().toISOString(),
-      enrolledCourses: [],
-    };
-    const nextUsers = [...users, newUser];
-    setUsers(nextUsers);
-    writeUsers(nextUsers);
-    setUser(newUser);
-    return { ok: true };
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await csrfFetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
     setUser(null);
   };
 
   const updateProfile = (data: Partial<User>) => {
-    if (!user) return;
-    const updated: User = { ...user, ...data };
-    setUser(updated);
-    const nextUsers = users.map((u) => (u.id === updated.id ? updated : u));
-    setUsers(nextUsers);
-    writeUsers(nextUsers);
+    setUser((prev) => (prev ? { ...prev, ...data } : prev));
   };
 
   return (
-    <AuthContext.Provider
-      value={{ user, users, login, register, logout, updateProfile }}
-    >
+    <AuthContext.Provider value={{ user, login, register, logout, updateProfile, refresh }}>
       {children}
     </AuthContext.Provider>
   );

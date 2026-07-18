@@ -1,0 +1,402 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ==========================================
+// SYSTEM & CONFIGURATION
+// ==========================================
+
+model Region {
+  id        String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code      String     @unique @db.VarChar(50)
+  name      String     @db.VarChar(100)
+  districts District[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("regions")
+}
+
+model District {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  regionId  String    @db.Uuid
+  name      String    @db.VarChar(100)
+  region    Region    @relation(fields: [regionId], references: [id], onDelete: Restrict)
+  students  Student[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([regionId])
+  @@map("districts")
+}
+
+model Language {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code      String   @unique @db.VarChar(10) // e.g. 'uz', 'ru', 'en'
+  name      String   @db.VarChar(50)
+  courses   Course[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("languages")
+}
+
+// ==========================================
+// RBAC (ROLE-BASED ACCESS CONTROL)
+// ==========================================
+
+model Role {
+  id          String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String           @unique @db.VarChar(50) // e.g. 'SUPER_ADMIN', 'TEACHER'
+  description String?          @db.Text
+  permissions RolePermission[]
+  users       User[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String           @unique @db.VarChar(100) // e.g. 'create:course', 'read:users'
+  description String?          @db.Text
+  roles       RolePermission[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       String     @db.Uuid
+  permissionId String     @db.Uuid
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+
+  @@id([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
+  @@map("role_permissions")
+}
+
+// ==========================================
+// USERS & PROFILES
+// ==========================================
+
+model User {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email        String    @unique @db.VarChar(255)
+  passwordHash String    @db.VarChar(255)
+  firstName    String    @db.VarChar(100)
+  lastName     String    @db.VarChar(100)
+  phone        String?   @db.VarChar(20)
+  telegramId   String?   @unique @db.VarChar(50)
+  roleId       String    @db.Uuid
+  isActive     Boolean   @default(true)
+  lastLogin    DateTime?
+
+  role          Role           @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  student       Student?
+  teacher       Teacher?
+  admin         Admin?
+  activityLogs  ActivityLog[]
+  auditLogs     AuditLog[]
+  sessions      Session[]
+  accountLock   AccountLock?
+  resetTokens   PasswordResetToken[]
+  notifications Notification[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([roleId])
+  @@index([email])
+  @@index([telegramId])
+  @@index([isActive])
+  @@index([lastLogin])
+  @@map("users")
+}
+
+model Admin {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String   @unique @db.Uuid
+  department String?  @db.VarChar(100)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("admins")
+}
+
+model Teacher {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String   @unique @db.Uuid
+  bio             String?  @db.Text
+  experienceYears Int      @default(0)
+  specialization  String?  @db.VarChar(100)
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courses         Course[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("teachers")
+}
+
+model Student {
+  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String        @unique @db.Uuid
+  districtId   String?       @db.Uuid
+  dateOfBirth  DateTime?     @db.Date
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  district     District?     @relation(fields: [districtId], references: [id], onDelete: SetNull)
+  applications Application[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([districtId])
+  @@map("students")
+}
+
+// ==========================================
+// BUSINESS DOMAIN (COURSES & APPLICATIONS)
+// ==========================================
+
+model Course {
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title       String  @db.VarChar(255)
+  description String  @db.Text
+  price       Decimal @db.Decimal(10, 2)
+  teacherId   String  @db.Uuid
+  languageId  String  @db.Uuid
+  isActive    Boolean @default(true)
+
+  teacher      Teacher       @relation(fields: [teacherId], references: [id], onDelete: Restrict)
+  language     Language      @relation(fields: [languageId], references: [id], onDelete: Restrict)
+  applications Application[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([teacherId])
+  @@index([languageId])
+  @@map("courses")
+}
+
+model Application {
+  id        String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  studentId String            @db.Uuid
+  courseId  String            @db.Uuid
+  status    ApplicationStatus @default(PENDING)
+  notes     String?           @db.Text
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([studentId, courseId])
+  @@index([studentId])
+  @@index([courseId])
+  @@index([status])
+  @@map("applications")
+}
+
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+// ==========================================
+// SYSTEM LOGS & NOTIFICATIONS
+// ==========================================
+
+model Notification {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @db.Uuid
+  title     String   @db.VarChar(255)
+  message   String   @db.Text
+  isRead    Boolean  @default(false)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
+  @@map("notifications")
+}
+
+model ActivityLog {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String? @db.Uuid
+  action    String  @db.VarChar(100) // e.g. 'LOGIN_SUCCESS', 'COURSE_CREATED'
+  entity    String? @db.VarChar(100) // e.g. 'Course', 'Application'
+  entityId  String? @db.VarChar(100)
+  ipAddress String? @db.VarChar(45)
+  userAgent String? @db.VarChar(512)
+  details   Json?
+
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@map("activity_logs")
+}
+
+// ==========================================
+// SECURITY: AUDIT TRAIL
+// ==========================================
+// Immutable record of every sensitive mutation for compliance/forensics.
+// Tracks WHO changed WHAT, the previous value and the new value.
+
+model AuditLog {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String?  @db.Uuid
+  action    String   @db.VarChar(100) // e.g. 'ROLE_CHANGED', 'PERMISSION_CHANGED', 'STATUS_CHANGED'
+  entity    String   @db.VarChar(100) // e.g. 'User', 'Application', 'Course'
+  entityId  String?  @db.VarChar(100)
+  field     String?  @db.VarChar(100)
+  oldValue  String?  @db.Text
+  newValue  String?  @db.Text
+  ipAddress String?  @db.VarChar(45)
+  userAgent String?  @db.VarChar(512)
+  createdAt DateTime @default(now())
+
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ==========================================
+// SECURITY: SESSIONS (remember-me / revocation)
+// ==========================================
+
+model Session {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  token     String   @unique @db.VarChar(255) // SHA-256 hashed session token
+  userId    String   @db.Uuid
+  ipAddress String?  @db.VarChar(45)
+  userAgent String?  @db.VarChar(512)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  revokedAt DateTime?
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+// ==========================================
+// SECURITY: ACCOUNT LOCKOUT (brute-force defense)
+// ==========================================
+
+model AccountLock {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String   @db.Uuid
+  failedAttempts  Int      @default(0)
+  lockedUntil     DateTime?
+  lastFailureAt   DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId])
+  @@index([lockedUntil])
+  @@map("account_locks")
+}
+
+// ==========================================
+// SECURITY: PASSWORD RESET TOKENS
+// ==========================================
+
+model PasswordResetToken {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @db.Uuid
+  tokenHash String   @unique @db.VarChar(255) // SHA-256 of the reset token
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
+}
+
+// ==========================================
+// TELEGRAM BOT (SESSIONS)
+// ==========================================
+
+model TelegramSession {
+  key       String   @id @db.VarChar(255) // e.g. "chatId:userId"
+  session   Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("telegram_sessions")
+}
+
+// ==========================================
+// NOTIFICATION SYSTEM
+// ==========================================
+
+/// Persistent log of every dispatched notification across all channels.
+model NotificationLog {
+  id         String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  event      NotificationEvent
+  channel    NotificationChannel
+  recipient  String             @db.VarChar(255) // userId, email, chatId, etc.
+  subject    String?            @db.VarChar(500)
+  body       String             @db.Text
+  status     DispatchStatus     @default(PENDING)
+  attempts   Int                @default(0)
+  error      String?            @db.Text
+  sentAt     DateTime?
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+
+  @@index([event])
+  @@index([channel])
+  @@index([status])
+  @@index([recipient])
+  @@map("notification_logs")
+}
+
+enum NotificationEvent {
+  REGISTRATION
+  ACCEPTANCE
+  REJECTION
+  PENDING_STATUS
+  REMINDER
+  CUSTOM
+}
+
+enum NotificationChannel {
+  TELEGRAM
+  EMAIL
+  DASHBOARD
+}
+
+enum DispatchStatus {
+  PENDING
+  SENT
+  FAILED
+  RETRYING
+}

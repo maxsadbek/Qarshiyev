@@ -20,6 +20,7 @@ import {
 } from '@/pages/SecondaryPages';
 import { LoginPage, RegisterPage } from '@/pages/AuthPages';
 import { ProfilePage } from '@/pages/ProfilePage';
+import { AnalyticsPage } from '@/features/analytics';
 
 // Scroll to top on route change
 const ScrollToTop = () => {
@@ -61,6 +62,7 @@ const App: React.FC = () => {
                     <Route path={ROUTES.LOGIN} element={<LoginPage />} />
                     <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
                     <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
+                    <Route path={ROUTES.ANALYTICS} element={<AnalyticsPage />} />
                     <Route path="*" element={<HomePage />} />
                   </Routes>
                 </div>

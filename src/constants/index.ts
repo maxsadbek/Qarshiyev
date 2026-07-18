@@ -11,6 +11,7 @@ export const ROUTES = {
   REGISTER: '/register',
   LOGIN: '/login',
   PROFILE: '/profile',
+  ANALYTICS: '/analytics',
 } as const;
 
 export const NAV_ITEMS = [

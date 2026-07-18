@@ -330,9 +330,12 @@ export interface User {
 }
 
 export interface RegisterData {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
+  confirmPassword: string;
+  phone?: string;
 }
 
 export interface AuthResult {

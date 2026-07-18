@@ -1,0 +1,8 @@
+{
+  "migrations": [
+    {
+      "id": "20260101000000_security_tables",
+      "checksum": "6f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c"
+    }
+  ]
+}
