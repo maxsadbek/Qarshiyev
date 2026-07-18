@@ -6,7 +6,7 @@
 
 import { Resend } from 'resend';
 import type { NotificationTemplate } from '../templates';
-import type { ChannelResult } from '../types';
+import { errorMessage, type ChannelResult } from '../types';
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
@@ -27,9 +27,9 @@ export async function sendEmailNotification(
     if (error) throw new Error(error.message);
 
     return { channel: 'EMAIL', success: true };
-  } catch (error: any) {
-    console.error('[EmailChannel] Error:', error?.message);
-    return { channel: 'EMAIL', success: false, error: error?.message };
+  } catch (error: unknown) {
+    console.error('[EmailChannel] Error:', error);
+    return { channel: 'EMAIL', success: false, error: errorMessage(error) };
   }
 }
 
@@ -44,9 +44,9 @@ export async function sendEmailRaw(toEmail: string, subject: string, body: strin
     });
     if (error) throw new Error(error.message);
     return { channel: 'EMAIL', success: true };
-  } catch (error: any) {
-    console.error('[EmailChannel] Error:', error?.message);
-    return { channel: 'EMAIL', success: false, error: error?.message };
+  } catch (error: unknown) {
+    console.error('[EmailChannel] Error:', error);
+    return { channel: 'EMAIL', success: false, error: errorMessage(error) };
   }
 }
 

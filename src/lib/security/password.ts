@@ -15,13 +15,15 @@ export interface PasswordHasher {
 // ── argon2 (preferred) ───────────────────────────────────────────────
 async function loadArgon2(): Promise<PasswordHasher | null> {
   try {
-    const mod = (await (Function('return import("argon2")')() as Promise<any>).catch(() => null)) as any;
+    const mod = (await (Function('return import("argon2")')() as Promise<Record<string, unknown>>).catch(() => null)) as Record<string, unknown> | null;
     if (!mod) return null;
-    const argon2 = mod.default ?? mod;
+    const argon2 = (mod.default ?? mod) as Record<string, unknown>;
     if (typeof argon2?.hash !== 'function') return null;
+    const hashFn = argon2.hash as (plain: string, opts: { type: unknown; memoryCost: number; timeCost: number }) => Promise<string>;
+    const verifyFn = argon2.verify as (hash: string, plain: string) => Promise<boolean>;
     return {
-      hash: (plain: string) => argon2.hash(plain, { type: argon2.argon2id, memoryCost: 2 ** 16, timeCost: 3 }),
-      verify: (hash: string, plain: string) => argon2.verify(hash, plain),
+      hash: (plain: string) => hashFn(plain, { type: argon2.argon2id, memoryCost: 2 ** 16, timeCost: 3 }),
+      verify: (hash: string, plain: string) => verifyFn(hash, plain),
     };
   } catch {
     return null;
@@ -31,14 +33,16 @@ async function loadArgon2(): Promise<PasswordHasher | null> {
 // ── bcrypt (fallback) ────────────────────────────────────────────────
 async function loadBcrypt(): Promise<PasswordHasher | null> {
   try {
-    const mod = (await (Function('return import("bcryptjs")')() as Promise<any>).catch(() => null)) as any;
+    const mod = (await (Function('return import("bcryptjs")')() as Promise<Record<string, unknown>>).catch(() => null)) as Record<string, unknown> | null;
     if (!mod) return null;
-    const bcrypt = mod.default ?? mod;
+    const bcrypt = (mod.default ?? mod) as Record<string, unknown>;
     if (typeof bcrypt?.hash !== 'function') return null;
+    const hashFn = bcrypt.hash as (plain: string, rounds: number) => Promise<string>;
+    const compareFn = bcrypt.compare as (plain: string, hash: string) => Promise<boolean>;
     const ROUNDS = 12;
     return {
-      hash: (plain: string) => bcrypt.hash(plain, ROUNDS),
-      verify: (hash: string, plain: string) => bcrypt.compare(plain, hash),
+      hash: (plain: string) => hashFn(plain, ROUNDS),
+      verify: (hash: string, plain: string) => compareFn(plain, hash),
     };
   } catch {
     return null;

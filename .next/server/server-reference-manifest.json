@@ -1,6 +1,6 @@
 {
   "node": {
-    "40cb1217f9d32d893aca27b8fcebc590c7bd1a7eec": {
+    "40668f1760380c5390638babb21d12568eecf0caba": {
       "workers": {
         "app/student/settings/page": {
           "moduleId": 91073,
@@ -12,7 +12,7 @@
       "filename": "Desktop/Qarshiyev/src/app/student/settings/actions.ts",
       "exportedName": "updatePhone"
     },
-    "4069c5c1483686a456845570c2553cb8284b283866": {
+    "4043f4bd282142157b2e65b3ecef27e8346d250692": {
       "workers": {
         "app/student/settings/page": {
           "moduleId": 91073,
@@ -26,5 +26,5 @@
     }
   },
   "edge": {},
-  "encryptionKey": "UtcXL5sAvEGubpD24EOytoHFAkPbA+sz+W/iU8LKf3U="
+  "encryptionKey": "JDT2VoFW5nB7p6wCSFeKmq9ys2GE+EwyUNL31FSWgXs="
 }

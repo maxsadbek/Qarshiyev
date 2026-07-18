@@ -6,7 +6,7 @@
 
 import prisma from '../../../lib/prisma';
 import type { NotificationTemplate } from '../templates';
-import type { ChannelResult } from '../types';
+import { errorMessage, type ChannelResult } from '../types';
 
 export async function sendDashboardNotification(
   userId: string,
@@ -22,9 +22,9 @@ export async function sendDashboardNotification(
       },
     });
     return { channel: 'DASHBOARD', success: true };
-  } catch (error: any) {
-    console.error('[DashboardChannel] Error:', error?.message);
-    return { channel: 'DASHBOARD', success: false, error: error?.message };
+  } catch (error: unknown) {
+    console.error('[DashboardChannel] Error:', error);
+    return { channel: 'DASHBOARD', success: false, error: errorMessage(error) };
   }
 }
 

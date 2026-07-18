@@ -6,7 +6,7 @@
 
 import bot from '../../telegram/bot';
 import type { NotificationTemplate } from '../templates';
-import type { ChannelResult } from '../types';
+import { errorMessage, type ChannelResult } from '../types';
 
 export async function sendTelegramNotification(
   chatId: string,
@@ -17,9 +17,9 @@ export async function sendTelegramNotification(
       parse_mode: 'HTML',
     });
     return { channel: 'TELEGRAM', success: true };
-  } catch (error: any) {
-    console.error('[TelegramChannel] Error:', error?.message);
-    return { channel: 'TELEGRAM', success: false, error: error?.message };
+  } catch (error: unknown) {
+    console.error('[TelegramChannel] Error:', error);
+    return { channel: 'TELEGRAM', success: false, error: errorMessage(error) };
   }
 }
 
@@ -28,9 +28,9 @@ export async function sendTelegramText(chatId: string, text: string): Promise<Ch
   try {
     await bot.telegram.sendMessage(chatId, text, { parse_mode: 'HTML' });
     return { channel: 'TELEGRAM', success: true };
-  } catch (error: any) {
-    console.error('[TelegramChannel] Error:', error?.message);
-    return { channel: 'TELEGRAM', success: false, error: error?.message };
+  } catch (error: unknown) {
+    console.error('[TelegramChannel] Error:', error);
+    return { channel: 'TELEGRAM', success: false, error: errorMessage(error) };
   }
 }
 

@@ -1,6 +1,6 @@
 import { Scenes, Markup } from 'telegraf';
 import { teacherCrmService } from '../services/teacher-crm.service';
-import type { ProtectedContext } from '../middlewares/auth.middleware';
+import type { ProtectedContext, RegistrationWizardState } from '../middlewares/auth.middleware';
 
 export const writeNoteWizard = new Scenes.WizardScene<ProtectedContext>(
   'CRM_WRITE_NOTE',
@@ -18,10 +18,10 @@ export const writeNoteWizard = new Scenes.WizardScene<ProtectedContext>(
       }
 
       const note = ctx.message.text;
-      const state = ctx.wizard.state;
+      const state = ctx.wizard.state as RegistrationWizardState;
 
       try {
-        await teacherCrmService.addNote(state.applicationId, note, state.actionUserId);
+        await teacherCrmService.addNote(state.applicationId ?? '', note, state.actionUserId ?? '');
         await ctx.reply('✅ Izoh muvaffaqiyatli saqlandi.', Markup.removeKeyboard());
       } catch {
         await ctx.reply('❌ Xatolik yuz berdi.', Markup.removeKeyboard());

@@ -47,10 +47,11 @@ bot.start((ctx) => {
 bot.action(/CRM_ACCEPT_(.+)/, teacherAdminOnly(), async (ctx) => {
   const appId = ctx.match[1];
   const user = ctx.user;
+  if (!user) return ctx.answerCbQuery('❌ Ruxsat yo‘q');
 
   try {
     await teacherCrmService.updateStatus(appId, 'APPROVED', user.id);
-    await ctx.editMessageText((ctx.callbackQuery.message as any)?.text + '\n\n✅ Holat: QABUL QILINDI');
+    await ctx.editMessageText((ctx.callbackQuery?.message as { text?: string } | undefined)?.text + '\n\n✅ Holat: QABUL QILINDI');
     await ctx.answerCbQuery('Qabul qilindi');
     logger.info('Application approved via Bot', { appId, by: user.id });
   } catch (error) {
@@ -62,10 +63,11 @@ bot.action(/CRM_ACCEPT_(.+)/, teacherAdminOnly(), async (ctx) => {
 bot.action(/CRM_REJECT_(.+)/, teacherAdminOnly(), async (ctx) => {
   const appId = ctx.match[1];
   const user = ctx.user;
+  if (!user) return ctx.answerCbQuery('❌ Ruxsat yo‘q');
 
   try {
     await teacherCrmService.updateStatus(appId, 'REJECTED', user.id);
-    await ctx.editMessageText((ctx.callbackQuery.message as any)?.text + '\n\n❌ Holat: RAD ETILDI');
+    await ctx.editMessageText((ctx.callbackQuery?.message as { text?: string } | undefined)?.text + '\n\n❌ Holat: RAD ETILDI');
     await ctx.answerCbQuery('Rad etildi');
     logger.info('Application rejected via Bot', { appId, by: user.id });
   } catch (error) {
@@ -77,10 +79,11 @@ bot.action(/CRM_REJECT_(.+)/, teacherAdminOnly(), async (ctx) => {
 bot.action(/CRM_PENDING_(.+)/, teacherAdminOnly(), async (ctx) => {
   const appId = ctx.match[1];
   const user = ctx.user;
+  if (!user) return ctx.answerCbQuery('❌ Ruxsat yo‘q');
 
   try {
     await teacherCrmService.updateStatus(appId, 'PENDING', user.id);
-    await ctx.editMessageText((ctx.callbackQuery.message as any)?.text + '\n\n⏳ Holat: KUTTIRISHGA OLINDI');
+    await ctx.editMessageText((ctx.callbackQuery?.message as { text?: string } | undefined)?.text + '\n\n⏳ Holat: KUTTIRISHGA OLINDI');
     await ctx.answerCbQuery('Kuttirishga olindi');
   } catch (error) {
     logger.error('Failed to set application to pending', { appId, error: String(error) });
@@ -91,6 +94,7 @@ bot.action(/CRM_PENDING_(.+)/, teacherAdminOnly(), async (ctx) => {
 bot.action(/CRM_NOTE_(.+)/, teacherAdminOnly(), async (ctx) => {
   const appId = ctx.match[1];
   const user = ctx.user;
+  if (!user) return ctx.answerCbQuery('❌ Ruxsat yo‘q');
 
   await ctx.answerCbQuery();
   await ctx.scene.enter('CRM_WRITE_NOTE', { applicationId: appId, actionUserId: user.id });

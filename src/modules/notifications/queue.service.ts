@@ -15,6 +15,7 @@
 import prisma from '../../lib/prisma';
 import type { NotificationLog } from '@prisma/client';
 import type { NotificationChannelType, NotificationEventType, ChannelResult } from './types';
+import { errorMessage } from './types';
 import { sendTelegramText } from './channels/telegram.channel';
 import { sendEmailRaw } from './channels/email.channel';
 
@@ -75,11 +76,11 @@ export class NotificationQueueService {
           data: { status: 'FAILED', error: result.error ?? 'Unknown error' },
         });
       }
-    } catch (err: any) {
-      console.error(`[NotificationQueue] Dispatch failed for log ${logId}:`, err?.message);
+    } catch (err: unknown) {
+      console.error(`[NotificationQueue] Dispatch failed for log ${logId}:`, err);
       await prisma.notificationLog.update({
         where: { id: logId },
-        data: { status: 'FAILED', error: err?.message ?? 'Unhandled exception' },
+        data: { status: 'FAILED', error: errorMessage(err) },
       });
     }
   }
@@ -137,9 +138,9 @@ export class NotificationQueueService {
           success = true;
           break;
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       success = false;
-      error = err?.message ?? 'Unknown error';
+      error = errorMessage(err);
     }
 
     await prisma.notificationLog.update({

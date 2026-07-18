@@ -1,13 +1,27 @@
-import type { Context, Middleware } from 'telegraf';
+import type { Middleware, Scenes } from 'telegraf';
+import type { User } from '@prisma/client';
 import prisma from '../../../lib/prisma';
 import { logger } from '../../../lib/security/logger';
 
-export interface ProtectedContext extends Context {
-  session: Record<string, any>;
-  scene: any;
-  wizard: any;
-  user?: any;
+export interface RegistrationWizardState {
+  language?: string;
+  phone?: string;
+  regionId?: string;
+  districtId?: string;
+  courseId?: string;
+  shift?: string;
+  age?: number;
+  experience?: string;
+  device?: string;
+  note?: string;
+  applicationId?: string;
+  actionUserId?: string;
+  [key: string]: string | number | undefined;
 }
+
+export type ProtectedContext = Scenes.WizardContext & {
+  user?: User;
+};
 
 /**
  * Middleware to restrict access to Teachers and Admins.

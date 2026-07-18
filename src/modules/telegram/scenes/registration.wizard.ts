@@ -2,7 +2,7 @@ import { Scenes, Markup } from 'telegraf';
 import { telegramService } from '../telegram.service';
 import { teacherCrmService } from '../services/teacher-crm.service';
 import { logger } from '../../../lib/security/logger';
-import type { ProtectedContext } from '../middlewares/auth.middleware';
+import type { ProtectedContext, RegistrationWizardState } from '../middlewares/auth.middleware';
 
 export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
   'REGISTRATION_WIZARD',
@@ -18,7 +18,7 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
   },
 
   async (ctx: ProtectedContext) => {
-    const state = ctx.wizard.state;
+    const state = ctx.wizard.state as RegistrationWizardState;
     if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
       state.language = ctx.callbackQuery.data === 'LANG_UZ' ? 'uz' : 'ru';
       await ctx.answerCbQuery();
@@ -36,7 +36,7 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
   },
 
   async (ctx: ProtectedContext) => {
-    const state = ctx.wizard.state;
+    const state = ctx.wizard.state as RegistrationWizardState;
     if (ctx.message && 'contact' in ctx.message) {
       state.phone = ctx.message.contact.phone_number;
     } else if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
@@ -68,14 +68,14 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
   },
 
   async (ctx: ProtectedContext) => {
-    const state = ctx.wizard.state;
+    const state = ctx.wizard.state as RegistrationWizardState;
     if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
       state.regionId = ctx.callbackQuery.data;
       await ctx.answerCbQuery();
     }
 
     try {
-      const districts = await telegramService.getDistricts(state.regionId);
+      const districts = await telegramService.getDistricts(state.regionId ?? '');
       if (districts.length === 0) {
         await ctx.reply('Ushbu viloyatda tumanlar topilmadi.');
         return ctx.wizard.back();
@@ -96,7 +96,7 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
   },
 
   async (ctx: ProtectedContext) => {
-    const state = ctx.wizard.state;
+    const state = ctx.wizard.state as RegistrationWizardState;
     if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
       state.districtId = ctx.callbackQuery.data;
       await ctx.answerCbQuery();
@@ -124,7 +124,7 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
   },
 
   async (ctx: ProtectedContext) => {
-    const state = ctx.wizard.state;
+    const state = ctx.wizard.state as RegistrationWizardState;
     if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
       state.courseId = ctx.callbackQuery.data;
       await ctx.answerCbQuery();
@@ -142,7 +142,7 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
   },
 
   async (ctx: ProtectedContext) => {
-    const state = ctx.wizard.state;
+    const state = ctx.wizard.state as RegistrationWizardState;
     if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
       state.shift = ctx.callbackQuery.data;
       await ctx.answerCbQuery();
@@ -153,7 +153,7 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
   },
 
   async (ctx: ProtectedContext) => {
-    const state = ctx.wizard.state;
+    const state = ctx.wizard.state as RegistrationWizardState;
     if (ctx.message && 'text' in ctx.message) {
       const age = parseInt(ctx.message.text);
       if (isNaN(age) || age < 5 || age > 99) {
@@ -168,7 +168,7 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
   },
 
   async (ctx: ProtectedContext) => {
-    const state = ctx.wizard.state;
+    const state = ctx.wizard.state as RegistrationWizardState;
     if (ctx.message && 'text' in ctx.message) {
       state.experience = ctx.message.text;
     }
@@ -181,7 +181,7 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
   },
 
   async (ctx: ProtectedContext) => {
-    const state = ctx.wizard.state;
+    const state = ctx.wizard.state as RegistrationWizardState;
     if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
       state.device = ctx.callbackQuery.data === 'DEVICE_YES' ? 'Ha' : 'Yo\'q';
       await ctx.answerCbQuery();
@@ -192,7 +192,7 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
   },
 
   async (ctx: ProtectedContext) => {
-    const state = ctx.wizard.state;
+    const state = ctx.wizard.state as RegistrationWizardState;
     if (ctx.message && 'text' in ctx.message) {
       state.note = ctx.message.text;
     }
@@ -222,7 +222,7 @@ Hamma ma'lumotlar to'g'rimi?
   },
 
   async (ctx: ProtectedContext) => {
-    const state = ctx.wizard.state;
+    const state = ctx.wizard.state as RegistrationWizardState;
     if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
       const action = ctx.callbackQuery.data;
       await ctx.answerCbQuery();
@@ -238,21 +238,23 @@ Hamma ma'lumotlar to'g'rimi?
             telegramId: ctx.from?.id.toString() || '',
             firstName: ctx.from?.first_name || 'Ism',
             lastName: ctx.from?.last_name || 'Familiya',
-            phone: state.phone,
-            districtId: state.districtId,
-            courseId: state.courseId,
-            shift: state.shift,
-            age: state.age,
-            experience: state.experience,
-            device: state.device,
-            note: state.note,
+            phone: state.phone ?? '',
+            districtId: state.districtId ?? '',
+            courseId: state.courseId ?? '',
+            shift: state.shift ?? '',
+            age: Number(state.age ?? 0),
+            experience: state.experience ?? '',
+            device: state.device ?? '',
+            note: state.note ?? '',
           });
 
           await teacherCrmService.notifyTeacher(application.id);
 
           await ctx.reply('✅ Arizangiz muvaffaqiyatli qabul qilindi! Tez orada administratorlarimiz siz bilan bog\'lanishadi.');
-        } catch (error: any) {
-          if (error.message === 'DUPLICATE_APPLICATION') {
+        } catch (error: unknown) {
+          const isDuplicate =
+            error instanceof Error && error.message === 'DUPLICATE_APPLICATION';
+          if (isDuplicate) {
             await ctx.reply('❌ Siz ushbu kursga allaqachon ariza topshirgansiz. Natijasini kutishingizni so\'raymiz.');
           } else {
             logger.error('Wizard save failed', { error: String(error) });
@@ -264,4 +266,5 @@ Hamma ma'lumotlar to'g'rimi?
     }
   }
 );
+
 
