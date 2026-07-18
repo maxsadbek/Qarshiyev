@@ -5,11 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:next": "next dev -p 3001",
     "build": "tsc -b && vite build",
-    "build:next": "next build",
-    "start:next": "next start",
-    "lint": "oxlint && next lint",
+    "lint": "oxlint",
     "preview": "vite preview"
   },
   "dependencies": {
