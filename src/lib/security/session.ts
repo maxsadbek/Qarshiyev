@@ -13,18 +13,15 @@
  */
 
 import crypto from 'node:crypto';
+import { requireAuthSecret } from '../env';
 
-const AUTH_SECRET = () => {
-  const secret = process.env.AUTH_SECRET;
-  if (!secret) throw new Error('AUTH_SECRET is not configured');
-  return secret;
-};
+const AUTH_SECRET = requireAuthSecret();
 
 const base64url = (buf: Buffer) => buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 const fromBase64url = (s: string) => Buffer.from(s.replace(/-/g, '+').replace(/_/g, '/'), 'base64');
 
 function sign(data: string): string {
-  return base64url(crypto.createHmac('sha256', AUTH_SECRET()).update(data).digest());
+  return base64url(crypto.createHmac('sha256', AUTH_SECRET).update(data).digest());
 }
 
 function verifySignature(data: string, sig: string): boolean {

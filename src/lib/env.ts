@@ -9,13 +9,7 @@ import { z } from 'zod';
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   DATABASE_URL: z.string().min(1).optional(),
-  AUTH_SECRET: z
-    .string()
-    .min(32, 'AUTH_SECRET must be at least 32 characters long')
-    .refine(
-      (value) => process.env.NODE_ENV !== 'production' || value.length >= 32,
-      'AUTH_SECRET is required in production',
-    ),
+  AUTH_SECRET: z.string().min(32, 'AUTH_SECRET must be at least 32 characters long').optional(),
   NEXT_PUBLIC_AUTH_COOKIE_NAME: z.string().min(1).default('qarshiyev_session'),
   NEXT_PUBLIC_APP_URL: z.string().url().optional(),
   NEXT_PUBLIC_API_URL: z.string().url().optional(),
@@ -51,6 +45,14 @@ export function requireDatabaseUrl(): string {
     throw new Error('DATABASE_URL is required but was not set.');
   }
   return url;
+}
+
+export function requireAuthSecret(): string {
+  const secret = getEnv().AUTH_SECRET;
+  if (!secret) {
+    throw new Error('AUTH_SECRET is not configured.');
+  }
+  return secret;
 }
 
 /** True when running in production. */
