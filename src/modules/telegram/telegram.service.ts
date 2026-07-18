@@ -18,25 +18,56 @@ export const RegistrationSchema = z.object({
 
 export type RegistrationData = z.infer<typeof RegistrationSchema>;
 
+/**
+ * Local interfaces matching the exact shapes returned by the `findMany` calls
+ * below (no `include` clauses are used, so these are each model's own scalar
+ * fields, limited to what is actually consumed by callers such as
+ * `registration.wizard.ts`).
+ *
+ * Why this exists: Prisma 7 no longer exports a `Prisma` namespace from
+ * `@prisma/client`. Without an explicit return type on these service methods,
+ * `regions`/`districts`/`courses` in the wizard file — and the bare `.map((r) =>
+ * ...)` callbacks there — would be left to bare inference from
+ * `prisma.<model>.findMany(...)`, which has repeatedly widened to `any[]` on
+ * this project's Vercel builds (the locally cached generated Prisma client
+ * differs from a fresh Vercel-side `prisma generate`). Annotating the return
+ * type here fixes it at the source, so every caller gets a concrete type
+ * without needing its own cast.
+ */
+interface RegionItem {
+  id: string;
+  name: string;
+}
+
+interface DistrictItem {
+  id: string;
+  name: string;
+}
+
+interface CourseItem {
+  id: string;
+  title: string;
+}
+
 export class TelegramService {
-  async getRegions() {
+  async getRegions(): Promise<RegionItem[]> {
     return prisma.region.findMany({
       orderBy: { name: 'asc' },
-    });
+    }) as Promise<RegionItem[]>;
   }
 
-  async getDistricts(regionId: string) {
+  async getDistricts(regionId: string): Promise<DistrictItem[]> {
     return prisma.district.findMany({
       where: { regionId },
       orderBy: { name: 'asc' },
-    });
+    }) as Promise<DistrictItem[]>;
   }
 
-  async getActiveCourses() {
+  async getActiveCourses(): Promise<CourseItem[]> {
     return prisma.course.findMany({
       where: { isActive: true },
       orderBy: { title: 'asc' },
-    });
+    }) as Promise<CourseItem[]>;
   }
 
   /**
@@ -110,5 +141,3 @@ export class TelegramService {
 }
 
 export const telegramService = new TelegramService();
-
-

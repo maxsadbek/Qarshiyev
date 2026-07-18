@@ -56,7 +56,7 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
       await ctx.reply(
         'Viloyatni tanlang:',
         Markup.inlineKeyboard(
-          regions.map(r => [Markup.button.callback(r.name, r.id)])
+          regions.map((r: { id: string; name: string }) => [Markup.button.callback(r.name, r.id)])
         )
       );
       return ctx.wizard.next();
@@ -84,7 +84,7 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
       await ctx.reply(
         'Tumanni tanlang:',
         Markup.inlineKeyboard(
-          districts.map(d => [Markup.button.callback(d.name, d.id)])
+          districts.map((d: { id: string; name: string }) => [Markup.button.callback(d.name, d.id)])
         )
       );
       return ctx.wizard.next();
@@ -112,7 +112,7 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
       await ctx.reply(
         'Kursni tanlang:',
         Markup.inlineKeyboard(
-          courses.map(c => [Markup.button.callback(c.title, c.id)])
+          courses.map((c: { id: string; title: string }) => [Markup.button.callback(c.title, c.id)])
         )
       );
       return ctx.wizard.next();
@@ -266,5 +266,3 @@ Hamma ma'lumotlar to'g'rimi?
     }
   }
 );
-
-

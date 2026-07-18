@@ -4,17 +4,42 @@ import prisma from '../../../lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
+/**
+ * Local interface matching the exact shape returned by `prisma.notification.findMany`
+ * (no `include` clause is used, so these are the model's own scalar fields).
+ *
+ * Why this exists: Prisma 7 no longer exports a `Prisma` namespace from
+ * `@prisma/client`. Relying purely on inference from a bare
+ * `await prisma.notification.findMany(...)` call has repeatedly widened to
+ * `any[]` in this project's Vercel build (the locally cached generated client
+ * differs from a fresh Vercel-side `prisma generate`), which is what caused
+ * `n` in `.filter((n) => ...)` / `.map((n) => ...)` to implicitly become `any`.
+ * Declaring this interface explicitly and pinning the query result to it
+ * removes the implicit-any error without disabling strict mode, without
+ * `@ts-ignore`, without `any`, and without reintroducing a Prisma namespace
+ * import. Only the fields actually used in this file are included.
+ */
+interface NotificationItem {
+  id: string;
+  title: string;
+  message: string;
+  isRead: boolean;
+  createdAt: Date;
+}
+
 export default async function NotificationsPage() {
   const user = await getCurrentUser();
   if (!user) redirect('/student/login');
 
-  const notifications = await prisma.notification.findMany({
+  const notificationsQuery: Promise<NotificationItem[]> = prisma.notification.findMany({
     where: { userId: user.id },
     orderBy: { createdAt: 'desc' },
     take: 50,
-  });
+  }) as Promise<NotificationItem[]>;
 
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const notifications: NotificationItem[] = await notificationsQuery;
+
+  const unreadCount = notifications.filter((n: NotificationItem) => !n.isRead).length;
 
   // Mark all as read (fire-and-forget — safe for server component)
   if (unreadCount > 0) {
@@ -43,7 +68,7 @@ export default async function NotificationsPage() {
         </div>
       ) : (
         <ul className="space-y-3">
-          {notifications.map((n) => (
+          {notifications.map((n: NotificationItem) => (
             <li
               key={n.id}
               className={`rounded-xl border p-5 flex gap-4 transition-colors ${
@@ -73,4 +98,3 @@ export default async function NotificationsPage() {
     </div>
   );
 }
-
