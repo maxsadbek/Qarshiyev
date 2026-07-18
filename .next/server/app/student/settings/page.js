@@ -1,5 +1,5 @@
 var R=require("../../../chunks/ssr/[turbopack]_runtime.js")("server/app/student/settings/page.js")
-R.c("server/chunks/ssr/[root-of-the-server]__0rn6s02._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__1we2dyq._.js")
 R.c("server/chunks/ssr/096c_next_dist_esm_build_templates_app-page_1uo9p8w.js")
 R.c("server/chunks/ssr/[root-of-the-server]__0lcy58b._.js")
 R.c("server/chunks/ssr/[root-of-the-server]__09a0gzk._.js")
@@ -11,7 +11,7 @@ R.c("server/chunks/ssr/096c_next_dist_client_components_builtin_unauthorized_09g
 R.c("server/chunks/ssr/096c_next_dist_client_components_builtin_global-error_1ysid9p.js")
 R.c("server/chunks/ssr/Desktop_Qarshiyev_04xnq7_._.js")
 R.c("server/chunks/ssr/[root-of-the-server]__1qe7_mk._.js")
-R.c("server/chunks/ssr/Desktop_Qarshiyev_1sr9zxx._.js")
+R.c("server/chunks/ssr/Desktop_Qarshiyev_0wvt5uj._.js")
 R.c("server/chunks/ssr/Desktop_Qarshiyev_1m651ny._.js")
 R.m(90926)
 module.exports=R.m(90926).exports

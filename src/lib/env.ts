@@ -8,7 +8,7 @@ import { z } from 'zod';
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-  DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
+  DATABASE_URL: z.string().min(1).optional(),
   AUTH_SECRET: z
     .string()
     .min(32, 'AUTH_SECRET must be at least 32 characters long')
@@ -43,6 +43,14 @@ export function getEnv(): AppEnv {
   }
   cached = result.data;
   return cached;
+}
+
+export function requireDatabaseUrl(): string {
+  const url = process.env.DATABASE_URL;
+  if (!url || url.trim() === '') {
+    throw new Error('DATABASE_URL is required but was not set.');
+  }
+  return url;
 }
 
 /** True when running in production. */

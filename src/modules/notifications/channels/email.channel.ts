@@ -8,15 +8,21 @@ import { Resend } from 'resend';
 import type { NotificationTemplate } from '../templates';
 import { errorMessage, type ChannelResult } from '../types';
 
-const resend = new Resend(process.env.RESEND_API_KEY!);
-
 const FROM_EMAIL = process.env.EMAIL_FROM || 'noreply@qarshiyev.uz';
+
+function getResend() {
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error('Missing RESEND_API_KEY environment variable');
+  }
+  return new Resend(process.env.RESEND_API_KEY);
+}
 
 export async function sendEmailNotification(
   toEmail: string,
   template: NotificationTemplate,
 ): Promise<ChannelResult> {
   try {
+    const resend = getResend();
     const { error } = await resend.emails.send({
       from: FROM_EMAIL,
       to: toEmail,
@@ -36,6 +42,7 @@ export async function sendEmailNotification(
 /** Send a raw subject/body email (used by retry/redispatch). */
 export async function sendEmailRaw(toEmail: string, subject: string, body: string): Promise<ChannelResult> {
   try {
+    const resend = getResend();
     const { error } = await resend.emails.send({
       from: FROM_EMAIL,
       to: toEmail,
