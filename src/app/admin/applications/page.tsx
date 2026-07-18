@@ -1,7 +1,15 @@
 import prisma from '../../../lib/prisma';
+import { Prisma } from '@prisma/client';
 import { requirePermission } from '../../../lib/auth';
 
 export const dynamic = 'force-dynamic';
+
+type ApplicationWithRelations = Prisma.ApplicationGetPayload<{
+  include: {
+    student: { include: { user: true } };
+    course: true;
+  };
+}>;
 
 const VALID_STATUSES = ['PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'] as const;
 type StatusFilter = (typeof VALID_STATUSES)[number];
@@ -48,7 +56,7 @@ export default async function ApplicationsPage({
       take,
       skip,
       orderBy: { createdAt: 'desc' },
-    }),
+    }) as Promise<ApplicationWithRelations[]>,
     prisma.application.count({ where }),
   ]);
 

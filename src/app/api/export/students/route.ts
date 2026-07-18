@@ -4,11 +4,19 @@
  */
 import { NextResponse } from 'next/server';
 import prisma from '../../../../lib/prisma';
+import { Prisma } from '@prisma/client';
 import * as XLSX from 'xlsx';
 import { requirePermission } from '../../../../lib/auth';
 import { withApiHandler, securityHeadersInit, rateLimitHeaders } from '@/lib/security/api-response';
 import { rateLimit, RATE_LIMITS } from '@/lib/security/rate-limit';
 import { getClientIp } from '@/lib/security/request-context';
+
+type StudentWithRelations = Prisma.StudentGetPayload<{
+  include: {
+    user: true;
+    district: { include: { region: true } };
+  };
+}>;
 
 export const GET = withApiHandler(async (req) => {
   const session = await requirePermission('reports:export').catch(() => null);
@@ -26,7 +34,7 @@ export const GET = withApiHandler(async (req) => {
   const students = await prisma.student.findMany({
     include: { user: true, district: { include: { region: true } } },
     orderBy: { createdAt: 'desc' },
-  });
+  }) as StudentWithRelations[];
 
   const flatData = students.map((s) => ({
     ID: s.id,

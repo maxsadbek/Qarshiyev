@@ -1,7 +1,15 @@
 import prisma from '../../../lib/prisma';
+import { Prisma } from '@prisma/client';
 import { requirePermission } from '../../../lib/auth';
 
 export const dynamic = 'force-dynamic';
+
+type StudentWithRelations = Prisma.StudentGetPayload<{
+  include: {
+    user: true;
+    district: { include: { region: true } };
+  };
+}>;
 
 export default async function StudentsPage({
   searchParams,
@@ -35,7 +43,7 @@ export default async function StudentsPage({
       take,
       skip,
       orderBy: { createdAt: 'desc' },
-    }),
+    }) as Promise<StudentWithRelations[]>,
     prisma.student.count({ where }),
   ]);
 
