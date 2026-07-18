@@ -58,3 +58,4 @@ export function CoursePopularityChart({ data, title }: CoursePopularityChartProp
     </motion.div>
   );
 }
+

@@ -1,3 +1,5 @@
+'use client';
+
 import {
   createContext,
   useCallback,
@@ -85,3 +87,4 @@ export const useIntro = (): IntroContextValue => {
   }
   return ctx;
 };
+

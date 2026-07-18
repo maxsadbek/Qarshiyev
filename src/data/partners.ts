@@ -26,3 +26,4 @@ export const partnerNames = [
   'TU Berlin',
   'Study Abroad Center',
 ];
+

@@ -28,3 +28,4 @@ export const useAuthStore = create<AuthState>((set) => ({
   setError: (error) => set({ error }),
   logout: () => set({ user: null, isAuthenticated: false, error: null }),
 }));
+

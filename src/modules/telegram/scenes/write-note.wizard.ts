@@ -31,3 +31,4 @@ export const writeNoteWizard = new Scenes.WizardScene<ProtectedContext>(
     return ctx.wizard.next();
   }
 );
+

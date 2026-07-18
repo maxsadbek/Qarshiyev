@@ -9,3 +9,4 @@ import { type ReactNode } from 'react';
 export function QueryProviderWrapper({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
+

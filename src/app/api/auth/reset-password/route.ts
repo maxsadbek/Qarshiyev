@@ -21,3 +21,4 @@ export const POST = withApiHandler(async (req) => {
 
   return NextResponse.json({ success: true, message: 'Parol muvaffaqiyatli yangilandi' }, { status: 200, headers: securityHeadersInit() });
 });
+

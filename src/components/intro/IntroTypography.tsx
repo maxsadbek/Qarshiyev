@@ -76,3 +76,4 @@ export const IntroTypography = forwardRef<HTMLDivElement, IntroTypographyProps>(
 );
 
 IntroTypography.displayName = 'IntroTypography';
+

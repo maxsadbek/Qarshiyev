@@ -158,3 +158,4 @@ function buildSearchDocs(kb: KnowledgeBase): SearchDoc[] {
 }
 
 export const searchDocs: SearchDoc[] = buildSearchDocs(knowledgeBase);
+

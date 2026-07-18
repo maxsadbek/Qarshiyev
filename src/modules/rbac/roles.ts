@@ -95,3 +95,4 @@ export function normalizeRoleName(name: string): RoleName {
   // 'USER' or anything else is treated as STUDENT
   return ROLE.STUDENT;
 }
+

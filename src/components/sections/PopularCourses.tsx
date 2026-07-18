@@ -1,5 +1,7 @@
+'use client';
+
 import React, { useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
@@ -114,7 +116,7 @@ export const PopularCourses: React.FC = () => {
           viewport={{ once: true }}
           transition={{ delay: 0.3 }}
         >
-          <Link to="/courses">
+          <Link href="/courses">
             <Button variant="outline" size="lg" icon={<ArrowRight size={16} />}>
               Barcha Kurslarni Ko'ring
             </Button>
@@ -124,3 +126,4 @@ export const PopularCourses: React.FC = () => {
     </section>
   );
 };
+

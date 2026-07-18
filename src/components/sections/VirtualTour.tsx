@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, MapPin, Monitor, BookOpen, Coffee, Users, Wifi } from 'lucide-react';
@@ -240,3 +242,4 @@ export const VirtualTour: React.FC = () => {
     </section>
   );
 };
+

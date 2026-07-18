@@ -102,3 +102,4 @@ export const CourseCard: React.FC<{ course: Course; className?: string }> = ({
     </div>
   );
 };
+

@@ -87,3 +87,4 @@ export const faqCategories: FAQItem['category'][] = [
   'Certificates',
   'Schedule',
 ];
+

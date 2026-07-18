@@ -13,3 +13,4 @@ export interface Database {
     CompositeTypes: Record<string, unknown>;
   };
 }
+

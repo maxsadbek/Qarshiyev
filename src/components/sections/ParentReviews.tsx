@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -122,3 +124,4 @@ const TestimonialCard: React.FC<{ testimonial: typeof testimonials[0] }> = ({ te
     </motion.div>
   );
 };
+

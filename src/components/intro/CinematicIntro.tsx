@@ -1,5 +1,7 @@
+'use client';
+
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { usePathname } from 'next/navigation';
 import { Volume2, VolumeX } from 'lucide-react';
 import { useLenis } from '@/context/SmoothScrollProvider';
 import { useIntro } from '@/context/IntroContext';
@@ -22,7 +24,7 @@ import {
  * flies into the navbar so the sequence flows seamlessly into the homepage.
  */
 export const CinematicIntro: React.FC = () => {
-  const location = useLocation();
+  const pathname = usePathname();
   const lenis = useLenis();
   const { shouldPlayIntro, startIntro, completeIntro, skipIntro } = useIntro();
 
@@ -48,7 +50,7 @@ export const CinematicIntro: React.FC = () => {
   const lenisRef = useRef(lenis);
   lenisRef.current = lenis;
 
-  const isHome = location.pathname === ROUTES.HOME;
+  const isHome = pathname === ROUTES.HOME;
   const shouldRender = shouldPlayIntro && isHome;
 
   const refs = useMemo(
@@ -291,3 +293,4 @@ export const CinematicIntro: React.FC = () => {
     </div>
   );
 };
+

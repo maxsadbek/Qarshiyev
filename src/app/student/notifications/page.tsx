@@ -2,6 +2,8 @@ import { redirect } from 'next/navigation';
 import { getCurrentUser } from '../../../lib/auth';
 import prisma from '../../../lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 export default async function NotificationsPage() {
   const user = await getCurrentUser();
   if (!user) redirect('/student/login');
@@ -71,3 +73,4 @@ export default async function NotificationsPage() {
     </div>
   );
 }
+

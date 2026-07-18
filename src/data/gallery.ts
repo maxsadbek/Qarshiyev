@@ -12,7 +12,7 @@ export const galleryItems: GalleryItem[] = [
   {
     id: '1',
     type: 'image',
-    src: img1,
+    src: img1.src,
     title: 'Modern Classroom Environment',
     category: 'Classrooms',
     date: '2026-04-10',
@@ -20,7 +20,7 @@ export const galleryItems: GalleryItem[] = [
   {
     id: '2',
     type: 'image',
-    src: img2,
+    src: img2.src,
     title: 'Interactive Learning Sessions',
     category: 'Classrooms',
     date: '2026-03-22',
@@ -28,7 +28,7 @@ export const galleryItems: GalleryItem[] = [
   {
     id: '3',
     type: 'image',
-    src: img3,
+    src: img3.src,
     title: 'Graduation Ceremony 2025',
     category: 'Graduates',
     date: '2025-09-15',
@@ -36,7 +36,7 @@ export const galleryItems: GalleryItem[] = [
   {
     id: '4',
     type: 'image',
-    src: img4,
+    src: img4.src,
     title: 'Open Day — Summer 2025',
     category: 'Events',
     date: '2025-07-02',
@@ -44,7 +44,7 @@ export const galleryItems: GalleryItem[] = [
   {
     id: '5',
     type: 'image',
-    src: img5,
+    src: img5.src,
     title: 'Teacher Development Workshop',
     category: 'Teachers',
     date: '2025-11-10',
@@ -52,7 +52,7 @@ export const galleryItems: GalleryItem[] = [
   {
     id: '6',
     type: 'image',
-    src: img6,
+    src: img6.src,
     title: 'Our Academic Library',
     category: 'Campus',
     date: '2026-01-20',
@@ -60,7 +60,7 @@ export const galleryItems: GalleryItem[] = [
   {
     id: '7',
     type: 'image',
-    src: img7,
+    src: img7.src,
     title: 'IELTS Writing Workshop',
     category: 'Events',
     date: '2026-05-18',
@@ -68,3 +68,4 @@ export const galleryItems: GalleryItem[] = [
 ];
 
 export const galleryCategories = ['All', 'Classrooms', 'Events', 'Graduates', 'Teachers', 'Campus', 'Awards'] as const;
+

@@ -29,3 +29,4 @@ export async function getPublicUrl(bucket: keyof typeof storageBuckets, path: st
   const { data } = supabase.storage.from(bucket).getPublicUrl(path);
   return data.publicUrl;
 }
+

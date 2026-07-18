@@ -78,3 +78,4 @@ export async function logSecurityEvent(input: SecurityEventInput): Promise<void>
     logger.error('Failed to persist security event', { error: String(err), action: input.action });
   }
 }
+

@@ -110,3 +110,4 @@ export const IntroLogoSvg = forwardRef<SVGSVGElement, IntroLogoSvgProps>(
 );
 
 IntroLogoSvg.displayName = 'IntroLogoSvg';
+

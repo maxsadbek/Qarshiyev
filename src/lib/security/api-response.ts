@@ -4,7 +4,7 @@
  * No internal error details ever leak to the client.
  */
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { ZodError } from 'zod';
 import { securityHeadersInit } from './headers';
 import { rateLimitHeaders, type RateLimitResult } from './rate-limit';
@@ -74,14 +74,11 @@ export function apiError(err: unknown) {
  * Wrap an API handler so all thrown errors become consistent responses.
  * Usage: export const POST = withApiHandler(async (req) => { ... });
  */
-export function withApiHandler(
-  handler: (req: Request, ctx: { params: Record<string, string> }) => Promise<Response> | Response,
+export function withApiHandler<Params extends Record<string, string | string[]> = {}>(
+  handler: (req: NextRequest, ctx?: { params: Params }) => Promise<Response | void> | Response | void,
 ) {
-  return async (req: Request, ctx: { params?: Record<string, string> }) => {
+  return async (req: NextRequest, ctx: { params: Promise<Params> }) => {
     try {
-      // CSRF protection (double-submit cookie) for authenticated state-changing
-      // requests. Unauthenticated endpoints (login/register/reset) are exempt
-      // because no session/CSRF cookie exists yet.
       const method = req.method.toUpperCase();
       if (method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS') {
         const hasSession = !!req.headers.get('cookie')?.includes('qarshiyev_session');
@@ -92,9 +89,10 @@ export function withApiHandler(
           );
         }
       }
-      return await handler(req, { params: ctx.params ?? {} });
+      return await handler(req, { params: (await ctx.params) ?? {} });
     } catch (err) {
       return apiError(err);
     }
   };
 }
+

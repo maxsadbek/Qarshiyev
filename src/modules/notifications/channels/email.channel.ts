@@ -95,3 +95,4 @@ function buildHtmlEmail(template: NotificationTemplate): string {
     </html>
   `;
 }
+

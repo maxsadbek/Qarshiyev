@@ -230,3 +230,4 @@ export const courseCategories: CourseCategory[] = [
 ];
 
 import type { CourseCategory } from '../types';
+

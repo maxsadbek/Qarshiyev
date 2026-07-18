@@ -1,0 +1,29 @@
+{
+  "node": {
+    "400ac3e9ce80a3a9352d407fa74073da5186a98d02": {
+      "workers": {
+        "app/student/settings/page": {
+          "moduleId": 91073,
+          "async": true,
+          "exportedName": "updatePhone",
+          "filename": "Desktop/Qarshiyev/src/app/student/settings/actions.ts"
+        }
+      },
+      "exportedName": "updatePhone",
+      "filename": "Desktop/Qarshiyev/src/app/student/settings/actions.ts"
+    },
+    "40eeaf437a12ba23294ad250db4dafe55c8817960f": {
+      "workers": {
+        "app/student/settings/page": {
+          "moduleId": 91073,
+          "async": true,
+          "exportedName": "updateNote",
+          "filename": "Desktop/Qarshiyev/src/app/student/settings/actions.ts"
+        }
+      },
+      "exportedName": "updateNote",
+      "filename": "Desktop/Qarshiyev/src/app/student/settings/actions.ts"
+    }
+  },
+  "edge": {}
+}

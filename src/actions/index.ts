@@ -8,3 +8,4 @@
 export { login, register, logout, forgotPassword, resetPassword } from './auth';
 export { fetchStudents, createStudent, updateStudent, deleteStudent } from './students';
 export { fetchTeachers, createTeacher, updateTeacher, deleteTeacher } from './teachers';
+

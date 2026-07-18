@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Clock, MapPin, ArrowRight } from 'lucide-react';
 import { SectionHeader } from '@/components/ui/SectionHeader';
@@ -98,7 +98,7 @@ export const EventsSection: React.FC = () => {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
         >
-          <Link to="/events">
+          <Link href="/events">
             <Button variant="outline" size="lg" icon={<ArrowRight size={16} />}>
               Tadbirlar Jadvalini Ko'rish
             </Button>
@@ -108,3 +108,4 @@ export const EventsSection: React.FC = () => {
     </section>
   );
 };
+

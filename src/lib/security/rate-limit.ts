@@ -87,3 +87,4 @@ export function rateLimitHeaders(result: RateLimitResult): Record<string, string
     'X-RateLimit-Reset': String(Math.ceil(result.reset / 1000)),
   };
 }
+

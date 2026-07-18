@@ -224,3 +224,4 @@ export async function resetPassword(input: { token: string; password: string }):
 function cryptoRandomToken(): string {
   return crypto.randomBytes(32).toString('hex');
 }
+

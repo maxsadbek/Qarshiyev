@@ -70,3 +70,4 @@ export const ANIMATION_VARIANTS = {
     visible: { transition: { staggerChildren: 0.12 } },
   },
 };
+

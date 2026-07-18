@@ -78,3 +78,4 @@ export function generateReportFilename(type: ReportConfig['type']): string {
   };
   return map[type];
 }
+

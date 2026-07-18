@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '../../../lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 const STATUS_STEPS = [
   { key: 'PENDING',   label: 'Submitted',       icon: '📤' },
   { key: 'PENDING',   label: 'Under Review',     icon: '🔍' },
@@ -97,3 +99,4 @@ export default async function ApplicationPage() {
     </div>
   );
 }
+

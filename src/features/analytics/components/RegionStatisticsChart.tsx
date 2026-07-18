@@ -58,3 +58,4 @@ export function RegionStatisticsChart({ data, title }: RegionStatisticsChartProp
     </motion.div>
   );
 }
+

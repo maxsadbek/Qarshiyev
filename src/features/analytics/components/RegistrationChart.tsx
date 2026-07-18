@@ -64,3 +64,4 @@ export function RegistrationChart({ data, title, subtitle }: RegistrationChartPr
     </motion.div>
   );
 }
+

@@ -31,3 +31,4 @@ export const useUIStore = create<UIState>((set) => ({
   toggleDrawer: () => set((state) => ({ drawerOpen: !state.drawerOpen })),
   setTheme: (theme) => set({ theme }),
 }));
+

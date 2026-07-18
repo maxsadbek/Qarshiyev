@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -150,3 +152,4 @@ const ResultCard: React.FC<{ result: typeof studentResults[0] }> = ({ result }) 
     </motion.div>
   );
 };
+

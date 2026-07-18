@@ -58,3 +58,4 @@ export function getYouTubeThumbnail(url: string): string {
   const id = getYouTubeId(url);
   return id ? `https://img.youtube.com/vi/${id}/maxresdefault.jpg` : '';
 }
+

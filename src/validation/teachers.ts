@@ -46,3 +46,4 @@ export const teacherFilterSchema = z.object({
 export type CreateTeacherInput = z.infer<typeof createTeacherSchema>;
 export type UpdateTeacherInput = z.infer<typeof updateTeacherSchema>;
 export type TeacherFilterInput = z.infer<typeof teacherFilterSchema>;
+

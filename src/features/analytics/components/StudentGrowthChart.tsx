@@ -61,3 +61,4 @@ export function StudentGrowthChart({ data, title }: StudentGrowthChartProps) {
     </motion.div>
   );
 }
+

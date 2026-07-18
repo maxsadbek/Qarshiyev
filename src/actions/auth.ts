@@ -57,3 +57,4 @@ export async function resetPassword(input: { token: string; password: string; co
   if (status === 200 && data.success) return { ok: true };
   return { ok: false, error: data.error };
 }
+

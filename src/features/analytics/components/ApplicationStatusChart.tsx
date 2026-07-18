@@ -62,3 +62,4 @@ export function ApplicationStatusChart({ data, title }: ApplicationStatusChartPr
     </motion.div>
   );
 }
+

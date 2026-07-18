@@ -55,3 +55,4 @@ export function StatCard({ data, index }: StatCardProps) {
     </motion.div>
   );
 }
+

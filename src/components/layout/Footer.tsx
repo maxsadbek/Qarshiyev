@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import {
   Phone,
   Mail,
@@ -24,8 +24,8 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="lg:col-span-1">
-            <Link to="/" className="flex items-center gap-3 mb-5">
-              <img src={logo} alt="Qarshiyev" className="w-10 h-10 rounded-xl object-cover" />
+            <Link href="/" className="flex items-center gap-3 mb-5">
+              <img src={logo.src} alt="Qarshiyev" className="w-10 h-10 rounded-xl object-cover" />
               <div>
                 <span className="font-serif font-bold text-white text-lg leading-none block">
                   Qarshiyev
@@ -85,7 +85,7 @@ export const Footer: React.FC = () => {
               {NAV_ITEMS.filter((n) => !('children' in n)).map((item) => (
                 <li key={item.label}>
                   <Link
-                    to={item.href}
+                    href={item.href}
                     className="flex items-center gap-2 text-slate-400 text-sm hover:text-violet-400 transition-colors group"
                   >
                     <ArrowRight
@@ -98,7 +98,7 @@ export const Footer: React.FC = () => {
               ))}
               <li>
                 <Link
-                  to={ROUTES.RESULTS}
+                  href={ROUTES.RESULTS}
                   className="flex items-center gap-2 text-slate-400 text-sm hover:text-violet-400 transition-colors group"
                 >
                   <ArrowRight
@@ -120,7 +120,7 @@ export const Footer: React.FC = () => {
               {featuredCourses.map((course) => (
                 <li key={course.id}>
                   <Link
-                    to={ROUTES.COURSES}
+                    href={ROUTES.COURSES}
                     className="flex items-start gap-2 text-slate-400 text-sm hover:text-violet-400 transition-colors group"
                   >
                     <ArrowRight
@@ -133,7 +133,7 @@ export const Footer: React.FC = () => {
               ))}
               <li>
                 <Link
-                  to={ROUTES.COURSES}
+                  href={ROUTES.COURSES}
                   className="text-violet-500 text-sm font-medium hover:text-violet-400 transition-colors"
                 >
                   Barcha kurslarni ko'rish →
@@ -195,10 +195,10 @@ export const Footer: React.FC = () => {
               © {currentYear} Qarshiyev Ta'lim Markazi. Barcha huquqlar himoyalangan.
             </p>
             <div className="flex items-center gap-5">
-              <Link to="#" className="text-slate-500 text-sm hover:text-slate-300 transition-colors">
+              <Link href="#" className="text-slate-500 text-sm hover:text-slate-300 transition-colors">
                 Maxfiylik Siyosati
               </Link>
-              <Link to="#" className="text-slate-500 text-sm hover:text-slate-300 transition-colors">
+              <Link href="#" className="text-slate-500 text-sm hover:text-slate-300 transition-colors">
                 Foydalanish Shartlari
               </Link>
             </div>
@@ -208,3 +208,4 @@ export const Footer: React.FC = () => {
     </footer>
   );
 };
+

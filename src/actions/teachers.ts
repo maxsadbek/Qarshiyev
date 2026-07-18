@@ -27,3 +27,4 @@ export async function deleteTeacher(_id: string) {
   const data = await res.json().catch(() => ({}));
   return data;
 }
+

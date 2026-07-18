@@ -72,3 +72,4 @@ export async function* generateResponse(
     yield { kind: 'token', token: getFallbackMessage() };
   }
 }
+

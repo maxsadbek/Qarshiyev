@@ -20,3 +20,4 @@ export const POST = withApiHandler(async (req) => {
 
   return NextResponse.json({ success: true }, { status: 200, headers: securityHeadersInit() });
 });
+

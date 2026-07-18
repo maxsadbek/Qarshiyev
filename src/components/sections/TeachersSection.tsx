@@ -1,5 +1,7 @@
+'use client';
+
 import React, { useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
@@ -89,7 +91,7 @@ export const TeachersSection: React.FC = () => {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
         >
-          <Link to="/teachers">
+          <Link href="/teachers">
             <Button
               variant="ghost"
               size="lg"
@@ -244,3 +246,4 @@ export const TeacherCard: React.FC<{
     </motion.div>
   );
 };
+

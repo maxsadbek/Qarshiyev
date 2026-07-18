@@ -1,10 +1,12 @@
+'use client';
+
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Play, Users, GraduationCap, Star, Award, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useIntro } from '@/context/IntroContext';
-import heroPhoneVideo from '@/assets/5318996866413656030.mp4';
+const heroPhoneVideo = '/assets/5318996866413656030.mp4';
 
 const THUMBNAIL = 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&q=90';
 
@@ -94,7 +96,7 @@ export const HeroSection: React.FC = () => {
                   Safaringizni Boshlang
                 </Button>
               </a>
-              <Link to="/courses">
+              <Link href="/courses">
                 <Button
                   variant="ghost"
                   size="xl"
@@ -252,3 +254,4 @@ export const HeroSection: React.FC = () => {
     </section>
   );
 };
+

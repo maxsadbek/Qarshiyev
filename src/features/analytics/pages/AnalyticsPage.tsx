@@ -1,7 +1,7 @@
-import { useState, useMemo } from 'react';
-import { Helmet } from 'react-helmet-async';
+'use client';
+
+import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Navigate } from 'react-router-dom';
 import {
   Users, FileText, Clock, CheckCircle2, XCircle,
   BookOpen, GraduationCap, BarChart3,
@@ -23,6 +23,7 @@ import type { AnalyticsFilters, TimePeriod, SearchResult } from '../types';
 // TODO: Add role-based data filtering (teacher sees only own students)
 
 export const AnalyticsPage: React.FC = () => {
+  useEffect(() => { document.title = 'Analitika | Qarshiyev'; }, []);
   const { user } = useAuth();
   const [filters, setFilters] = useState<AnalyticsFilters>({
     dateRange: {
@@ -132,7 +133,7 @@ export const AnalyticsPage: React.FC = () => {
   // TODO: Replace with proper role-based access control
   // TODO: Add teacher-specific data filtering
   if (!user || user.role !== 'admin') {
-    return <Navigate to={ROUTES.HOME} replace />;
+    return null;
   }
 
   // ============================================================
@@ -168,14 +169,10 @@ export const AnalyticsPage: React.FC = () => {
     );
   }
 
-  return (
-    <>
-      <Helmet>
-        <title>Analitika | Qarshiyev</title>
-        <meta name="description" content="Tahlillar va hisobotlar" />
-      </Helmet>
 
-      <main className="min-h-screen bg-slate-50">
+
+  return (
+    <main className="min-h-screen bg-slate-50">
         {/* ===== HEADER ===== */}
         <div className="bg-slate-950 text-white">
           <div className="container-custom py-8">
@@ -344,6 +341,6 @@ export const AnalyticsPage: React.FC = () => {
           />
         </div>
       </main>
-    </>
   );
 };
+

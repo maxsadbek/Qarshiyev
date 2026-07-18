@@ -164,3 +164,4 @@ export function FilterBar({ filters, onFilterChange, timePeriod, onTimePeriodCha
     </motion.div>
   );
 }
+

@@ -93,3 +93,4 @@ export const FloatingAssistantButton: React.FC = () => {
     </>
   );
 };
+

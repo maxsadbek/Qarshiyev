@@ -44,3 +44,4 @@ export const studentFilterSchema = z.object({
 export type CreateStudentInput = z.infer<typeof createStudentSchema>;
 export type UpdateStudentInput = z.infer<typeof updateStudentSchema>;
 export type StudentFilterInput = z.infer<typeof studentFilterSchema>;
+

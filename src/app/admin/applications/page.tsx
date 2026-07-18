@@ -1,20 +1,23 @@
 import prisma from '../../../lib/prisma';
 import { requirePermission } from '../../../lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 const VALID_STATUSES = ['PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'] as const;
 type StatusFilter = (typeof VALID_STATUSES)[number];
 
 export default async function ApplicationsPage({
   searchParams,
 }: {
-  searchParams: { q?: string; page?: string; status?: string };
+  searchParams: Promise<{ q?: string; page?: string; status?: string }>;
 }) {
   // RBAC: only ADMIN/OWNER (with applications:read) may view this page.
   await requirePermission('applications:read');
 
-  const query = (searchParams.q || '').trim();
-  const status = searchParams.status as StatusFilter | undefined;
-  const page = Math.max(1, parseInt(searchParams.page || '1', 10) || 1);
+  const params = await searchParams;
+  const query = (params.q || '').trim();
+  const status = params.status as StatusFilter | undefined;
+  const page = Math.max(1, parseInt(params.page || '1', 10) || 1);
   const take = 10;
   const skip = (page - 1) * take;
 
@@ -103,3 +106,4 @@ export default async function ApplicationsPage({
     </div>
   );
 }
+

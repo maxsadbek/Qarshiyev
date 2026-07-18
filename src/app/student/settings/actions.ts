@@ -67,3 +67,4 @@ export async function updateNote(formData: FormData) {
   revalidatePath('/student/settings');
   return { success: 'Note updated successfully.' };
 }
+

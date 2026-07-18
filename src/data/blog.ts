@@ -116,3 +116,4 @@ export const blogCategories = [
   'Yangiliklar',
   'Muvaffaqiyat Tarixi',
 ] as const;
+

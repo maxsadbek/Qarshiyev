@@ -12,3 +12,4 @@ export const TypingIndicator: React.FC = () => (
     <span />
   </motion.div>
 );
+

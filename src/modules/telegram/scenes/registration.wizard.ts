@@ -264,3 +264,4 @@ Hamma ma'lumotlar to'g'rimi?
     }
   }
 );
+

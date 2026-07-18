@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import CountUpModule from 'react-countup';
@@ -39,7 +39,7 @@ export const AboutSection: React.FC = () => {
             {/* Main Image */}
             <div className="relative rounded-3xl overflow-hidden aspect-[4/5] shadow-2xl">
               <img
-                src={sirojUstoz}
+                 src={sirojUstoz.src}
                 alt="Siroj Ustoz"
                 className="w-full h-full object-cover"
                 loading="lazy"
@@ -144,7 +144,7 @@ export const AboutSection: React.FC = () => {
               viewport={{ once: true }}
               transition={{ delay: 0.3 }}
             >
-              <Link to="/about">
+              <Link href="/about">
                 <Button variant="primary" size="lg" icon={<ArrowRight size={16} />}>
                   Biz Haqimizda Ko'proq
                 </Button>
@@ -186,3 +186,4 @@ export const AboutSection: React.FC = () => {
     </section>
   );
 };
+

@@ -2,6 +2,8 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser } from '../../lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: string }> = {
   PENDING:   { label: 'Pending Review', color: 'text-amber-700 dark:text-amber-400',   bg: 'bg-amber-50 dark:bg-amber-900/20',   icon: '⏳' },
   APPROVED:  { label: 'Approved',       color: 'text-green-700 dark:text-green-400',   bg: 'bg-green-50 dark:bg-green-900/20',   icon: '✅' },
@@ -91,3 +93,4 @@ function InfoRow({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+

@@ -113,3 +113,4 @@ export const MessageBubble: React.FC<Props> = memo(({ message, dark }) => {
 });
 
 MessageBubble.displayName = 'MessageBubble';
+

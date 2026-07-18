@@ -1,0 +1,3 @@
+{
+  "/api/notifications/retry/route": "app/api/notifications/retry/route.js"
+}

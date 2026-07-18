@@ -52,3 +52,4 @@ export const INTRO_LOGO_SIZE = 138;
 
 /** Navbar logo target size */
 export const NAVBAR_LOGO_SIZE = 52;
+

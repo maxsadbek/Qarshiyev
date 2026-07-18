@@ -59,3 +59,4 @@ export const POST = withApiHandler(async (req) => {
 export const GET = withApiHandler(async () => {
   return NextResponse.json({ message: 'Telegram Webhook is active' }, { status: 200, headers: securityHeadersInit() });
 });
+

@@ -2,6 +2,8 @@ import prisma from '../../lib/prisma';
 import { requirePermission } from '../../lib/auth';
 import { OverviewCharts } from './OverviewCharts';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminOverviewPage() {
   await requirePermission('dashboard:read');
 
@@ -47,3 +49,4 @@ function StatCard({ title, value, color }: { title: string, value: number, color
     </div>
   );
 }
+

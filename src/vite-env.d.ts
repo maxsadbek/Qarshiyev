@@ -1,15 +1,39 @@
-/// <reference types="vite/client" />
-
-interface ImportMetaEnv {
-  readonly VITE_OPENAI_API_KEY?: string;
-  readonly VITE_OPENAI_BASE_URL?: string;
-  readonly VITE_OPENAI_MODEL?: string;
+declare module '*.svg' {
+  const content: React.FC<React.SVGProps<SVGSVGElement>>;
+  export default content;
 }
 
-interface ImportMeta {
-  readonly env: ImportMetaEnv;
+declare module '*.png' {
+  const content: string;
+  export default content;
+}
+
+declare module '*.jpg' {
+  const content: string;
+  export default content;
+}
+
+declare module '*.jpeg' {
+  const content: string;
+  export default content;
+}
+
+declare module '*.gif' {
+  const content: string;
+  export default content;
+}
+
+declare module '*.webp' {
+  const content: string;
+  export default content;
+}
+
+declare module '*.mp4' {
+  const content: string;
+  export default content;
 }
 
 interface Window {
   __assistantDark?: boolean;
 }
+

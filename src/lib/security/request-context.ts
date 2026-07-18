@@ -22,3 +22,4 @@ export function getUserAgent(req: NextRequest | Request): string {
 export function getClientMeta(req: NextRequest | Request) {
   return { ip: getClientIp(req), userAgent: getUserAgent(req) };
 }
+

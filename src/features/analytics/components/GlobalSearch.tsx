@@ -1,3 +1,5 @@
+'use client';
+
 import { motion } from 'framer-motion';
 import { Search } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
@@ -135,3 +137,4 @@ export function GlobalSearch({ onResultClick }: GlobalSearchProps) {
     </div>
   );
 }
+

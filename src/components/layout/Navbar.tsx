@@ -1,5 +1,8 @@
+'use client';
+
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ChevronDown, Phone } from 'lucide-react';
 import { useScrollPosition } from '@/hooks/useScrollPosition';
@@ -33,14 +36,14 @@ export const Navbar: React.FC = () => {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false);
-  const location = useLocation();
+  const pathname = usePathname();
   const userRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuth();
   const { isIntroComplete } = useIntro();
 
   const isActive = (href: string) =>
-    href === '/' ? location.pathname === '/' : location.pathname.startsWith(href);
+    href === '/' ? (pathname ?? '') === '/' : (pathname ?? '').startsWith(href);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -65,7 +68,7 @@ export const Navbar: React.FC = () => {
 
   useEffect(() => {
     setUserMenuOpen(false);
-  }, [location.pathname]);
+  }, [pathname]);
 
   return (
     <>
@@ -82,10 +85,10 @@ export const Navbar: React.FC = () => {
       >
         <div className="container-custom h-full flex items-center justify-between gap-8 relative">
           {/* Logo + Brand */}
-          <Link to="/" className="group flex items-center gap-3.5 flex-shrink-0">
+          <Link href="/" className="group flex items-center gap-3.5 flex-shrink-0">
             <img
               id="navbar-logo"
-              src={logo}
+              src={logo.src}
               alt="Qarshiyev"
               className="w-[52px] h-[52px] rounded-xl object-cover shadow-[0_4px_14px_rgba(0,0,0,0.35)] transition-transform duration-300 group-hover:scale-105"
               style={{ opacity: isIntroComplete ? 1 : 0 }}
@@ -117,7 +120,7 @@ export const Navbar: React.FC = () => {
                       {item.children.map((child) => (
                         <Link
                           key={child.label}
-                          to={child.href}
+                          href={child.href}
                           onClick={() => setDropdownOpen(false)}
                           className="block px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 hover:text-violet-600 transition-colors"
                         >
@@ -132,7 +135,7 @@ export const Navbar: React.FC = () => {
               return (
                 <Link
                   key={item.label}
-                  to={item.href}
+                  href={item.href}
                   className={cn(
                     'group relative inline-flex items-center h-full px-2 text-[15px] font-medium tracking-wide transition-all duration-300 hover:-translate-y-0.5',
                     active ? 'text-white' : 'text-white/70 hover:text-white'
@@ -181,7 +184,7 @@ export const Navbar: React.FC = () => {
                     >
                       <div className="p-2">
                         <Link
-                          to={ROUTES.PROFILE}
+                          href={ROUTES.PROFILE}
                           onClick={() => setUserMenuOpen(false)}
                           className="flex items-center px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-950 transition-colors"
                         >
@@ -200,7 +203,7 @@ export const Navbar: React.FC = () => {
               </div>
             ) : (
               <Link
-                to={ROUTES.LOGIN}
+                href={ROUTES.LOGIN}
                 className="group relative hidden sm:inline-flex items-center justify-center h-[46px] px-[30px] rounded-full bg-gradient-to-r from-gold-500 to-gold-600 text-white text-[15px] font-semibold shadow-[0_6px_20px_-8px_rgba(138,43,226,0.8)] transition-all duration-300 hover:scale-105 hover:shadow-[0_10px_30px_-6px_rgba(138,43,226,0.9)]"
               >
                 <span className="absolute inset-0 rounded-full bg-gold-400 blur-md opacity-50 animate-[navGlow_3s_ease-in-out_infinite]" />
@@ -241,8 +244,8 @@ export const Navbar: React.FC = () => {
               <div className="p-6">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
-                  <Link to="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-3">
-                    <img src={logo} alt="Qarshiyev" className="w-11 h-11 rounded-xl object-cover" />
+                  <Link href="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-3">
+                    <img src={logo.src} alt="Qarshiyev" className="w-11 h-11 rounded-xl object-cover" />
                     <div className="flex flex-col">
                       <span className="font-sans font-bold text-white text-lg leading-none">Qarshiyev</span>
                       <span className="text-white/55 text-xs leading-none mt-1">Ta'lim Markazi</span>
@@ -273,7 +276,7 @@ export const Navbar: React.FC = () => {
                             {item.children.map((child) => (
                               <Link
                                 key={child.label}
-                                to={child.href}
+                                href={child.href}
                                 onClick={() => { setMobileOpen(false); setMobileDropdownOpen(false); }}
                                 className="flex items-center px-4 py-3 rounded-xl text-[14px] font-medium text-white/60 hover:bg-white/10 hover:text-white transition-colors"
                               >
@@ -288,7 +291,7 @@ export const Navbar: React.FC = () => {
                     return (
                       <Link
                         key={item.label}
-                        to={item.href}
+                        href={item.href}
                         onClick={() => setMobileOpen(false)}
                         className={cn(
                           'flex items-center px-4 py-3.5 rounded-xl text-[15px] font-semibold transition-colors',
@@ -315,7 +318,7 @@ export const Navbar: React.FC = () => {
                   {user ? (
                     <>
                       <Link
-                        to={ROUTES.PROFILE}
+                        href={ROUTES.PROFILE}
                         onClick={() => setMobileOpen(false)}
                         className="flex items-center justify-center w-full h-[46px] rounded-full bg-white/10 text-white font-semibold transition-colors hover:bg-white/20"
                       >
@@ -330,7 +333,7 @@ export const Navbar: React.FC = () => {
                     </>
                   ) : (
                     <Link
-                      to={ROUTES.LOGIN}
+                      href={ROUTES.LOGIN}
                       onClick={() => setMobileOpen(false)}
                       className="flex items-center justify-center w-full h-[46px] rounded-full bg-gradient-to-r from-gold-500 to-gold-600 text-white font-semibold shadow-[0_6px_20px_-8px_rgba(138,43,226,0.8)]"
                     >
@@ -346,3 +349,4 @@ export const Navbar: React.FC = () => {
     </>
   );
 };
+

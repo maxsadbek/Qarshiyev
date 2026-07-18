@@ -24,3 +24,4 @@ export const GET = withApiHandler(async () => {
     { status: 200, headers: securityHeadersInit() },
   );
 });
+

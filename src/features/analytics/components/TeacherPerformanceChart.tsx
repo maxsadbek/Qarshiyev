@@ -58,3 +58,4 @@ export function TeacherPerformanceChart({ data, title }: TeacherPerformanceChart
     </motion.div>
   );
 }
+

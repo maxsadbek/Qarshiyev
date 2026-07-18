@@ -64,3 +64,4 @@ export const Markdown: React.FC<MarkdownProps> = memo(({ content, dark = false }
 });
 
 Markdown.displayName = 'Markdown';
+

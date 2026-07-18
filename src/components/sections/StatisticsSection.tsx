@@ -93,3 +93,4 @@ export const StatisticsSection: React.FC = () => {
     </section>
   );
 };
+

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, ArrowRight } from 'lucide-react';
 import { SectionHeader } from '@/components/ui/SectionHeader';
@@ -39,7 +39,7 @@ export const BlogSection: React.FC = () => {
               transition={{ delay: i * 0.1, duration: 0.6 }}
               whileHover={{}}
             >
-              <Link to={`/blog/${post.slug}`} className="block relative h-40 sm:h-48 md:h-56 overflow-hidden shrink-0">
+              <Link href={`/blog/${post.slug}`} className="block relative h-40 sm:h-48 md:h-56 overflow-hidden shrink-0">
                 <img
                   src={post.thumbnail}
                   alt={post.title}
@@ -63,7 +63,7 @@ export const BlogSection: React.FC = () => {
                   </div>
                 </div>
 
-                <Link to={`/blog/${post.slug}`} className="block mb-3">
+                <Link href={`/blog/${post.slug}`} className="block mb-3">
                   <h3 className="font-serif font-bold text-slate-950 text-xl leading-snug group-hover:text-violet-600 transition-colors line-clamp-2">
                     {post.title}
                   </h3>
@@ -83,7 +83,7 @@ export const BlogSection: React.FC = () => {
                     <span className="text-sm font-semibold text-slate-950">{post.author}</span>
                   </div>
                   <Link
-                    to={`/blog/${post.slug}`}
+                    href={`/blog/${post.slug}`}
                     className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-violet-500 group-hover:text-white transition-colors"
                   >
                     <ArrowRight size={14} />
@@ -100,7 +100,7 @@ export const BlogSection: React.FC = () => {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
         >
-          <Link to="/blog">
+          <Link href="/blog">
             <Button variant="outline" size="lg" icon={<ArrowRight size={16} />}>
               Ko'proq Maqolalar O'qish
             </Button>
@@ -110,3 +110,4 @@ export const BlogSection: React.FC = () => {
     </section>
   );
 };
+

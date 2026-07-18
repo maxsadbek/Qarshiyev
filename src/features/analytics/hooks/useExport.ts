@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useCallback } from 'react';
 import * as XLSX from 'xlsx';
 import type { ReportConfig } from '../types';
@@ -164,3 +166,4 @@ export function useExport() {
     exportFullReport,
   };
 }
+

@@ -47,3 +47,4 @@ export function applySecurityHeaders(headers: Headers): void {
 export function securityHeadersInit(): Record<string, string> {
   return { ...SECURITY_HEADERS, 'Content-Security-Policy': buildCsp() };
 }
+

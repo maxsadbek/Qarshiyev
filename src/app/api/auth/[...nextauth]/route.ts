@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
+import { withApiHandler } from '@/lib/security/api-response';
 
-export async function GET() {
+export const GET = withApiHandler<{ nextauth: string[] }>(async () => {
   return NextResponse.json({ message: 'Auth module prepared' });
-}
+});
 
-export async function POST() {
+export const POST = withApiHandler<{ nextauth: string[] }>(async () => {
   return NextResponse.json({ message: 'Auth module prepared' });
-}
+});

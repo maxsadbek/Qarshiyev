@@ -44,3 +44,4 @@ export const rolePermissions = {
   teacher: ['read:own_courses', 'write:own_courses', 'read:students'],
   student: ['read:courses', 'write:own_enrollments', 'read:own_profile'],
 } as const;
+

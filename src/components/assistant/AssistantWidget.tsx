@@ -42,7 +42,7 @@ const Header: React.FC<{ onClose: () => void }> = ({ onClose }) => (
       <div className="relative">
         <div className="absolute -inset-2 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 opacity-60 blur-lg" />
         <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 p-2.5 shadow-2xl shadow-violet-500/30">
-          <img src={logo} alt="Qarshiyev" className="h-full w-full object-contain" />
+          <img src={logo.src} alt="Qarshiyev" className="h-full w-full object-contain" />
         </div>
         <span className="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full border-2 border-slate-900 bg-emerald-400 shadow-lg shadow-emerald-500/50" />
       </div>
@@ -279,3 +279,4 @@ export const AssistantWidget: React.FC = memo(() => {
 });
 
 AssistantWidget.displayName = 'AssistantWidget';
+

@@ -1,15 +1,18 @@
 import prisma from '../../../lib/prisma';
 import { requirePermission } from '../../../lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export default async function StudentsPage({
   searchParams,
 }: {
-  searchParams: { q?: string; page?: string };
+  searchParams: Promise<{ q?: string; page?: string }>;
 }) {
   await requirePermission('students:read');
 
-  const query = (searchParams.q || '').trim();
-  const page = Math.max(1, parseInt(searchParams.page || '1', 10) || 1);
+  const params = await searchParams;
+  const query = (params.q || '').trim();
+  const page = Math.max(1, parseInt(params.page || '1', 10) || 1);
   const take = 10;
   const skip = (page - 1) * take;
 
@@ -105,3 +108,4 @@ export default async function StudentsPage({
     </div>
   );
 }
+

@@ -68,3 +68,4 @@ export function DistrictStatisticsChart({ data, title, region }: DistrictStatist
     </motion.div>
   );
 }
+

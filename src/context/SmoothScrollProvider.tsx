@@ -1,3 +1,5 @@
+'use client';
+
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import Lenis from 'lenis';
 
@@ -46,3 +48,4 @@ export const SmoothScrollProvider: React.FC<{ children: ReactNode }> = ({ childr
 
   return <LenisContext.Provider value={lenis}>{children}</LenisContext.Provider>;
 };
+

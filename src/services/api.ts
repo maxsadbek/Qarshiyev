@@ -6,7 +6,7 @@ import type { ApiResponse } from '@/types/api';
 // Base HTTP client with auth headers, error handling, and retries.
 // TODO: Replace with tRPC, REST client, or React Query hooks
 
-const API_BASE = import.meta.env.VITE_API_URL || '/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || process.env.VITE_API_URL || '/api';
 
 async function request<T>(
   endpoint: string,
@@ -42,3 +42,4 @@ export const api = {
     request<T>(endpoint, { method: 'PUT', body: JSON.stringify(data) }),
   delete: <T>(endpoint: string) => request<T>(endpoint, { method: 'DELETE' }),
 };
+

@@ -6,20 +6,16 @@
 
 import { z } from 'zod';
 
-const requiredInProd = (key: string) => {
-  if (process.env.NODE_ENV === 'production' && !process.env[key]) {
-    return false;
-  }
-  return true;
-};
-
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
   AUTH_SECRET: z
     .string()
     .min(32, 'AUTH_SECRET must be at least 32 characters long')
-    .refine(requiredInProd, 'AUTH_SECRET is required in production'),
+    .refine(
+      (value) => process.env.NODE_ENV !== 'production' || value.length >= 32,
+      'AUTH_SECRET is required in production',
+    ),
   NEXT_PUBLIC_AUTH_COOKIE_NAME: z.string().min(1).default('qarshiyev_session'),
   NEXT_PUBLIC_APP_URL: z.string().url().optional(),
   NEXT_PUBLIC_API_URL: z.string().url().optional(),
@@ -56,3 +52,4 @@ export const isProd = () => process.env.NODE_ENV === 'production';
 export function sessionCookieName(): string {
   return process.env.NEXT_PUBLIC_AUTH_COOKIE_NAME || 'qarshiyev_session';
 }
+

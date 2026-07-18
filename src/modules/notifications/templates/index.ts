@@ -88,3 +88,4 @@ export function customTemplate(p: CustomPayload): NotificationTemplate {
     dashboardMessage: p.message,
   };
 }
+

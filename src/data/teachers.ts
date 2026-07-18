@@ -4,7 +4,7 @@ import teacherImg2 from '../assets/teachers/5287239582334263341_119.jpg';
 import teacherImg3 from '../assets/teachers/5287239582334263354_119.jpg';
 import teacherImg4 from '../assets/teachers/5287239582334263356_119.jpg';
 import teacherImg5 from '../assets/teachers/5287239582334263365_121.jpg';
-import sirojVideo from '@/assets/Sirojiddin ustoz video.mp4';
+export const sirojVideo = '/assets/sirojiddin-ustoz-video.mp4';
 
 export const teachers: Teacher[] = [
   {
@@ -18,8 +18,8 @@ export const teachers: Teacher[] = [
     rating: 4.9,
     bio: 'MULTILEVEL (CEFR) C1+2 sohibi, minglab o\'quvchilarni sevimli ustozi. Shogirdlari IELTS va MULTILEVEL (CEFR) dan C1 darajagacha erishgan. HIPO, BEE xalqaro olimpiadalarining Respublika Final bosqichiga chiqqan shogirdlari bor.',
     shortBio: 'MULTILEVEL (CEFR) C1+2 sohibi, minglab o\'quvchilarni sevimli ustozi.',
-    avatar: teacherImg1,
-    coverImage: teacherImg1,
+    avatar: teacherImg1.src,
+    coverImage: teacherImg1.src,
     certificates: [
       { id: 'c1', name: 'MULTILEVEL (CEFR) C1+2', issuer: 'CEFR', year: 2018 },
     ],
@@ -43,8 +43,8 @@ export const teachers: Teacher[] = [
     rating: 4.8,
     bio: 'MILLIY sertifikat A+ sohibi, minglab o\'quvchilarning sevimli ustozi. Shogirdlari MILLIY SERTIFIKAT dan A va A+ darajagacha erishgan.',
     shortBio: 'MILLIY sertifikat A+ sohibi, minglab o\'quvchilarning sevimli ustozi.',
-    avatar: teacherImg2,
-    coverImage: teacherImg2,
+    avatar: teacherImg2.src,
+    coverImage: teacherImg2.src,
     certificates: [
       { id: 'c1', name: 'Milliy Sertifikat A+', issuer: 'O\'zbekiston Respublikasi', year: 2016 },
     ],
@@ -68,8 +68,8 @@ export const teachers: Teacher[] = [
     rating: 4.8,
     bio: 'MILLIY sertifikat A+ sohibi, minglab o\'quvchilarning sevimli ustozi. Shogirdlari MILLIY SERTIFIKAT dan A va A+ darajagacha erishgan.',
     shortBio: 'MILLIY sertifikat A+ sohibi, minglab o\'quvchilarning sevimli ustozi.',
-    avatar: teacherImg3,
-    coverImage: teacherImg3,
+    avatar: teacherImg3.src,
+    coverImage: teacherImg3.src,
     certificates: [
       { id: 'c1', name: 'Milliy Sertifikat A+', issuer: 'O\'zbekiston Respublikasi', year: 2016 },
     ],
@@ -93,8 +93,8 @@ export const teachers: Teacher[] = [
     rating: 4.7,
     bio: 'O\'zbekiston Davlat Jahon Tillari Universiteti bitiruvchisi. Shogirdlari MULTILEVEL (CEFR) dan B2 darajagacha erishgan, yuzlab mamnun o\'quvchilarning sevimli ustozi.',
     shortBio: 'O\'zbekiston Davlat Jahon Tillari Universiteti bitiruvchisi.',
-    avatar: teacherImg4,
-    coverImage: teacherImg4,
+    avatar: teacherImg4.src,
+    coverImage: teacherImg4.src,
     certificates: [
       { id: 'c1', name: 'Ingliz Tili Bakalavr', issuer: 'O\'zbekiston Davlat Jahon Tillari Universiteti', year: 2022 },
     ],
@@ -118,8 +118,8 @@ export const teachers: Teacher[] = [
     rating: 4.8,
     bio: 'Qarshi Davlat Universiteti bitiruvchisi. Yuzlab mamnun o\'quvchilarning sevimli ustozi, shogirdlarini turli xalqaro olimpiadalarda ishtirok etib kelmoqda.',
     shortBio: 'Qarshi Davlat Universiteti bitiruvchisi. Yuzlab mamnun o\'quvchilarning sevimli ustozi.',
-    avatar: teacherImg5,
-    coverImage: teacherImg5,
+    avatar: teacherImg5.src,
+    coverImage: teacherImg5.src,
     certificates: [
       { id: 'c1', name: 'Ingliz Tili Bakalavr', issuer: 'Qarshi Davlat Universiteti', year: 2021 },
     ],
@@ -133,3 +133,4 @@ export const teachers: Teacher[] = [
     achievements: ['Xalqaro olimpiada ishtirokchisi', 'Yuzlab mamnun o\'quvchilar'],
   },
 ];
+

@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Play, Eye } from 'lucide-react';
@@ -159,3 +161,4 @@ const VideoCard: React.FC<{
     </motion.div>
   );
 };
+

@@ -108,3 +108,4 @@ export interface SearchResult {
 }
 
 export type TimePeriod = 'daily' | 'weekly' | 'monthly';
+

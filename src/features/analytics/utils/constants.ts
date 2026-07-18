@@ -126,3 +126,4 @@ export const CHART_COLORS = {
   slate: '#64748B',
   palette: ['#7C3AED', '#10B981', '#F59E0B', '#EF4444', '#3B82F6', '#8B5CF6', '#EC4899', '#14B8A6'],
 } as const;
+

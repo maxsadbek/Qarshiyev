@@ -91,3 +91,4 @@ export function AcceptanceRateChart({ data, title }: AcceptanceRateChartProps) {
     </motion.div>
   );
 }
+

@@ -1,5 +1,7 @@
+'use client';
+
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { SectionHeader } from '@/components/ui/SectionHeader';
@@ -96,7 +98,7 @@ export const GallerySection: React.FC = () => {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
         >
-          <Link to="/gallery">
+          <Link href="/gallery">
             <Button variant="outline" size="lg" icon={<ArrowRight size={16} />}>
               View Full Gallery
             </Button>
@@ -168,3 +170,4 @@ export const GallerySection: React.FC = () => {
     </section>
   );
 };
+

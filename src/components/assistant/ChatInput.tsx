@@ -84,3 +84,4 @@ export const ChatInput: React.FC<Props> = memo(({ onSend, onStop, streaming, dar
 });
 
 ChatInput.displayName = 'ChatInput';
+

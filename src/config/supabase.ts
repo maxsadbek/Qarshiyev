@@ -37,3 +37,4 @@ export const realtimeChannels = {
   chat: 'chat',
   courseUpdates: 'course-updates',
 } as const;
+

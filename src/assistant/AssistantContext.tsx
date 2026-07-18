@@ -1,3 +1,5 @@
+'use client';
+
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 
 interface InfoContextValue {
@@ -29,3 +31,4 @@ export function useAssistant(): InfoContextValue {
   if (!ctx) throw new Error('useAssistant must be used within AssistantProvider');
   return ctx;
 }
+

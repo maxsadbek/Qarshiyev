@@ -9,3 +9,4 @@ export function useMediaQuery(_query: string): boolean {
   // TODO: Add SSR safety
   throw new Error('Not implemented');
 }
+

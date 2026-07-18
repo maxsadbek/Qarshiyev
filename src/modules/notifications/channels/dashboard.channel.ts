@@ -27,3 +27,4 @@ export async function sendDashboardNotification(
     return { channel: 'DASHBOARD', success: false, error: error?.message };
   }
 }
+

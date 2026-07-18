@@ -113,3 +113,4 @@ export const events: Event[] = [
     tags: ['Gapirish', 'Ijtimoiy', 'Bepul', 'Barcha Darajalar'],
   },
 ];
+

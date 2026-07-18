@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Send, CheckCircle2 } from 'lucide-react';
@@ -89,3 +91,4 @@ export const NewsletterSection: React.FC = () => {
     </section>
   );
 };
+

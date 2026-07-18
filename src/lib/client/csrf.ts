@@ -27,3 +27,4 @@ export async function csrfFetch(url: string, options: RequestInit = {}): Promise
   }
   return fetch(url, { ...options, method, headers, credentials: 'same-origin' });
 }
+

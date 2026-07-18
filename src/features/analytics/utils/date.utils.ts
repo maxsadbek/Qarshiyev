@@ -89,3 +89,4 @@ export function generateMonthLabels(start: Date, end: Date): string[] {
 
   return months;
 }
+

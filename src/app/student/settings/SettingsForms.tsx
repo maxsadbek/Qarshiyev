@@ -97,3 +97,4 @@ export function NoteForm({ currentNote }: { currentNote: string }) {
     </form>
   );
 }
+

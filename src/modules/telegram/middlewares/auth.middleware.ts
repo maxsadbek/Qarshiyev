@@ -39,3 +39,4 @@ export const teacherAdminOnly = (): Middleware<ProtectedContext> => async (ctx, 
     return ctx.answerCbQuery('❌ Tizim xatosi, keyinroq urinib ko\'ring.');
   }
 };
+

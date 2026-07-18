@@ -50,3 +50,4 @@ export const statistics: Statistic[] = [
     description: 'Students who achieved their target score',
   },
 ];
+

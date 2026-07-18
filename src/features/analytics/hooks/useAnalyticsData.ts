@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import type { 
   AnalyticsFilters, 
@@ -120,3 +122,4 @@ export function useAnalyticsData(filters: AnalyticsFilters) {
     refetch: fetchAll,
   };
 }
+
