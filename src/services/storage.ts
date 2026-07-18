@@ -9,9 +9,9 @@ import { storageBuckets } from '@/config/supabase';
 // TODO: Add progress tracking for uploads
 
 export async function uploadFile(
-  bucket: keyof typeof storageBuckets,
-  path: string,
-  file: File
+  _bucket: keyof typeof storageBuckets,
+  _path: string,
+  _file: File
 ) {
   // TODO: Validate file type and size
   // TODO: Upload to Supabase Storage
@@ -19,7 +19,7 @@ export async function uploadFile(
   throw new Error('Not implemented');
 }
 
-export async function deleteFile(bucket: keyof typeof storageBuckets, path: string) {
+export async function deleteFile(_bucket: keyof typeof storageBuckets, _path: string) {
   // TODO: Delete file from Supabase Storage
   throw new Error('Not implemented');
 }

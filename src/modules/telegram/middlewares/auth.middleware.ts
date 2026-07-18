@@ -1,8 +1,11 @@
-import { Context, Middleware } from 'telegraf';
+import type { Context, Middleware } from 'telegraf';
 import prisma from '../../../lib/prisma';
 import { logger } from '../../../lib/security/logger';
 
 export interface ProtectedContext extends Context {
+  session: Record<string, any>;
+  scene: any;
+  wizard: any;
   user?: any;
 }
 

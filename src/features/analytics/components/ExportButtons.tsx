@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Download, FileSpreadsheet, FileText } from 'lucide-react';
+import { FileSpreadsheet, FileText } from 'lucide-react';
 import type { ReportConfig } from '../types';
 
 // ============================================================

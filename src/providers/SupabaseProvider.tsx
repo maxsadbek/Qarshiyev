@@ -1,5 +1,5 @@
 import { type ReactNode, useEffect, useState, createContext, useContext } from 'react';
-import { supabase, createSupabaseServerClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 
 // ============================================================
 // Supabase Context
@@ -21,8 +21,8 @@ const SupabaseContext = /* @__PURE__ */ createContext<SupabaseContextValue | nul
 // TODO: Persist session in localStorage / cookies
 
 export function SupabaseProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<unknown | null>(null);
-  const [session, setSession] = useState<unknown | null>(null);
+  const [_user, _setUser] = useState<unknown | null>(null);
+  const [_session, _setSession] = useState<unknown | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export function SupabaseProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <SupabaseContext.Provider value={{ supabase, user, session, isLoading }}>
+    <SupabaseContext.Provider value={{ supabase, user: _user, session: _session, isLoading }}>
       {children}
     </SupabaseContext.Provider>
   );

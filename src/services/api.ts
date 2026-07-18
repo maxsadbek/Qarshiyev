@@ -1,4 +1,3 @@
-import { supabase } from '@/lib/supabase/client';
 import type { ApiResponse } from '@/types/api';
 
 // ============================================================

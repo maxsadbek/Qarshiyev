@@ -1,4 +1,4 @@
-import { Context, session as telegrafSession } from 'telegraf';
+import { session as telegrafSession } from 'telegraf';
 import prisma from '../../../lib/prisma';
 import { logger } from '../../../lib/security/logger';
 

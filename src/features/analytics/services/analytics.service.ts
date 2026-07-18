@@ -43,7 +43,6 @@ const DISTRICTS: Record<string, string[]> = {
 
 function generateMockRegistrations(days: number): RegistrationData[] {
   const data: RegistrationData[] = [];
-  const today = new Date();
 
   for (let i = days - 1; i >= 0; i--) {
     const date = dayjs().subtract(i, 'day').toDate();
@@ -160,7 +159,6 @@ export const analyticsService = {
   async getWeeklyRegistrations(weeks: number = 12): Promise<RegistrationData[]> {
     // TODO: Replace with Prisma query grouped by week
     const data: RegistrationData[] = [];
-    const today = new Date();
 
     for (let i = weeks - 1; i >= 0; i--) {
       const weekStart = dayjs().subtract(i * 7, 'day').toDate();
@@ -177,7 +175,6 @@ export const analyticsService = {
   async getMonthlyRegistrations(months: number = 12): Promise<RegistrationData[]> {
     // TODO: Replace with Prisma query grouped by month
     const data: RegistrationData[] = [];
-    const today = new Date();
 
     for (let i = months - 1; i >= 0; i--) {
       const monthStart = dayjs().subtract(i, 'month').startOf('month').toDate();

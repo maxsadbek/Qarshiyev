@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import type { 
   AnalyticsFilters, 
   RegistrationData, 
-  TimePeriod,
   AnalyticsOverview,
   CoursePopularityData,
   RegionData,
@@ -13,7 +12,6 @@ import type {
   ApplicationStatusData,
 } from '../types';
 import { analyticsService } from '../services/analytics.service';
-import { DEFAULT_FILTERS } from '../utils/constants';
 
 // ============================================================
 // useAnalyticsData Hook

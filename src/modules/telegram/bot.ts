@@ -1,6 +1,6 @@
 import { Telegraf, Scenes } from 'telegraf';
 import { sessionMiddleware } from './middlewares/session.middleware';
-import { teacherAdminOnly, ProtectedContext } from './middlewares/auth.middleware';
+import { teacherAdminOnly, type ProtectedContext } from './middlewares/auth.middleware';
 import { registrationWizard } from './scenes/registration.wizard';
 import { writeNoteWizard } from './scenes/write-note.wizard';
 import { teacherCrmService } from './services/teacher-crm.service';

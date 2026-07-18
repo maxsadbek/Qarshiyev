@@ -1,25 +1,16 @@
 import { Scenes, Markup } from 'telegraf';
 import { teacherCrmService } from '../services/teacher-crm.service';
+import type { ProtectedContext } from '../middlewares/auth.middleware';
 
-interface NoteSession extends Scenes.WizardSessionData {
-  applicationId: string;
-  actionUserId: string;
-}
-
-export interface NoteContext extends Scenes.WizardContext<NoteSession> {
-  session: any;
-}
-
-export const writeNoteWizard = new Scenes.WizardScene<NoteContext>(
+export const writeNoteWizard = new Scenes.WizardScene<ProtectedContext>(
   'CRM_WRITE_NOTE',
-  async (ctx) => {
-    // Expected that state is passed via enter('CRM_WRITE_NOTE', { applicationId: '...', actionUserId: '...' })
+  async (ctx: ProtectedContext) => {
     await ctx.reply('Iltimos, izohingizni matn ko\'rinishida yuboring (Bekor qilish uchun /cancel bosing):',
       Markup.keyboard(['/cancel']).oneTime().resize()
     );
     return ctx.wizard.next();
   },
-  async (ctx) => {
+  async (ctx: ProtectedContext) => {
     if (ctx.message && 'text' in ctx.message) {
       if (ctx.message.text === '/cancel') {
         await ctx.reply('Bekor qilindi.', Markup.removeKeyboard());
@@ -27,10 +18,10 @@ export const writeNoteWizard = new Scenes.WizardScene<NoteContext>(
       }
 
       const note = ctx.message.text;
-      const { applicationId, actionUserId } = ctx.wizard.state;
+      const state = ctx.wizard.state;
 
       try {
-        await teacherCrmService.addNote(applicationId, note, actionUserId);
+        await teacherCrmService.addNote(state.applicationId, note, state.actionUserId);
         await ctx.reply('✅ Izoh muvaffaqiyatli saqlandi.', Markup.removeKeyboard());
       } catch (err) {
         await ctx.reply('❌ Xatolik yuz berdi.', Markup.removeKeyboard());

@@ -18,7 +18,6 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         position="top-right"
         reverseOrder={false}
         gutter={8}
-        theme={theme === 'dark' ? 'dark' : 'light'}
         toastOptions={{
           duration: 4000,
           style: {
