@@ -2,6 +2,39 @@ import prisma from '../../../lib/prisma';
 import { requirePermission } from '../../../lib/auth';
 
 export const dynamic = 'force-dynamic';
+
+/**
+ * Local interface matching the exact shape returned by `prisma.student.findMany`
+ * with the `include: { user: true, district: { include: { region: true } } }`
+ * clause used below.
+ *
+ * Why this exists: Prisma 7 no longer exports a `Prisma` namespace from
+ * `@prisma/client`, so `Prisma.StudentGetPayload<...>` is no longer available.
+ * Relying purely on inference through `Promise.all([...])` in this project's
+ * build turned out to widen the result to `any[]` (the conditional `where`
+ * object's type isn't narrow enough for TypeScript to carry the inferred
+ * `include` shape cleanly through the tuple in `Promise.all`), which is what
+ * caused `student` in `.map((student) => ...)` to implicitly become `any`.
+ * Declaring this interface explicitly and pinning the query result to it
+ * removes the implicit-any error without disabling strict mode, without
+ * `@ts-ignore`, without `any`, and without reintroducing a Prisma namespace
+ * import. Only the fields actually used in this file are included.
+ */
+interface StudentWithRelations {
+  id: string;
+  createdAt: Date;
+  user: {
+    firstName: string;
+    lastName: string;
+    phone: string | null;
+  };
+  district: {
+    region: {
+      name: string;
+    };
+  } | null;
+}
+
 export default async function StudentsPage({
   searchParams,
 }: {
@@ -27,20 +60,19 @@ export default async function StudentsPage({
     }
     : {};
 
-  // Note: the previous version cast this query's result to `StudentWithRelations[]`,
-  // a type that relied on `Prisma.StudentGetPayload` (and, in this file, wasn't even
-  // imported). Prisma 7 no longer exports a `Prisma` namespace from `@prisma/client`,
-  // so we drop the cast entirely — TypeScript infers the exact shape (including the
-  // `user` and `district.region` relations) directly from the `include` clause below.
-  const [students, total] = await Promise.all([
-    prisma.student.findMany({
-      where,
-      include: { user: true, district: { include: { region: true } } },
-      take,
-      skip,
-      orderBy: { createdAt: 'desc' },
-    }),
-    prisma.student.count({ where }),
+  const studentsQuery: Promise<StudentWithRelations[]> = prisma.student.findMany({
+    where,
+    include: { user: true, district: { include: { region: true } } },
+    take,
+    skip,
+    orderBy: { createdAt: 'desc' },
+  }) as Promise<StudentWithRelations[]>;
+
+  const totalQuery: Promise<number> = prisma.student.count({ where });
+
+  const [students, total]: [StudentWithRelations[], number] = await Promise.all([
+    studentsQuery,
+    totalQuery,
   ]);
 
   const totalPages = Math.max(1, Math.ceil(total / take));
@@ -80,7 +112,7 @@ export default async function StudentsPage({
               </tr>
             </thead>
             <tbody>
-              {students.map((student) => (
+              {students.map((student: StudentWithRelations) => (
                 <tr key={student.id} className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
                   <td className="py-2 px-4">{student.user.firstName} {student.user.lastName}</td>
                   <td className="py-2 px-4">{student.user.phone}</td>
