@@ -1,5 +1,6 @@
 import { Scenes, Markup } from 'telegraf';
 import { teacherCrmService } from '../services/teacher-crm.service';
+import { t } from '../i18n/translations';
 import { logger } from '../../../lib/security/logger';
 import type { ProtectedContext, RegistrationWizardState } from '../middlewares/auth.middleware';
 
@@ -13,7 +14,7 @@ export const writeNoteWizard = new Scenes.WizardScene<ProtectedContext>(
       state: ctx.wizard.state,
     });
     await ctx.reply(
-      'Iltimos, izohingizni matn ko\'rinishida yuboring (Bekor qilish uchun /cancel bosing):',
+      t(undefined, 'note_write_prompt'),
       Markup.keyboard(['/cancel']).oneTime().resize()
     );
     return ctx.wizard.next();
@@ -26,7 +27,7 @@ export const writeNoteWizard = new Scenes.WizardScene<ProtectedContext>(
     if (ctx.message && 'text' in ctx.message) {
       if (ctx.message.text === '/cancel') {
         logger.info('[Wizard:Note] Cancelled by user', { from: ctx.from?.id });
-        await ctx.reply('Bekor qilindi.', Markup.removeKeyboard());
+        await ctx.reply(t(undefined, 'note_cancelled'), Markup.removeKeyboard());
         return ctx.scene.leave();
       }
 
@@ -49,13 +50,13 @@ export const writeNoteWizard = new Scenes.WizardScene<ProtectedContext>(
           from: ctx.from?.id,
           applicationId: state.applicationId,
         });
-        await ctx.reply('✅ Izoh muvaffaqiyatli saqlandi.', Markup.removeKeyboard());
+        await ctx.reply(t(undefined, 'note_saved'), Markup.removeKeyboard());
       } catch (error) {
         logger.error('[Wizard:Note] Failed to save note', {
           error: String(error),
           applicationId: state.applicationId,
         });
-        await ctx.reply('❌ Xatolik yuz berdi.', Markup.removeKeyboard());
+        await ctx.reply(t(undefined, 'error_generic'), Markup.removeKeyboard());
       }
       return ctx.scene.leave();
     } else {
@@ -64,7 +65,7 @@ export const writeNoteWizard = new Scenes.WizardScene<ProtectedContext>(
         from: ctx.from?.id,
         hasMessage: !!ctx.message,
       });
-      await ctx.reply('Iltimos, izohni matn ko\'rinishida yuboring.').catch(() => {});
+      await ctx.reply(t(undefined, 'note_non_text')).catch(() => {});
       // NOTE: do NOT call wizard.next() here! Returning without advancing
       // the cursor keeps us on the same step for the next update.
       return;

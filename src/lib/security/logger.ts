@@ -3,9 +3,12 @@
  * Centralized logging with log-level support and a security/audit event sink.
  * In production these events should be shipped to your SIEM (Datadog, Sentry,
  * Grafana Loki, etc.) — here we keep a pluggable `sendToSink` hook.
+ *
+ * IMPORTANT: Prisma is NOT imported at module level. It is loaded dynamically
+ * only inside logSecurityEvent via a lazy getter. This ensures that modules
+ * (like the Telegram bot) which only need logger.info / logger.warn / logger.error
+ * never pull in the Prisma client or attempt a database connection.
  */
-
-import prisma from '../prisma';
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -70,8 +73,15 @@ export interface SecurityEventInput {
   details?: JsonValue;
 }
 
+/** Lazy-loaded Prisma client — only initialized when logSecurityEvent is called. */
+async function getPrisma() {
+  const mod = await import('../prisma');
+  return mod.default;
+}
+
 export async function logSecurityEvent(input: SecurityEventInput): Promise<void> {
   try {
+    const prisma = await getPrisma();
     await prisma.activityLog.create({
       data: {
         userId: input.userId ?? null,

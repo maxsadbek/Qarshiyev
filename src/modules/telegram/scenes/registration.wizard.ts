@@ -1,6 +1,7 @@
 import { Scenes, Markup } from 'telegraf';
 import { telegramService } from '../telegram.service';
 import { teacherCrmService } from '../services/teacher-crm.service';
+import { t } from '../i18n/translations';
 import { logger } from '../../../lib/security/logger';
 import type { ProtectedContext, RegistrationWizardState } from '../middlewares/auth.middleware';
 
@@ -17,10 +18,11 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
     debug('[Wizard] Step 0 entered — sending language buttons');
     logger.info('[Wizard] Step 0: Language selection', { from: ctx.from?.id });
     await ctx.reply(
-      'Tilni tanlang / Выберите язык:',
+      t(undefined, 'language_select'),
       Markup.inlineKeyboard([
         Markup.button.callback('🇺🇿 O\'zbekcha', 'LANG_UZ'),
         Markup.button.callback('🇷🇺 Русский', 'LANG_RU'),
+        Markup.button.callback('🇬🇧 English', 'LANG_EN'),
       ])
     );
     debug('[Wizard] Step 0 — calling ctx.wizard.next() → moving to step 1');
@@ -41,8 +43,8 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
     // Handle language selection callback
     if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
       const lang = ctx.callbackQuery.data;
-      if (lang === 'LANG_UZ' || lang === 'LANG_RU') {
-        state.language = lang === 'LANG_UZ' ? 'uz' : 'ru';
+      if (lang === 'LANG_UZ' || lang === 'LANG_RU' || lang === 'LANG_EN') {
+        state.language = lang === 'LANG_UZ' ? 'uz' : lang === 'LANG_RU' ? 'ru' : 'en';
         await ctx.answerCbQuery().catch(() => {});
         debug('[Wizard] Language selected', { language: state.language });
         logger.info('[Wizard] Language selected', { from: ctx.from?.id, language: state.language });
@@ -53,15 +55,14 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
       }
     }
 
-    const msg = state.language === 'uz'
-      ? 'Iltimos, telefon raqamingizni yuboring:'
-      : 'Пожалуйста, отправьте свой номер телефона:';
+    const lang = state.language;
 
-    await ctx.reply(msg, Markup.keyboard([
-      Markup.button.contactRequest(
-        state.language === 'uz' ? '📱 Raqamni yuborish' : '📱 Отправить номер'
-      )
-    ]).oneTime().resize());
+    await ctx.reply(
+      t(lang, 'contact_request'),
+      Markup.keyboard([
+        Markup.button.contactRequest(t(lang, 'contact_button'))
+      ]).oneTime().resize()
+    );
 
     debug('[Wizard] Step 1 — calling ctx.wizard.next() → moving to step 2');
     return ctx.wizard.next();
@@ -83,6 +84,8 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
       textPreview: ctx.message && 'text' in ctx.message && ctx.message.text ? ctx.message.text.slice(0, 20) : null,
     });
     logger.info('[Wizard] Step 2: Awaiting region', { from: ctx.from?.id, updateType, hasContact });
+
+    const lang = state.language;
 
     // Handle phone contact
     if (ctx.message && 'contact' in ctx.message && ctx.message.contact) {
@@ -108,18 +111,14 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
         });
       } else {
         debug('[Wizard] Invalid phone text — staying on step 2', { text: phone.slice(0, 10) });
-        await ctx.reply(
-          state.language === 'uz'
-            ? 'Iltimos, telefon raqamingizni yuborish uchun pastdagi tugmani bosing yoki raqamni matn shaklida kiriting:'
-            : 'Пожалуйста, нажмите кнопку ниже, чтобы отправить номер телефона, или введите номер текстом:'
-        ).catch(() => {});
+        await ctx.reply(t(lang, 'contact_request_hint')).catch(() => {});
         return; // Stay on this step
       }
     }
 
     if (!state.phone) {
       debug('[Wizard] No phone received — staying on step 2');
-      await ctx.reply('Iltimos, telefon raqamingizni yuboring.').catch(() => {});
+      await ctx.reply(t(lang, 'contact_request_simple')).catch(() => {});
       return; // Stay on this step
     }
 
@@ -132,17 +131,13 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
 
       if (regions.length === 0) {
         debug('[Wizard] No regions available — leaving scene');
-        await ctx.reply(
-          state.language === 'uz'
-            ? 'Hozircha viloyatlar mavjud emas.'
-            : 'Пока нет доступных регионов.'
-        ).catch(() => {});
+        await ctx.reply(t(lang, 'no_regions')).catch(() => {});
         return ctx.scene.leave();
       }
 
       debug('[Wizard] Sending region buttons');
       await ctx.reply(
-        state.language === 'uz' ? 'Viloyatni tanlang:' : 'Выберите регион:',
+        t(lang, 'select_region'),
         Markup.inlineKeyboard(
           regions.map((r: { id: string; name: string }) => [
             Markup.button.callback(r.name, `REGION_${r.id}`)
@@ -158,11 +153,7 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
     } catch (error) {
       debug('[Wizard] Failed to fetch regions', { error: String(error) });
       logger.error('[Wizard] Failed to fetch regions', { error: String(error) });
-      await ctx.reply(
-        state.language === 'uz'
-          ? 'Xatolik yuz berdi. Keyinroq urinib ko\'ring.'
-          : 'Произошла ошибка. Попробуйте позже.'
-      ).catch(() => {});
+      await ctx.reply(t(lang, 'error_try_later')).catch(() => {});
       return ctx.scene.leave();
     }
   },
@@ -176,6 +167,8 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
       callbackData: hasCallback ? ctx.callbackQuery.data : null,
     });
     logger.info('[Wizard] Step 3: Awaiting district', { from: ctx.from?.id });
+
+    const lang = state.language;
 
     if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
       const data = ctx.callbackQuery.data;
@@ -203,17 +196,13 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
 
       if (districts.length === 0) {
         debug('[Wizard] No districts — going back to step 2');
-        await ctx.reply(
-          state.language === 'uz'
-            ? 'Ushbu viloyatda tumanlar topilmadi.'
-            : 'В этом регионе нет районов.'
-        ).catch(() => {});
+        await ctx.reply(t(lang, 'no_districts')).catch(() => {});
         return ctx.wizard.back();
       }
 
       debug('[Wizard] Sending district buttons — calling wizard.next()');
       await ctx.reply(
-        state.language === 'uz' ? 'Tumanni tanlang:' : 'Выберите район:',
+        t(lang, 'select_district'),
         Markup.inlineKeyboard(
           districts.map((d: { id: string; name: string }) => [
             Markup.button.callback(d.name, `DISTRICT_${d.id}`)
@@ -225,9 +214,7 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
     } catch (error) {
       debug('[Wizard] Failed to fetch districts', { error: String(error) });
       logger.error('[Wizard] Failed to fetch districts', { error: String(error) });
-      await ctx.reply(
-        state.language === 'uz' ? 'Xatolik yuz berdi.' : 'Произошла ошибка.'
-      ).catch(() => {});
+      await ctx.reply(t(lang, 'error_generic')).catch(() => {});
       return ctx.scene.leave();
     }
   },
@@ -241,6 +228,8 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
       callbackData: hasCallback ? ctx.callbackQuery.data : null,
     });
     logger.info('[Wizard] Step 4: Awaiting course', { from: ctx.from?.id });
+
+    const lang = state.language;
 
     if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
       const data = ctx.callbackQuery.data;
@@ -268,17 +257,13 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
 
       if (courses.length === 0) {
         debug('[Wizard] No courses — leaving scene');
-        await ctx.reply(
-          state.language === 'uz'
-            ? 'Hozircha ochiq kurslar mavjud emas.'
-            : 'Пока нет доступных курсов.'
-        ).catch(() => {});
+        await ctx.reply(t(lang, 'no_courses')).catch(() => {});
         return ctx.scene.leave();
       }
 
       debug('[Wizard] Sending course buttons — calling wizard.next()');
       await ctx.reply(
-        state.language === 'uz' ? 'Kursni tanlang:' : 'Выберите курс:',
+        t(lang, 'select_course'),
         Markup.inlineKeyboard(
           courses.map((c: { id: string; title: string }) => [
             Markup.button.callback(c.title, `COURSE_${c.id}`)
@@ -290,9 +275,7 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
     } catch (error) {
       debug('[Wizard] Failed to fetch courses', { error: String(error) });
       logger.error('[Wizard] Failed to fetch courses', { error: String(error) });
-      await ctx.reply(
-        state.language === 'uz' ? 'Xatolik yuz berdi.' : 'Произошла ошибка.'
-      ).catch(() => {});
+      await ctx.reply(t(lang, 'error_generic')).catch(() => {});
       return ctx.scene.leave();
     }
   },
@@ -306,6 +289,8 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
       callbackData: hasCallback ? ctx.callbackQuery.data : null,
     });
     logger.info('[Wizard] Step 5: Awaiting shift', { from: ctx.from?.id });
+
+    const lang = state.language;
 
     if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
       const data = ctx.callbackQuery.data;
@@ -326,15 +311,13 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
       return; // Stay on this step
     }
 
-    const t = (uz: string, ru: string) => state.language === 'uz' ? uz : ru;
-
     debug('[Wizard] Sending shift buttons — calling wizard.next()');
     await ctx.reply(
-      t('O\'qish vaqtini tanlang:', 'Выберите время обучения:'),
+      t(lang, 'select_shift'),
       Markup.inlineKeyboard([
-        [Markup.button.callback('🌞 ' + t('Ertalabki (09:00 - 12:00)', 'Утро (09:00 - 12:00)'), 'SHIFT_Morning')],
-        [Markup.button.callback('🌤 ' + t('Kunduzgi (14:00 - 17:00)', 'День (14:00 - 17:00)'), 'SHIFT_Afternoon')],
-        [Markup.button.callback('🌙 ' + t('Kechki (18:00 - 21:00)', 'Вечер (18:00 - 21:00)'), 'SHIFT_Evening')],
+        [Markup.button.callback(t(lang, 'shift_morning'), 'SHIFT_Morning')],
+        [Markup.button.callback(t(lang, 'shift_afternoon'), 'SHIFT_Afternoon')],
+        [Markup.button.callback(t(lang, 'shift_evening'), 'SHIFT_Evening')],
       ])
     );
     debug('[Wizard] Step 5 — calling ctx.wizard.next() → moving to step 6');
@@ -350,6 +333,8 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
       callbackData: hasCallback ? ctx.callbackQuery.data : null,
     });
     logger.info('[Wizard] Step 6: Awaiting age', { from: ctx.from?.id });
+
+    const lang = state.language;
 
     if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
       const data = ctx.callbackQuery.data;
@@ -370,9 +355,8 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
       return;
     }
 
-    const t = (uz: string, ru: string) => state.language === 'uz' ? uz : ru;
     debug('[Wizard] Sending age prompt — calling wizard.next()');
-    await ctx.reply(t('Yoshingizni kiriting (Masalan: 18):', 'Введите ваш возраст (Например: 18):'));
+    await ctx.reply(t(lang, 'age_prompt'));
     debug('[Wizard] Step 6 — calling ctx.wizard.next() → moving to step 7');
     return ctx.wizard.next();
   },
@@ -384,14 +368,13 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
     debug('[Wizard] Step 7 entered', { hasText, textPreview: ctx.message && 'text' in ctx.message && ctx.message.text ? ctx.message.text.slice(0, 20) : null });
     logger.info('[Wizard] Step 7: Awaiting experience', { from: ctx.from?.id });
 
+    const lang = state.language;
+
     if (ctx.message && 'text' in ctx.message) {
       const age = parseInt(ctx.message.text.trim());
       if (isNaN(age) || age < 5 || age > 99) {
         debug('[Wizard] Invalid age', { input: ctx.message.text.trim() });
-        const msg = state.language === 'uz'
-          ? 'Iltimos, to\'g\'ri yosh kiriting (5-99):'
-          : 'Пожалуйста, введите правильный возраст (5-99):';
-        await ctx.reply(msg).catch(() => {});
+        await ctx.reply(t(lang, 'invalid_age')).catch(() => {});
         return; // Stay on this step
       }
       state.age = age;
@@ -402,10 +385,7 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
       return; // Wait for text input
     }
 
-    const msg = state.language === 'uz'
-      ? 'Soha bo\'yicha tajribangiz bormi? (Masalan: Yo\'q, 1 yil):'
-      : 'У вас есть опыт в этой сфере? (Например: Нет, 1 год):';
-    await ctx.reply(msg).catch(() => {});
+    await ctx.reply(t(lang, 'experience_prompt')).catch(() => {});
     debug('[Wizard] Step 7 — calling ctx.wizard.next() → moving to step 8');
     return ctx.wizard.next();
   },
@@ -417,6 +397,8 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
     debug('[Wizard] Step 8 entered', { hasText, textPreview: ctx.message && 'text' in ctx.message && ctx.message.text ? ctx.message.text.slice(0, 30) : null });
     logger.info('[Wizard] Step 8: Awaiting device', { from: ctx.from?.id });
 
+    const lang = state.language;
+
     if (ctx.message && 'text' in ctx.message) {
       state.experience = ctx.message.text;
       debug('[Wizard] Experience received', { experience: state.experience });
@@ -425,15 +407,14 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
       debug('[Wizard] No text in step 8 — experience stays as-is');
     }
 
-    const msg = state.language === 'uz'
-      ? 'O\'qish uchun shaxsiy noutbukingiz bormi?'
-      : 'У вас есть личный ноутбук для учебы?';
-
     debug('[Wizard] Sending device buttons — calling wizard.next()');
-    await ctx.reply(msg, Markup.inlineKeyboard([
-      [Markup.button.callback('✅ ' + (state.language === 'uz' ? 'Ha, bor' : 'Да, есть'), 'DEVICE_YES')],
-      [Markup.button.callback('❌ ' + (state.language === 'uz' ? 'Yo\'q' : 'Нет'), 'DEVICE_NO')],
-    ]));
+    await ctx.reply(
+      t(lang, 'device_prompt'),
+      Markup.inlineKeyboard([
+        [Markup.button.callback('✅ ' + t(lang, 'device_yes'), 'DEVICE_YES')],
+        [Markup.button.callback('❌ ' + t(lang, 'device_no'), 'DEVICE_NO')],
+      ])
+    );
     debug('[Wizard] Step 8 — calling ctx.wizard.next() → moving to step 9');
     return ctx.wizard.next();
   },
@@ -448,12 +429,12 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
     });
     logger.info('[Wizard] Step 9: Awaiting note', { from: ctx.from?.id });
 
+    const lang = state.language;
+
     if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
       const data = ctx.callbackQuery.data;
       if (data === 'DEVICE_YES' || data === 'DEVICE_NO') {
-        state.device = data === 'DEVICE_YES'
-          ? (state.language === 'uz' ? 'Ha' : 'Да')
-          : (state.language === 'uz' ? 'Yo\'q' : 'Нет');
+        state.device = data === 'DEVICE_YES' ? 'yes' : 'no';
         await ctx.answerCbQuery().catch(() => {});
         debug('[Wizard] Device answer', { device: state.device });
         logger.info('[Wizard] Device answer', { from: ctx.from?.id, device: state.device });
@@ -469,11 +450,8 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
       return;
     }
 
-    const msg = state.language === 'uz'
-      ? 'Qo\'shimcha izoh yoki savolingiz bo\'lsa yozing (Yo\'q bo\'lsa "-" yuboring):'
-      : 'Напишите дополнительный комментарий или вопрос (если нет, отправьте "-"):';
     debug('[Wizard] Sending note prompt — calling wizard.next()');
-    await ctx.reply(msg).catch(() => {});
+    await ctx.reply(t(lang, 'note_prompt')).catch(() => {});
     debug('[Wizard] Step 9 — calling ctx.wizard.next() → moving to step 10');
     return ctx.wizard.next();
   },
@@ -485,6 +463,8 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
     debug('[Wizard] Step 10 entered', { hasText, textPreview: ctx.message && 'text' in ctx.message && ctx.message.text ? ctx.message.text.slice(0, 20) : null });
     logger.info('[Wizard] Step 10: Awaiting confirmation', { from: ctx.from?.id });
 
+    const lang = state.language;
+
     if (ctx.message && 'text' in ctx.message) {
       state.note = ctx.message.text;
       debug('[Wizard] Note received', { note: state.note });
@@ -493,27 +473,28 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
       debug('[Wizard] No text in step 10 (may be button press)');
     }
 
-    const t = (uz: string, ru: string) => state.language === 'uz' ? uz : ru;
+    // Translate device value for display
+    const deviceLabel = state.device === 'yes' ? t(lang, 'device_yes_short') : t(lang, 'device_no_short');
 
     const summary = `
-📝 <b>${t('Ma\'lumotlaringizni tasdiqlang:', 'Подтвердите ваши данные:')}</b>
+📝 <b>${t(lang, 'confirm_title')}</b>
 
-📞 ${t('Telefon', 'Телефон')}: ${state.phone}
-🕒 ${t('Vaqt', 'Время')}: ${state.shift}
-🎂 ${t('Yosh', 'Возраст')}: ${state.age}
-💡 ${t('Tajriba', 'Опыт')}: ${state.experience}
-💻 ${t('Noutbuk', 'Ноутбук')}: ${state.device}
-📝 ${t('Izoh', 'Комментарий')}: ${state.note || '-'}
+${t(lang, 'label_phone')}: ${state.phone}
+${t(lang, 'label_shift')}: ${state.shift}
+${t(lang, 'label_age')}: ${state.age}
+${t(lang, 'label_experience')}: ${state.experience}
+${t(lang, 'label_laptop')}: ${deviceLabel}
+${t(lang, 'label_note')}: ${state.note || '-'}
 
-${t('Hamma ma\'lumotlar to\'g\'rimi?', 'Все данные верны?')}
+${t(lang, 'confirm_question')}
     `;
 
     debug('[Wizard] Sending confirmation — calling wizard.next()');
     await ctx.reply(summary, {
       parse_mode: 'HTML',
       ...Markup.inlineKeyboard([
-        [Markup.button.callback('✅ ' + t('Tasdiqlash', 'Подтвердить'), 'CONFIRM')],
-        [Markup.button.callback('❌ ' + t('Bekor qilish', 'Отмена'), 'CANCEL')],
+        [Markup.button.callback(t(lang, 'confirm_button'), 'CONFIRM')],
+        [Markup.button.callback(t(lang, 'cancel_button'), 'CANCEL')],
       ])
     });
 
@@ -533,6 +514,8 @@ ${t('Hamma ma\'lumotlar to\'g\'rimi?', 'Все данные верны?')}
     });
     logger.info('[Wizard] Step 11: Processing', { from: ctx.from?.id });
 
+    const lang = state.language;
+
     if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
       const action = ctx.callbackQuery.data;
       await ctx.answerCbQuery().catch(() => {});
@@ -541,10 +524,7 @@ ${t('Hamma ma\'lumotlar to\'g\'rimi?', 'Все данные верны?')}
       if (action === 'CANCEL') {
         debug('[Wizard] Registration cancelled by user');
         logger.info('[Wizard] Registration cancelled', { from: ctx.from?.id });
-        const msg = state.language === 'uz'
-          ? 'Ariza bekor qilindi. Qayta boshlash uchun /start bosing.'
-          : 'Заявка отменена. Нажмите /start, чтобы начать заново.';
-        await ctx.reply(msg).catch(() => {});
+        await ctx.reply(t(lang, 'cancel_done')).catch(() => {});
         debug('[Wizard] Leaving scene after cancel');
         return ctx.scene.leave();
       }
@@ -559,8 +539,8 @@ ${t('Hamma ma\'lumotlar to\'g\'rimi?', 'Все данные верны?')}
 
           const application = await telegramService.completeRegistration({
             telegramId: ctx.from?.id.toString() || '',
-            firstName: ctx.from?.first_name || 'Ism',
-            lastName: ctx.from?.last_name || 'Familiya',
+            firstName: ctx.from?.first_name || t(lang, 'first_name_fallback'),
+            lastName: ctx.from?.last_name || t(lang, 'last_name_fallback'),
             phone: state.phone ?? '',
             districtId: state.districtId ?? '',
             courseId: state.courseId ?? '',
@@ -585,10 +565,7 @@ ${t('Hamma ma\'lumotlar to\'g\'rimi?', 'Все данные верны?')}
             });
           });
 
-          const msg = state.language === 'uz'
-            ? '✅ Arizangiz muvaffaqiyatli qabul qilindi! Tez orada administratorlarimiz siz bilan bog\'lanishadi.'
-            : '✅ Ваша заявка успешно принята! Наши администраторы свяжутся с вами в ближайшее время.';
-          await ctx.reply(msg).catch(() => {});
+          await ctx.reply(t(lang, 'success_message')).catch(() => {});
         } catch (error: unknown) {
           const isDuplicate =
             error instanceof Error && error.message === 'DUPLICATE_APPLICATION';
@@ -601,15 +578,9 @@ ${t('Hamma ma\'lumotlar to\'g\'rimi?', 'Все данные верны?')}
           });
 
           if (isDuplicate) {
-            const msg = state.language === 'uz'
-              ? '❌ Siz ushbu kursga allaqachon ariza topshirgansiz. Natijasini kutishingizni so\'raymiz.'
-              : '❌ Вы уже подали заявку на этот курс. Пожалуйста, ожидайте результата.';
-            await ctx.reply(msg).catch(() => {});
+            await ctx.reply(t(lang, 'duplicate_application')).catch(() => {});
           } else {
-            const msg = state.language === 'uz'
-              ? '❌ Xatolik yuz berdi. Iltimos, keyinroq qayta urinib ko\'ring.'
-              : '❌ Произошла ошибка. Пожалуйста, попробуйте позже.';
-            await ctx.reply(msg).catch(() => {});
+            await ctx.reply(t(lang, 'error_try_later_short')).catch(() => {});
           }
         }
         debug('[Wizard] Leaving scene after processing');
@@ -622,12 +593,11 @@ ${t('Hamma ma\'lumotlar to\'g\'rimi?', 'Все данные верны?')}
     } else if (ctx.message && 'text' in ctx.message) {
       // User sent text instead of clicking confirmation buttons
       debug('[Wizard] User sent text instead of clicking confirmation');
-      const t = (uz: string, ru: string) => state.language === 'uz' ? uz : ru;
       await ctx.reply(
-        t('Iltimos, pastdagi tugmalardan birini bosing.', 'Пожалуйста, нажмите одну из кнопок ниже.'),
+        t(lang, 'please_use_buttons'),
         Markup.inlineKeyboard([
-          [Markup.button.callback('✅ ' + t('Tasdiqlash', 'Подтвердить'), 'CONFIRM')],
-          [Markup.button.callback('❌ ' + t('Bekor qilish', 'Отмена'), 'CANCEL')],
+          [Markup.button.callback(t(lang, 'confirm_button'), 'CONFIRM')],
+          [Markup.button.callback(t(lang, 'cancel_button'), 'CANCEL')],
         ])
       ).catch(() => {});
     }

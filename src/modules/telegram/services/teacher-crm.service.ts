@@ -1,6 +1,7 @@
 import { Markup } from 'telegraf';
 import type { Telegraf } from 'telegraf';
 import type { ProtectedContext } from '../middlewares/auth.middleware';
+import { t } from '../i18n/translations';
 import { logger } from '../../../lib/security/logger';
 
 /**
@@ -32,17 +33,17 @@ export class TeacherCrmService {
       }
 
       const message = `
-🆕 <b>Yangi Ariza! (offline)</b>
-Ariza ID: <code>${applicationId}</code>
-Holat: PENDING
+${t(undefined, 'new_application_title')}
+${t(undefined, 'application_id')}: <code>${applicationId}</code>
+${t(undefined, 'status')}: PENDING
 
-<i>Ma'lumotlar bazasiz rejim — tafsilotlarni ko'rish uchun veb-panelga kiring.</i>
+${t(undefined, 'no_db_hint')}
       `;
 
       const keyboard = Markup.inlineKeyboard([
         [
-          Markup.button.callback('✅ Qabul qilish', `CRM_ACCEPT_${applicationId}`),
-          Markup.button.callback('❌ Rad etish', `CRM_REJECT_${applicationId}`),
+          Markup.button.callback(t(undefined, 'crm_accept'), `CRM_ACCEPT_${applicationId}`),
+          Markup.button.callback(t(undefined, 'crm_reject'), `CRM_REJECT_${applicationId}`),
         ],
       ]);
 
@@ -79,7 +80,7 @@ Holat: PENDING
   }
 
   async getStudentProfileText(_studentId: string) {
-    return "👤 <b>O'quvchi profili</b>\n\n📋 <i>Ma'lumotlar bazasiz rejim — profil ma'lumotlarini ko'rish uchun veb-panelga kiring.</i>";
+    return `${t(undefined, 'student_profile')}\n\n${t(undefined, 'profile_no_db_hint')}`;
   }
 }
 

@@ -4,6 +4,7 @@ import { teacherAdminOnly, type ProtectedContext } from './middlewares/auth.midd
 import { registrationWizard } from './scenes/registration.wizard';
 import { writeNoteWizard } from './scenes/write-note.wizard';
 import { teacherCrmService } from './services/teacher-crm.service';
+import { t } from './i18n/translations';
 import { logger } from '../../lib/security/logger';
 import { getEnv } from '../../lib/env';
 
@@ -90,7 +91,7 @@ bot.start(async (ctx) => {
       error: String(error),
       from: ctx.from?.id,
     });
-    await ctx.reply('❌ Xatolik yuz berdi. Iltimos, qayta urinib ko\'ring (/start).').catch(() => {});
+    await ctx.reply(t(undefined, 'error_generic_with_start')).catch(() => {});
   }
 });
 
@@ -103,12 +104,12 @@ bot.action(/CRM_ACCEPT_(.+)/, teacherAdminOnly(), async (ctx) => {
   try {
     await teacherCrmService.updateStatus(appId, 'APPROVED', 'no-db-mode');
     await ctx.editMessageText(
-      ((ctx.callbackQuery?.message as { text?: string } | undefined)?.text ?? '') + '\n\n✅ Holat: QABUL QILINDI'
+      ((ctx.callbackQuery?.message as { text?: string } | undefined)?.text ?? '') + '\n\n' + t(undefined, 'status_approved')
     ).catch(() => {});
-    await ctx.answerCbQuery('✅ Qabul qilindi').catch(() => {});
+    await ctx.answerCbQuery(t(undefined, 'approved')).catch(() => {});
   } catch (error) {
     logger.error('[Telegram] Failed to approve application', { appId, error: String(error) });
-    await ctx.answerCbQuery('❌ Xatolik yuz berdi').catch(() => {});
+    await ctx.answerCbQuery(t(undefined, 'error_generic')).catch(() => {});
   }
 });
 
@@ -119,12 +120,12 @@ bot.action(/CRM_REJECT_(.+)/, teacherAdminOnly(), async (ctx) => {
   try {
     await teacherCrmService.updateStatus(appId, 'REJECTED', 'no-db-mode');
     await ctx.editMessageText(
-      ((ctx.callbackQuery?.message as { text?: string } | undefined)?.text ?? '') + '\n\n❌ Holat: RAD ETILDI'
+      ((ctx.callbackQuery?.message as { text?: string } | undefined)?.text ?? '') + '\n\n' + t(undefined, 'status_rejected')
     ).catch(() => {});
-    await ctx.answerCbQuery('❌ Rad etildi').catch(() => {});
+    await ctx.answerCbQuery(t(undefined, 'rejected')).catch(() => {});
   } catch (error) {
     logger.error('[Telegram] Failed to reject application', { appId, error: String(error) });
-    await ctx.answerCbQuery('❌ Xatolik yuz berdi').catch(() => {});
+    await ctx.answerCbQuery(t(undefined, 'error_generic')).catch(() => {});
   }
 });
 
@@ -135,12 +136,12 @@ bot.action(/CRM_PENDING_(.+)/, teacherAdminOnly(), async (ctx) => {
   try {
     await teacherCrmService.updateStatus(appId, 'PENDING', 'no-db-mode');
     await ctx.editMessageText(
-      ((ctx.callbackQuery?.message as { text?: string } | undefined)?.text ?? '') + '\n\n⏳ Holat: KUTTIRISHGA OLINDI'
+      ((ctx.callbackQuery?.message as { text?: string } | undefined)?.text ?? '') + '\n\n' + t(undefined, 'status_pending')
     ).catch(() => {});
-    await ctx.answerCbQuery('⏳ Kuttirishga olindi').catch(() => {});
+    await ctx.answerCbQuery(t(undefined, 'pending')).catch(() => {});
   } catch (error) {
     logger.error('[Telegram] Failed to set application to pending', { appId, error: String(error) });
-    await ctx.answerCbQuery('❌ Xatolik yuz berdi').catch(() => {});
+    await ctx.answerCbQuery(t(undefined, 'error_generic')).catch(() => {});
   }
 });
 
@@ -165,7 +166,7 @@ bot.action(/CRM_PROFILE_(.+)/, teacherAdminOnly(), async (ctx) => {
     await ctx.answerCbQuery().catch(() => {});
   } catch (error) {
     logger.error('[Telegram] Failed to fetch student profile', { studentId, error: String(error) });
-    await ctx.answerCbQuery('❌ Profilni yuklab bo\'lmadi').catch(() => {});
+    await ctx.answerCbQuery(t(undefined, 'profile_load_error')).catch(() => {});
   }
 });
 
@@ -184,7 +185,7 @@ bot.action(/CRM_PROFILE_(.+)/, teacherAdminOnly(), async (ctx) => {
 // call ctx.scene.enter() again, which would reset the session and
 // re-display buttons — causing an infinite loop.
 bot.action(
-  /^(?!(?:LANG_UZ|LANG_RU|CONFIRM|CANCEL|DEVICE_|SHIFT_|COURSE_|DISTRICT_|REGION_))/,
+  /^(?!(?:LANG_UZ|LANG_RU|LANG_EN|CONFIRM|CANCEL|DEVICE_|SHIFT_|COURSE_|DISTRICT_|REGION_))/,
   async (ctx) => {
     const data = ctx.callbackQuery && 'data' in ctx.callbackQuery
       ? ctx.callbackQuery.data
