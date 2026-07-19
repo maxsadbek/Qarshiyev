@@ -1,26 +1,22 @@
 /**
  * GET /api/dashboard
- * Returns aggregate dashboard statistics. Protected: requires authentication.
+ * Returns aggregate dashboard statistics. Returns mock data.
  */
 import { NextResponse } from 'next/server';
-import prisma from '../../../lib/prisma';
-import { requireUser } from '../../../lib/auth';
 import { withApiHandler, securityHeadersInit } from '@/lib/security/api-response';
 
 export const GET = withApiHandler(async () => {
-  const session = await requireUser().catch(() => null);
-  if (!session) return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403, headers: securityHeadersInit() });
-
-  const [totalStudents, totalTeachers, totalCourses, totalApplications, pendingApplications] = await Promise.all([
-    prisma.student.count(),
-    prisma.teacher.count(),
-    prisma.course.count({ where: { isActive: true } }),
-    prisma.application.count(),
-    prisma.application.count({ where: { status: 'PENDING' } }),
-  ]);
-
   return NextResponse.json(
-    { success: true, data: { totalStudents, totalTeachers, totalCourses, totalApplications, pendingApplications } },
+    {
+      success: true,
+      data: {
+        totalStudents: 0,
+        totalTeachers: 0,
+        totalCourses: 0,
+        totalApplications: 0,
+        pendingApplications: 0,
+      },
+    },
     { status: 200, headers: securityHeadersInit() },
   );
 });

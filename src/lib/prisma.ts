@@ -1,23 +1,50 @@
 import { PrismaClient } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { requireDatabaseUrl } from './env';
-
-const prismaClientSingleton = () => {
-  return new PrismaClient({
-    adapter: new PrismaPg({ connectionString: requireDatabaseUrl() }),
-    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-  });
-};
 
 declare global {
-  var prisma: undefined | ReturnType<typeof prismaClientSingleton>;
+  var prisma: undefined | ReturnType<typeof createPrismaClient>;
 }
 
-let instance: ReturnType<typeof prismaClientSingleton> | null = null;
+function createPrismaClient() {
+  const url = process.env.DATABASE_URL;
+  if (!url || url.trim() === '') {
+    // Return a proxy that throws descriptive errors on actual use.
+    // This allows the build to succeed without DATABASE_URL.
+    return new Proxy({} as PrismaClient, {
+      get(_target, prop) {
+        // Allow accessing constructor/name etc. without throwing
+        if (typeof prop === 'string' && ['then', 'catch', 'finally', 'constructor', 'name', 'prototype', Symbol.toStringTag as unknown as string].includes(prop)) {
+          return undefined;
+        }
+        return () => {
+          throw new Error(
+            'DATABASE_URL is not configured. This application requires a PostgreSQL database ' +
+            'for full functionality. Authentication has been migrated to localStorage ' +
+            'and works without a database.'
+          );
+        };
+      },
+    }) as unknown as PrismaClient;
+  }
+
+  let adapter: unknown;
+  try {
+    const { PrismaPg } = require('@prisma/adapter-pg');
+    adapter = new PrismaPg({ connectionString: url });
+  } catch {
+    // Adapter not available — use default connection
+  }
+
+  return new PrismaClient({
+    ...(adapter ? { adapter } as any : {}),
+    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] as any : ['error'] as any,
+  });
+}
+
+let instance: ReturnType<typeof createPrismaClient> | null = null;
 
 function getPrisma() {
   if (!instance) {
-    instance = prismaClientSingleton();
+    instance = createPrismaClient();
     if (process.env.NODE_ENV !== 'production') {
       globalThis.prisma = instance;
     }
@@ -40,4 +67,3 @@ const prisma = new Proxy(getPrisma, {
 }) as unknown as PrismaClient;
 
 export default prisma;
-

@@ -1,7 +1,8 @@
 'use client';
 
-import { csrfFetch } from '@/lib/client/csrf';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
+import { ROUTES } from '@/constants';
 
 interface LogoutButtonProps {
   className?: string;
@@ -9,20 +10,15 @@ interface LogoutButtonProps {
 }
 
 /**
- * Client component that logs the user out via the API with proper CSRF protection
- * and redirects to the home page on success.
- * Use this instead of <form action="/api/auth/logout"> which would fail CSRF checks.
+ * Client component that logs the user out via localStorage and redirects home.
  */
 export function LogoutButton({ className = '', label = 'Logout' }: LogoutButtonProps) {
+  const { logout } = useAuth();
   const router = useRouter();
 
-  const handleLogout = async () => {
-    try {
-      await csrfFetch('/api/auth/logout', { method: 'POST' });
-    } catch {
-      // Even if the request fails, navigate away
-    }
-    router.push('/');
+  const handleLogout = () => {
+    logout();
+    router.push(ROUTES.HOME);
   };
 
   return (

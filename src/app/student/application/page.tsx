@@ -33,7 +33,7 @@ export default async function ApplicationPage() {
         </div>
       ) : (
         <div className="space-y-6">
-          {applications.map((app) => {
+          {applications.map((app: any) => {
             const cfg = STATUS_CONFIG[app.status];
             const activeStep =
               app.status === 'PENDING' ? 1 :
