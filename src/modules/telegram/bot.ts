@@ -98,21 +98,14 @@ bot.start(async (ctx) => {
 
 bot.action(/CRM_ACCEPT_(.+)/, teacherAdminOnly(), async (ctx) => {
   const appId = ctx.match[1];
-  const user = ctx.user;
-  logger.info('[Telegram] CRM_ACCEPT', { appId, userId: user?.id });
-
-  if (!user) {
-    await ctx.answerCbQuery('❌ Ruxsat yo‘q').catch(() => {});
-    return;
-  }
+  logger.info('[Telegram] CRM_ACCEPT (no-DB mode)', { appId });
 
   try {
-    await teacherCrmService.updateStatus(appId, 'APPROVED', user.id);
+    await teacherCrmService.updateStatus(appId, 'APPROVED', 'no-db-mode');
     await ctx.editMessageText(
       ((ctx.callbackQuery?.message as { text?: string } | undefined)?.text ?? '') + '\n\n✅ Holat: QABUL QILINDI'
     ).catch(() => {});
     await ctx.answerCbQuery('✅ Qabul qilindi').catch(() => {});
-    logger.info('[Telegram] Application approved', { appId, by: user.id });
   } catch (error) {
     logger.error('[Telegram] Failed to approve application', { appId, error: String(error) });
     await ctx.answerCbQuery('❌ Xatolik yuz berdi').catch(() => {});
@@ -121,21 +114,14 @@ bot.action(/CRM_ACCEPT_(.+)/, teacherAdminOnly(), async (ctx) => {
 
 bot.action(/CRM_REJECT_(.+)/, teacherAdminOnly(), async (ctx) => {
   const appId = ctx.match[1];
-  const user = ctx.user;
-  logger.info('[Telegram] CRM_REJECT', { appId, userId: user?.id });
-
-  if (!user) {
-    await ctx.answerCbQuery('❌ Ruxsat yo‘q').catch(() => {});
-    return;
-  }
+  logger.info('[Telegram] CRM_REJECT (no-DB mode)', { appId });
 
   try {
-    await teacherCrmService.updateStatus(appId, 'REJECTED', user.id);
+    await teacherCrmService.updateStatus(appId, 'REJECTED', 'no-db-mode');
     await ctx.editMessageText(
       ((ctx.callbackQuery?.message as { text?: string } | undefined)?.text ?? '') + '\n\n❌ Holat: RAD ETILDI'
     ).catch(() => {});
     await ctx.answerCbQuery('❌ Rad etildi').catch(() => {});
-    logger.info('[Telegram] Application rejected', { appId, by: user.id });
   } catch (error) {
     logger.error('[Telegram] Failed to reject application', { appId, error: String(error) });
     await ctx.answerCbQuery('❌ Xatolik yuz berdi').catch(() => {});
@@ -144,21 +130,14 @@ bot.action(/CRM_REJECT_(.+)/, teacherAdminOnly(), async (ctx) => {
 
 bot.action(/CRM_PENDING_(.+)/, teacherAdminOnly(), async (ctx) => {
   const appId = ctx.match[1];
-  const user = ctx.user;
-  logger.info('[Telegram] CRM_PENDING', { appId, userId: user?.id });
-
-  if (!user) {
-    await ctx.answerCbQuery('❌ Ruxsat yo‘q').catch(() => {});
-    return;
-  }
+  logger.info('[Telegram] CRM_PENDING (no-DB mode)', { appId });
 
   try {
-    await teacherCrmService.updateStatus(appId, 'PENDING', user.id);
+    await teacherCrmService.updateStatus(appId, 'PENDING', 'no-db-mode');
     await ctx.editMessageText(
       ((ctx.callbackQuery?.message as { text?: string } | undefined)?.text ?? '') + '\n\n⏳ Holat: KUTTIRISHGA OLINDI'
     ).catch(() => {});
     await ctx.answerCbQuery('⏳ Kuttirishga olindi').catch(() => {});
-    logger.info('[Telegram] Application set to PENDING', { appId, by: user.id });
   } catch (error) {
     logger.error('[Telegram] Failed to set application to pending', { appId, error: String(error) });
     await ctx.answerCbQuery('❌ Xatolik yuz berdi').catch(() => {});
@@ -167,18 +146,12 @@ bot.action(/CRM_PENDING_(.+)/, teacherAdminOnly(), async (ctx) => {
 
 bot.action(/CRM_NOTE_(.+)/, teacherAdminOnly(), async (ctx) => {
   const appId = ctx.match[1];
-  const user = ctx.user;
-  logger.info('[Telegram] CRM_NOTE', { appId, userId: user?.id });
-
-  if (!user) {
-    await ctx.answerCbQuery('❌ Ruxsat yo‘q').catch(() => {});
-    return;
-  }
+  logger.info('[Telegram] CRM_NOTE (no-DB mode)', { appId });
 
   await ctx.answerCbQuery().catch(() => {});
   await ctx.scene.enter('CRM_WRITE_NOTE', {
     applicationId: appId,
-    actionUserId: user.id,
+    actionUserId: 'no-db-mode',
   });
 });
 

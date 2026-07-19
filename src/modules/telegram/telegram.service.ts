@@ -1,14 +1,14 @@
-import prisma from '../../lib/prisma';
 import { z } from 'zod';
 import { logger } from '../../lib/security/logger';
 
+// ── Validation Schema ──────────────────────────────────────────────
 export const RegistrationSchema = z.object({
   telegramId: z.string(),
   firstName: z.string().min(1),
   lastName: z.string().min(1),
   phone: z.string().min(9),
-  districtId: z.string().uuid(),
-  courseId: z.string().uuid(),
+  districtId: z.string().min(1),
+  courseId: z.string().min(1),
   shift: z.string(),
   age: z.number().min(5).max(100),
   experience: z.string(),
@@ -18,123 +18,147 @@ export const RegistrationSchema = z.object({
 
 export type RegistrationData = z.infer<typeof RegistrationSchema>;
 
-/**
- * Local interfaces matching the exact shapes returned by the `findMany` calls
- * below (no `include` clauses are used, so these are each model's own scalar
- * fields, limited to what is actually consumed by callers such as
- * `registration.wizard.ts`).
- *
- * Why this exists: Prisma 7 no longer exports a `Prisma` namespace from
- * `@prisma/client`. Without an explicit return type on these service methods,
- * `regions`/`districts`/`courses` in the wizard file — and the bare `.map((r) =>
- * ...)` callbacks there — would be left to bare inference from
- * `prisma.<model>.findMany(...)`, which has repeatedly widened to `any[]` on
- * this project's Vercel builds (the locally cached generated Prisma client
- * differs from a fresh Vercel-side `prisma generate`). Annotating the return
- * type here fixes it at the source, so every caller gets a concrete type
- * without needing its own cast.
- */
-interface RegionItem {
+// ── Interfaces ─────────────────────────────────────────────────────
+export interface RegionItem {
   id: string;
   name: string;
 }
 
-interface DistrictItem {
+export interface DistrictItem {
   id: string;
   name: string;
+  regionId: string;
 }
 
-interface CourseItem {
+export interface CourseItem {
   id: string;
   title: string;
 }
 
+// ── Hardcoded Data ─────────────────────────────────────────────────
+
+const REGIONS: RegionItem[] = [
+  { id: 'toshkent', name: 'Toshkent' },
+  { id: 'samarqand', name: 'Samarqand' },
+  { id: 'buxoro', name: 'Buxoro' },
+  { id: 'qashqadaryo', name: 'Qashqadaryo' },
+  { id: 'surxondaryo', name: 'Surxondaryo' },
+  { id: 'andijon', name: 'Andijon' },
+  { id: 'namangan', name: 'Namangan' },
+  { id: 'fargona', name: "Farg'ona" },
+  { id: 'jizzax', name: 'Jizzax' },
+  { id: 'navoiy', name: 'Navoiy' },
+  { id: 'xorazm', name: 'Xorazm' },
+  { id: 'sirdaryo', name: 'Sirdaryo' },
+  { id: 'qoraqalpogiston', name: "Qoraqalpog'iston" },
+];
+
+const DISTRICTS: DistrictItem[] = [
+  // Toshkent
+  { id: 'chilonzor', name: 'Chilonzor', regionId: 'toshkent' },
+  { id: 'sergeli', name: 'Sergeli', regionId: 'toshkent' },
+  { id: 'mirzo-ulugbek', name: "Mirzo Ulug'bek", regionId: 'toshkent' },
+  { id: 'yunusobod', name: 'Yunusobod', regionId: 'toshkent' },
+  // Samarqand
+  { id: 'ishtixon', name: 'Ishtixon', regionId: 'samarqand' },
+  { id: 'kattakurgon', name: 'Kattakurgon', regionId: 'samarqand' },
+  { id: 'samarqand-shahar', name: 'Samarqand shahar', regionId: 'samarqand' },
+  { id: 'urgut', name: 'Urgut', regionId: 'samarqand' },
+  // Buxoro
+  { id: 'buxoro-shahar', name: 'Buxoro shahar', regionId: 'buxoro' },
+  { id: 'kogon', name: 'Kogon', regionId: 'buxoro' },
+  { id: 'romitan', name: 'Romitan', regionId: 'buxoro' },
+  { id: 'vobkent', name: 'Vobkent', regionId: 'buxoro' },
+  // Qashqadaryo
+  { id: 'kitob', name: 'Kitob', regionId: 'qashqadaryo' },
+  { id: 'koson', name: 'Koson', regionId: 'qashqadaryo' },
+  { id: 'qarshi', name: 'Qarshi', regionId: 'qashqadaryo' },
+  { id: 'shahrisabz', name: 'Shahrisabz', regionId: 'qashqadaryo' },
+  // Surxondaryo
+  { id: 'boysun', name: 'Boysun', regionId: 'surxondaryo' },
+  { id: 'denov', name: 'Denov', regionId: 'surxondaryo' },
+  { id: 'sariosiyo', name: 'Sariosiyo', regionId: 'surxondaryo' },
+  { id: 'termiz', name: 'Termiz', regionId: 'surxondaryo' },
+  // Andijon
+  { id: 'andijon-shahar', name: 'Andijon shahar', regionId: 'andijon' },
+  { id: 'asaka', name: 'Asaka', regionId: 'andijon' },
+  { id: 'shahrixon', name: 'Shahrixon', regionId: 'andijon' },
+  { id: 'xonobod', name: 'Xonobod', regionId: 'andijon' },
+  // Namangan
+  { id: 'chust', name: 'Chust', regionId: 'namangan' },
+  { id: 'mingbuloq', name: 'Mingbuloq', regionId: 'namangan' },
+  { id: 'namangan-shahar', name: 'Namangan shahar', regionId: 'namangan' },
+  { id: 'pop', name: 'Pop', regionId: 'namangan' },
+  // Farg'ona
+  { id: 'bgdod', name: "Bag'dod", regionId: 'fargona' },
+  { id: 'fargona-shahar', name: "Farg'ona shahar", regionId: 'fargona' },
+  { id: 'quva', name: 'Quva', regionId: 'fargona' },
+  { id: 'rishton', name: 'Rishton', regionId: 'fargona' },
+  // Jizzax
+  { id: 'baxmal', name: 'Baxmal', regionId: 'jizzax' },
+  { id: 'dustlik', name: 'Dustlik', regionId: 'jizzax' },
+  { id: 'jizzax-shahar', name: 'Jizzax shahar', regionId: 'jizzax' },
+  { id: 'zomin', name: 'Zomin', regionId: 'jizzax' },
+  // Navoiy
+  { id: 'navoiy-shahar', name: 'Navoiy shahar', regionId: 'navoiy' },
+  { id: 'nurota', name: 'Nurota', regionId: 'navoiy' },
+  { id: 'qiziltepa', name: 'Qiziltepa', regionId: 'navoiy' },
+  { id: 'zarafshon', name: 'Zarafshon', regionId: 'navoiy' },
+  // Xorazm
+  { id: 'bogot', name: "Bog'ot", regionId: 'xorazm' },
+  { id: 'urganch', name: 'Urganch', regionId: 'xorazm' },
+  { id: 'xiva', name: 'Xiva', regionId: 'xorazm' },
+  { id: 'yangibozor', name: 'Yangibozor', regionId: 'xorazm' },
+  // Sirdaryo
+  { id: 'guliston', name: 'Guliston', regionId: 'sirdaryo' },
+  { id: 'oqoltin', name: 'Oqoltin', regionId: 'sirdaryo' },
+  { id: 'sirdaryo-shahar', name: 'Sirdaryo shahar', regionId: 'sirdaryo' },
+  { id: 'yangiyer', name: 'Yangiyer', regionId: 'sirdaryo' },
+  // Qoraqalpog'iston
+  { id: 'moynoq', name: "Mo'ynoq", regionId: 'qoraqalpogiston' },
+  { id: 'nukus', name: 'Nukus', regionId: 'qoraqalpogiston' },
+];
+
+const COURSES: CourseItem[] = [
+  { id: 'backend', title: '⚙️ Backend dasturlash (Python/Node.js)' },
+  { id: 'grafik-dizayn', title: '🎨 Grafik dizayn' },
+  { id: 'ingliz-tili', title: '🇬🇧 Ingliz tili' },
+  { id: 'mobile', title: '📱 Mobil dasturlash' },
+  { id: 'smm', title: '📊 SMM / Marketing' },
+  { id: 'web-dasturlash', title: '🌐 Web dasturlash (Frontend)' },
+];
+
+// ── Service ────────────────────────────────────────────────────────
 export class TelegramService {
   async getRegions(): Promise<RegionItem[]> {
-    return prisma.region.findMany({
-      orderBy: { name: 'asc' },
-    }) as Promise<RegionItem[]>;
+    return REGIONS;
   }
 
   async getDistricts(regionId: string): Promise<DistrictItem[]> {
-    return prisma.district.findMany({
-      where: { regionId },
-      orderBy: { name: 'asc' },
-    }) as Promise<DistrictItem[]>;
+    return DISTRICTS.filter((d) => d.regionId === regionId);
   }
 
   async getActiveCourses(): Promise<CourseItem[]> {
-    return prisma.course.findMany({
-      where: { isActive: true },
-      orderBy: { title: 'asc' },
-    }) as Promise<CourseItem[]>;
+    return COURSES;
   }
 
   /**
-   * Saves the completed registration to the database
+   * Logs the completed registration (no database writes).
    */
   async completeRegistration(data: RegistrationData) {
-    try {
-      // 1. Find or create User by telegramId
-      const user = await prisma.user.upsert({
-        where: { telegramId: data.telegramId },
-        create: {
-          telegramId: data.telegramId,
-          email: `${data.telegramId}@tg.local`, // Use telegramId for placeholder email
-          passwordHash: 'tg-no-pass',
-          name: `${data.firstName} ${data.lastName}`.trim(),
-          phone: data.phone,
-        },
-        update: {
-          phone: data.phone, // Update phone if changed
-        },
-      });
+    logger.info('Telegram registration completed (no DB)', {
+      telegramId: data.telegramId,
+      name: `${data.firstName} ${data.lastName}`,
+      phone: data.phone,
+      districtId: data.districtId,
+      courseId: data.courseId,
+      shift: data.shift,
+      age: data.age,
+    });
 
-      // 2. Find or create Student profile
-      const student = await prisma.student.upsert({
-        where: { userId: user.id },
-        create: {
-          userId: user.id,
-          districtId: data.districtId,
-        },
-        update: {
-          districtId: data.districtId,
-        },
-      });
-
-      // 3. Prevent duplicate application
-      const existingApp = await prisma.application.findUnique({
-        where: {
-          studentId_courseId: {
-            studentId: student.id,
-            courseId: data.courseId,
-          },
-        },
-      });
-
-      if (existingApp) {
-        throw new Error('DUPLICATE_APPLICATION');
-      }
-
-      // 4. Create Application
-      const application = await prisma.application.create({
-        data: {
-          studentId: student.id,
-          courseId: data.courseId,
-          status: 'PENDING',
-          notes: `Age: ${data.age}\nExperience: ${data.experience}\nDevice: ${data.device}\nShift: ${data.shift}\nNote: ${data.note || 'None'}`,
-        },
-      });
-
-      logger.info('Telegram registration completed', { applicationId: application.id, userId: user.id });
-      return application;
-    } catch (error) {
-      if (error instanceof Error && error.message === 'DUPLICATE_APPLICATION') {
-        throw error;
-      }
-      logger.error('Failed to complete telegram registration', { error: String(error), data });
-      throw new Error('REGISTRATION_FAILED');
-    }
+    // Return a mock application object so callers that reference
+    // `application.id` still compile and behave correctly.
+    return { id: crypto.randomUUID(), status: 'PENDING' };
   }
 }
 
