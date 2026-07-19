@@ -25,15 +25,19 @@ export class TeacherCrmService {
    * Without a database, sends a simplified notification.
    */
   async notifyTeacher(applicationId: string) {
-    try {
-      const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
+    console.log('[Application] Sending application to admin...', { applicationId });
 
-      if (!adminChatId) {
-        logger.warn('notifyTeacher: TELEGRAM_ADMIN_CHAT_ID not set', { applicationId });
-        return;
-      }
+    const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
+    console.log('[Application] ADMIN_CHAT_ID =', adminChatId);
 
-      const message = `
+    if (!adminChatId) {
+      const errMsg = 'TELEGRAM_ADMIN_CHAT_ID environment variable is not set';
+      console.error('[Application] Failed to send application:', errMsg);
+      logger.error('Failed to send application', { applicationId, error: errMsg });
+      throw new Error(errMsg);
+    }
+
+    const message = `
 ${t(undefined, 'new_application_title')}
 ${t(undefined, 'application_id')}: <code>${applicationId}</code>
 ${t(undefined, 'status')}: PENDING
@@ -41,22 +45,52 @@ ${t(undefined, 'status')}: PENDING
 ${t(undefined, 'no_db_hint')}
       `;
 
-      const keyboard = Markup.inlineKeyboard([
-        [
-          Markup.button.callback(t(undefined, 'crm_accept'), `CRM_ACCEPT_${applicationId}`),
-          Markup.button.callback(t(undefined, 'crm_reject'), `CRM_REJECT_${applicationId}`),
-        ],
-      ]);
+    const keyboard = Markup.inlineKeyboard([
+      [
+        Markup.button.callback(t(undefined, 'crm_accept'), `CRM_ACCEPT_${applicationId}`),
+        Markup.button.callback(t(undefined, 'crm_reject'), `CRM_REJECT_${applicationId}`),
+      ],
+    ]);
 
-      const bot = await getBot();
-      await bot.telegram.sendMessage(adminChatId, message, {
+    const bot = await getBot();
+
+    try {
+      const result = await bot.telegram.sendMessage(adminChatId, message, {
         parse_mode: 'HTML',
         ...keyboard,
       });
 
-      logger.info('Teacher notified about new application (no-DB mode)', { applicationId, adminChatId });
+      console.log('[Application] Application sent successfully', {
+        applicationId,
+        adminChatId,
+        messageId: result.message_id,
+      });
+
+      logger.info('Teacher notified about new application (no-DB mode)', {
+        applicationId,
+        adminChatId,
+        messageId: result.message_id,
+      });
     } catch (error) {
-      logger.error('Failed to notify teacher about application', { applicationId, error: String(error) });
+      const fullError =
+        error instanceof Object
+          ? JSON.stringify(error, Object.getOwnPropertyNames(error))
+          : String(error);
+
+      console.error('[Application] Failed to send application', {
+        applicationId,
+        adminChatId,
+        error: fullError,
+      });
+
+      logger.error('Failed to send application', {
+        applicationId,
+        adminChatId,
+        error: fullError,
+      });
+
+      // Re-throw so the caller knows the notification failed
+      throw error;
     }
   }
 
@@ -108,12 +142,16 @@ ${t(lang, 'application_pending_text')}
           await bot.telegram.sendMessage(userId, message, { parse_mode: 'HTML' }).catch(() => {});
         }
       } catch (error) {
-        logger.error('Failed to notify user about status change', {
-          userId,
-          applicationId,
-          status,
-          error: String(error),
-        });
+        const fullError =
+            error instanceof Object
+              ? JSON.stringify(error, Object.getOwnPropertyNames(error))
+              : String(error);
+          logger.error('Failed to notify user about status change', {
+            userId,
+            applicationId,
+            status,
+            error: fullError,
+          });
       }
     }
 

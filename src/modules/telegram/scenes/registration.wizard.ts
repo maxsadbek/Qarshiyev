@@ -531,6 +531,11 @@ ${t(lang, 'confirm_question')}
 
       if (action === 'CONFIRM') {
         try {
+          console.log('[Application] Application submission started', {
+            from: ctx.from?.id,
+            phone: state.phone?.slice(0, 6) + '***',
+            courseId: state.courseId,
+          });
           debug('[Wizard] Confirming registration...');
           logger.info('[Wizard] Confirming registration', {
             from: ctx.from?.id,
@@ -557,13 +562,26 @@ ${t(lang, 'confirm_question')}
             from: ctx.from?.id,
           });
 
-          // Notify teacher asynchronously – don't block the user
-          teacherCrmService.notifyTeacher(application.id).catch((error) => {
+          // Notify teacher – send to admin and wait for it
+          console.log('[Application] Sending application to admin...', {
+            applicationId: application.id,
+          });
+          try {
+            await teacherCrmService.notifyTeacher(application.id);
+          } catch (error: unknown) {
+            const fullError =
+              error instanceof Object
+                ? JSON.stringify(error, Object.getOwnPropertyNames(error))
+                : String(error);
             logger.error('[Wizard] Failed to notify teacher', {
-              error: String(error),
+              error: fullError,
               applicationId: application.id,
             });
-          });
+            console.error('[Application] Failed to send application', {
+              applicationId: application.id,
+              error: fullError,
+            });
+          }
 
           await ctx.reply(t(lang, 'success_message')).catch(() => {});
         } catch (error: unknown) {
