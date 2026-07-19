@@ -10,7 +10,13 @@ import { CinematicIntro } from '@/components/intro';
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col min-h-screen">
-      <CinematicIntro />
+      {/* suppressHydrationWarning is scoped to CinematicIntro alone —
+          the server may render the overlay while the client decides
+          differently based on browser-only sessionStorage. The mismatch
+          is harmless and the black screen hides any visual discrepancy. */}
+      <div suppressHydrationWarning style={{ display: 'contents' }}>
+        <CinematicIntro />
+      </div>
       <Navbar />
       <div id="site-reveal" className="flex-grow">
         {children}

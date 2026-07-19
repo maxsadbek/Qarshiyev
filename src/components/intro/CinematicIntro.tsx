@@ -108,6 +108,11 @@ export const CinematicIntro: React.FC = () => {
   }, [unlockScroll]);
 
   useEffect(() => {
+    // Once the intro is done (isDone = true), NEVER start it again — guards
+    // against the rAF callback calling startIntro() which would flip
+    // isIntroComplete to false and hide the page content.
+    if (isDone) return;
+
     if (shouldRender && !isPlaying && !hasPlayedRef.current) {
       const timer = requestAnimationFrame(() => {
         hasPlayedRef.current = true;
@@ -119,9 +124,19 @@ export const CinematicIntro: React.FC = () => {
           (INTRO_TOTAL_DURATION + 3) * 1000,
         );
       });
-      return () => cancelAnimationFrame(timer);
+
+      // Cleanup handles React 19 StrictMode double-invocation:
+      // Reset the guard so the second (real) mount can start the intro.
+      return () => {
+        cancelAnimationFrame(timer);
+        hasPlayedRef.current = false;
+        if (finishTimerRef.current !== null) {
+          clearTimeout(finishTimerRef.current);
+          finishTimerRef.current = null;
+        }
+      };
     }
-  }, [shouldRender, isPlaying, startIntro, lockScroll, finishIntro]);
+  }, [shouldRender, isPlaying, isDone, startIntro, lockScroll, finishIntro]);
 
   const handleScene6Start = useCallback(() => {
     completeIntro();

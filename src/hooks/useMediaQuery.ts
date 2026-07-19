@@ -1,12 +1,29 @@
-// ============================================================
-// useMediaQuery Hook
-// ============================================================
-// TODO: Add breakpoint constants matching Tailwind config
-// TODO: Add orientation and reduced-motion detection
+'use client';
 
-export function useMediaQuery(_query: string): boolean {
-  // TODO: Implement with matchMedia
-  // TODO: Add SSR safety
-  throw new Error('Not implemented');
+import { useEffect, useState } from 'react';
+
+/**
+ * Tracks whether a CSS media query matches the current viewport.
+ * Returns false during SSR, then re-evaluates on mount.
+ *
+ * @example
+ * const isMobile = useMediaQuery('(max-width: 768px)');
+ * const prefersDark = useMediaQuery('(prefers-color-scheme: dark)');
+ */
+export function useMediaQuery(query: string): boolean {
+  const [matches, setMatches] = useState(false);
+
+  useEffect(() => {
+    // SSR safety — matchMedia only exists in browsers
+    if (typeof window === 'undefined') return;
+
+    const mql = window.matchMedia(query);
+    setMatches(mql.matches);
+
+    const handler = (e: MediaQueryListEvent) => setMatches(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, [query]);
+
+  return matches;
 }
-

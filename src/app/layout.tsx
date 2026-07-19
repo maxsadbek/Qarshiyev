@@ -3,6 +3,7 @@ import { SmoothScrollProvider } from '@/context/SmoothScrollProvider';
 import { IntroProvider } from '@/context/IntroContext';
 import { AuthProvider } from '@/context/AuthContext';
 import { AssistantProvider } from '@/assistant/AssistantContext';
+import { HelmetWrapper } from '@/components/layout/HelmetWrapper';
 import '../index.css';
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -13,7 +14,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <IntroProvider>
             <AuthProvider>
               <AssistantProvider>
-                {children}
+                <HelmetWrapper>
+                  {children}
+                </HelmetWrapper>
               </AssistantProvider>
             </AuthProvider>
           </IntroProvider>

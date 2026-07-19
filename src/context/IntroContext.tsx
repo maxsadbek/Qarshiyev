@@ -35,7 +35,9 @@ const hasSeenIntro = (): boolean => {
   try {
     return sessionStorage.getItem(INTRO_STORAGE_KEY) === '1';
   } catch {
-    return true;
+    /* sessionStorage unavailable during SSR — treat as not seen so that
+       the client immediately renders the overlay on first visit. */
+    return false;
   }
 };
 

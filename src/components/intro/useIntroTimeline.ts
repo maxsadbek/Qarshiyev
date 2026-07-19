@@ -1,4 +1,5 @@
-import { useEffect, type RefObject } from 'react';
+import { useRef, type RefObject } from 'react';
+import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import {
   INTRO_EASE,
@@ -32,6 +33,9 @@ interface UseIntroTimelineOptions {
  * live homepage. GPU-only transforms/opacity; the page behind is revealed
  * through a growing radial hole (blur -> sharp) and the emblem flies into
  * the navbar.
+ *
+ * Uses `useGSAP` from @gsap/react which correctly handles React 19 StrictMode
+ * so the animation only executes once.
  */
 export function useIntroTimeline({
   refs,
@@ -39,27 +43,29 @@ export function useIntroTimeline({
   onScene6Start,
   onComplete,
 }: UseIntroTimelineOptions): void {
-  useEffect(() => {
-    const { overlay, mask, stage, glow, orb, rings, logoSvg, logoContainer, typography } = refs;
-    if (
-      !overlay.current ||
-      !mask.current ||
-      !stage.current ||
-      !glow.current ||
-      !orb.current ||
-      !rings.current ||
-      !logoSvg.current ||
-      !logoContainer.current ||
-      !typography.current
-    ) {
-      return;
-    }
+  // Store mutable references to avoid recreating the GSAP timeline
+  const floatsRef = useRef<gsap.core.Tween[]>([]);
+  const ringTweensRef = useRef<gsap.core.Tween[]>([]);
 
-    let master: gsap.core.Timeline | null = null;
-    let floats: gsap.core.Tween[] = [];
-    let ringTweens: gsap.core.Tween[] = [];
+  useGSAP(
+    () => {
+      const { overlay, mask, glow, orb, rings, logoSvg, logoContainer, typography } = refs;
+      if (
+        !overlay.current ||
+        !mask.current ||
+        !glow.current ||
+        !orb.current ||
+        !rings.current ||
+        !logoSvg.current ||
+        !logoContainer.current ||
+        !typography.current
+      ) {
+        return;
+      }
 
-    const ctx = gsap.context(() => {
+      const floats = floatsRef.current;
+      const ringTweens = ringTweensRef.current;
+
       const logoGroup = logoSvg.current!.querySelector('.intro-logo-group');
       const lightSweep = logoSvg.current!.querySelector('.intro-light-sweep');
       const tagWords = overlay.current!.querySelectorAll('.intro-tag-word');
@@ -67,9 +73,6 @@ export function useIntroTimeline({
       const site = document.getElementById('site-reveal');
 
       // ── Initial states (pure black, nothing visible) ──
-      // The mask layer is an opaque black element. A radial mask-image with a
-      // negative transparent stop keeps it fully black at rest; growing the
-      // transparent center carves a hole that reveals the site behind it.
       const fullyBlackMask = 'radial-gradient(circle at 50% 50%, transparent -10%, #050505 0%)';
       const setMask = (css: string) => {
         mask.current!.style.webkitMaskImage = css;
@@ -77,7 +80,7 @@ export function useIntroTimeline({
       };
       setMask(fullyBlackMask);
 
-      // Center every element on the viewport (composes with GSAP x/y/scale)
+      // Center every element on the viewport
       gsap.set([glow.current, orb.current, rings.current, logoContainer.current], {
         xPercent: -50,
         yPercent: -50,
@@ -165,11 +168,12 @@ export function useIntroTimeline({
         { scale: 1, opacity: 1, duration: 0.8, ease: INTRO_EASE.premium },
         INTRO_SCENES.ringsAppear,
       );
-      ringTweens = [
+      ringTweens.length = 0;
+      ringTweens.push(
         gsap.to(ringEls[0], { rotation: 360, duration: 26, ease: 'none', repeat: -1 }),
         gsap.to(ringEls[1], { rotation: -360, duration: 34, ease: 'none', repeat: -1 }),
         gsap.to(ringEls[2], { rotation: 360, duration: 44, ease: 'none', repeat: -1 }),
-      ];
+      );
 
       // ── 2.7s — the orb fluidly morphs into the Qarshiyev emblem ──
       tl.to(
@@ -325,16 +329,11 @@ export function useIntroTimeline({
         },
         INTRO_SCENES.overlayExit,
       );
-
-      master = tl;
-    }, overlay);
-
-    return () => {
-      master?.kill();
-      floats.forEach((t) => t.kill());
-      ringTweens.forEach((t) => t.kill());
-      ctx.revert();
-    };
-  }, [refs, sound, onScene6Start, onComplete]);
+    },
+    {
+      dependencies: [refs, sound, onScene6Start, onComplete],
+      scope: refs.overlay,
+    },
+  );
 }
 

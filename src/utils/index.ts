@@ -23,7 +23,10 @@ export function formatShortDate(dateString: string): string {
 }
 
 export function formatPrice(price: number): string {
-  return new Intl.NumberFormat('uz-UZ').format(price) + ' UZS';
+  // Manual formatting with spaces as thousand separators ensures
+  // deterministic output across server (Node.js) and client (browser)
+  const formatted = price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  return formatted + ' UZS';
 }
 
 export function getDayOfMonth(dateString: string): string {
