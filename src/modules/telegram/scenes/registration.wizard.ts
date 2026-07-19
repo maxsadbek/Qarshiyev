@@ -72,20 +72,20 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
     const state = ctx.wizard.state as RegistrationWizardState;
     const updateType = ctx.updateType;
     const hasMessage = !!ctx.message;
-    const hasContact = !!(ctx.message && ctx.message.contact);
+    const hasContact = !!(ctx.message && 'contact' in ctx.message && ctx.message.contact);
     const hasText = !!(ctx.message && 'text' in ctx.message && ctx.message.text);
     debug('[Wizard] Step 2 entered', {
       updateType,
       hasMessage,
       hasContact,
       hasText,
-      contactPhone: hasContact ? ctx.message.contact.phone_number?.slice(0, 6) + '***' : null,
-      textPreview: hasText ? (ctx.message.text as string).slice(0, 20) : null,
+      contactPhone: ctx.message && 'contact' in ctx.message && ctx.message.contact ? ctx.message.contact.phone_number?.slice(0, 6) + '***' : null,
+      textPreview: ctx.message && 'text' in ctx.message && ctx.message.text ? ctx.message.text.slice(0, 20) : null,
     });
     logger.info('[Wizard] Step 2: Awaiting region', { from: ctx.from?.id, updateType, hasContact });
 
-    // Handle phone contact — check ctx.message.contact directly (more reliable than 'in' operator)
-    if (ctx.message && ctx.message.contact) {
+    // Handle phone contact
+    if (ctx.message && 'contact' in ctx.message && ctx.message.contact) {
       state.phone = ctx.message.contact.phone_number;
       debug('[Wizard] Phone received via contact', {
         phone: state.phone?.slice(0, 6) + '***',
@@ -381,7 +381,7 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
   async (ctx) => {
     const state = ctx.wizard.state as RegistrationWizardState;
     const hasText = !!(ctx.message && 'text' in ctx.message && ctx.message.text);
-    debug('[Wizard] Step 7 entered', { hasText, textPreview: hasText ? (ctx.message.text as string).slice(0, 20) : null });
+    debug('[Wizard] Step 7 entered', { hasText, textPreview: ctx.message && 'text' in ctx.message && ctx.message.text ? ctx.message.text.slice(0, 20) : null });
     logger.info('[Wizard] Step 7: Awaiting experience', { from: ctx.from?.id });
 
     if (ctx.message && 'text' in ctx.message) {
@@ -414,7 +414,7 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
   async (ctx) => {
     const state = ctx.wizard.state as RegistrationWizardState;
     const hasText = !!(ctx.message && 'text' in ctx.message && ctx.message.text);
-    debug('[Wizard] Step 8 entered', { hasText, textPreview: hasText ? (ctx.message.text as string).slice(0, 30) : null });
+    debug('[Wizard] Step 8 entered', { hasText, textPreview: ctx.message && 'text' in ctx.message && ctx.message.text ? ctx.message.text.slice(0, 30) : null });
     logger.info('[Wizard] Step 8: Awaiting device', { from: ctx.from?.id });
 
     if (ctx.message && 'text' in ctx.message) {
@@ -482,7 +482,7 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
   async (ctx) => {
     const state = ctx.wizard.state as RegistrationWizardState;
     const hasText = !!(ctx.message && 'text' in ctx.message && ctx.message.text);
-    debug('[Wizard] Step 10 entered', { hasText, textPreview: hasText ? (ctx.message.text as string).slice(0, 20) : null });
+    debug('[Wizard] Step 10 entered', { hasText, textPreview: ctx.message && 'text' in ctx.message && ctx.message.text ? ctx.message.text.slice(0, 20) : null });
     logger.info('[Wizard] Step 10: Awaiting confirmation', { from: ctx.from?.id });
 
     if (ctx.message && 'text' in ctx.message) {
