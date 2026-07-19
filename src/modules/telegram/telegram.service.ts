@@ -139,6 +139,14 @@ export class TelegramService {
     return DISTRICTS.filter((d) => d.regionId === regionId);
   }
 
+  async getAllDistricts(): Promise<DistrictItem[]> {
+    return [...DISTRICTS];
+  }
+
+  async getDistrictById(id: string): Promise<DistrictItem | undefined> {
+    return DISTRICTS.find((d) => d.id === id);
+  }
+
   async getActiveCourses(): Promise<CourseItem[]> {
     return COURSES;
   }

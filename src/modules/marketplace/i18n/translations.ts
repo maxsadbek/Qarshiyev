@@ -118,6 +118,7 @@ const translations: TranslationsDict = {
     admin_note_prompt: '💬 Admin izohingizni yozing (bekor qilish uchun /cancel):',
     admin_note_saved: '✅ Izoh saqlandi!',
     admin_note_line: '\n💬 <b>Admin izohi:</b> {note}',
+    admin_refresh: '🔄 Yangilash',
     admin_promo_usage: '🎟 Promo kod yaratish:\n/createpromo <kod> <chegirma%> <max_foydalanish>',
 
     // ── Notifications ───────────────────────────────────────
@@ -253,6 +254,7 @@ const translations: TranslationsDict = {
     admin_note_prompt: '💬 Напишите комментарий администратора (для отмены /cancel):',
     admin_note_saved: '✅ Комментарий сохранен!',
     admin_note_line: '\n💬 <b>Комментарий администратора:</b> {note}',
+    admin_refresh: '🔄 Обновить',
     admin_promo_usage: '🎟 Создать промо-код:\n/createpromo <код> <скидка%> <макс_использований>',
 
     // ── Notifications ───────────────────────────────────────
@@ -388,6 +390,7 @@ const translations: TranslationsDict = {
     admin_note_prompt: '💬 Write your admin note (send /cancel to cancel):',
     admin_note_saved: '✅ Note saved!',
     admin_note_line: '\n💬 <b>Admin Note:</b> {note}',
+    admin_refresh: '🔄 Refresh',
     admin_promo_usage: '🎟 Create promo code:\n/createpromo <code> <discount%> <max_uses>',
 
     // ── Notifications ───────────────────────────────────────

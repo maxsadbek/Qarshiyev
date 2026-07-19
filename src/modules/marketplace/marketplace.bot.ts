@@ -210,8 +210,8 @@ bot.command('admin', adminGuard, async (ctx) => {
 
 // ── /stats ──────────────────────────────────────────────────────────
 bot.command('stats', adminGuard, async (ctx) => {
-  const userId = ctx.from?.id;
-  const lang = marketplaceStore.getUserLanguage(userId!);
+  const userId = ctx.from?.id!;
+  const lang = marketplaceStore.getUserLanguage(userId);
   const stats = marketplaceStore.getStats();
 
   const message = t(lang, 'admin_stats', {
@@ -229,8 +229,8 @@ bot.command('stats', adminGuard, async (ctx) => {
   await ctx.reply(message, {
     parse_mode: 'HTML',
     ...Markup.inlineKeyboard([
-      [Markup.button.callback('🔄 ' + 'Refresh', 'ADMIN_STATS')],
-      [Markup.button.callback('👑 ' + 'Admin Panel', 'ADMIN_MENU')],
+      [Markup.button.callback('🔄 ' + t(lang, 'admin_refresh'), 'ADMIN_STATS')],
+      [Markup.button.callback('👑 ' + t(lang, 'admin_menu_title').replace(/<[^>]*>/g, ''), 'ADMIN_MENU')],
     ]),
   }).catch(() => {});
 });
@@ -298,7 +298,7 @@ bot.command('createpromo', adminGuard, async (ctx) => {
   const maxUses = parseInt(parts[2]) || 100;
 
   if (isNaN(discount) || discount < 1 || discount > 100) {
-    await ctx.reply('❌ Discount must be between 1-100').catch(() => {});
+    await ctx.reply('❌ ' + t(lang, 'error_generic') + ' (1-100%)').catch(() => {});
     return;
   }
 
@@ -486,27 +486,29 @@ bot.action(/MP_ORDERS_PAGE_(\d+)/, async (ctx) => {
   await safeAnswerCbQuery(ctx);
   const user = marketplaceStore.getUserByTelegramId(userId!);
   if (!user) return;
-  const orders = marketplaceStore.getUserOrders(user.id);
-  await ctx.editMessageReplyMarkup({
+  const orders = marketplaceStore.getUserOrders(user.id);    await ctx.editMessageReplyMarkup({
     inline_keyboard: buildOrdersKeyboard(lang, orders, page),
   }).catch(() => {});
 });
+
+function getLangFromCtx(ctx: ProtectedContext): LangCode {
+  const userId = ctx.from?.id;
+  return marketplaceStore.getUserLanguage(userId!);
+}
 
 // ════════════════════════════════════════════════════════════════════
 // ADMIN CALLBACK HANDLERS
 // ════════════════════════════════════════════════════════════════════
 
 bot.action('ADMIN_MENU', adminGuard, async (ctx) => {
-  const userId = ctx.from?.id;
-  const lang = marketplaceStore.getUserLanguage(userId!);
+  const lang = getLangFromCtx(ctx);
   await safeAnswerCbQuery(ctx);
   await ctx.deleteMessage().catch(() => {});
   await showAdminMenu(ctx, lang);
 });
 
 bot.action('ADMIN_STATS', adminGuard, async (ctx) => {
-  const userId = ctx.from?.id;
-  const lang = marketplaceStore.getUserLanguage(userId!);
+  const lang = getLangFromCtx(ctx);
   await safeAnswerCbQuery(ctx);
   const stats = marketplaceStore.getStats();
   await ctx.editMessageText(
@@ -524,45 +526,50 @@ bot.action('ADMIN_STATS', adminGuard, async (ctx) => {
     {
       parse_mode: 'HTML',
       ...Markup.inlineKeyboard([
-        [Markup.button.callback('🔄 Refresh', 'ADMIN_STATS')],
-        [Markup.button.callback('👑 Admin Panel', 'ADMIN_MENU')],
+        [Markup.button.callback('🔄 ' + t(lang, 'admin_refresh').replace(/<[^>]*>/g, ''), 'ADMIN_STATS')],
+        [Markup.button.callback('👑 ' + t(lang, 'admin_menu_title').replace(/<[^>]*>/g, ''), 'ADMIN_MENU')],
       ]),
     }
   ).catch(() => {});
 });
 
 bot.action('ADMIN_ORDERS', adminGuard, async (ctx) => {
-  const userId = ctx.from?.id;
-  const lang = marketplaceStore.getUserLanguage(userId!);
+  const lang = getLangFromCtx(ctx);
   await safeAnswerCbQuery(ctx);
   await ctx.deleteMessage().catch(() => {});
   await showAdminOrders(ctx, lang, 0);
 });
 
 bot.action('ADMIN_REVIEWS', adminGuard, async (ctx) => {
-  const userId = ctx.from?.id;
-  const lang = marketplaceStore.getUserLanguage(userId!);
+  const lang = getLangFromCtx(ctx);
   await safeAnswerCbQuery(ctx);
   const pendingReviews = marketplaceStore.getPendingReviews();
 
   if (pendingReviews.length === 0) {
-    await ctx.editMessageText('📋 No pending reviews.', {
-      parse_mode: 'HTML',
-      ...Markup.inlineKeyboard([
-        [Markup.button.callback('👑 Admin Panel', 'ADMIN_MENU')],
-      ]),
-    }).catch(() => {});
+    try {
+      await ctx.editMessageText('📋 ' + t(lang, 'no_reviews'), {
+        parse_mode: 'HTML',
+        ...Markup.inlineKeyboard([
+          [Markup.button.callback('👑 ' + t(lang, 'admin_menu_title').replace(/<[^>]*>/g, ''), 'ADMIN_MENU')],
+        ]),
+      });
+    } catch { /* ignore */ }
     return;
   }
 
   for (const review of pendingReviews.slice(0, 5)) {
     const user = marketplaceStore.getUser(review.userId);
     await ctx.reply(
-      `⭐ <b>Pending Review</b>\n\n👤 ${user?.firstName || 'Unknown'}\n⭐ ${'⭐'.repeat(review.rating)}\n📝 ${review.text}\n🆔 <code>${review.id}</code>`,
+      t(lang, 'review_card', {
+        rating: review.rating,
+        name: user?.firstName || 'Unknown',
+        text: review.text,
+        date: review.createdAt.toLocaleDateString(),
+      }),
       {
         parse_mode: 'HTML',
         ...Markup.inlineKeyboard([
-          [Markup.button.callback('✅ Approve', `APPROVE_REVIEW_${review.id}`)],
+          [Markup.button.callback('✅ ' + t(lang, 'admin_accept'), `APPROVE_REVIEW_${review.id}`)],
         ]),
       }
     ).catch(() => {});
@@ -574,8 +581,9 @@ bot.action(/APPROVE_REVIEW_(.+)/, adminGuard, async (ctx) => {
   const reviewId = ctx.match[1];
   await safeAnswerCbQuery(ctx);
   marketplaceStore.approveReview(reviewId);
+  const alang = getLangFromCtx(ctx);
   await ctx.editMessageText(
-    '✅ Review approved!\n🆔 <code>' + reviewId + '</code>',
+    '✅ ' + t(alang, 'approved') + '!\n🆔 <code>' + reviewId + '</code>',
     { parse_mode: 'HTML' }
   ).catch(() => {});
 });
@@ -657,7 +665,9 @@ bot.on('text', async (ctx) => {
   const text = ctx.message?.text;
   if (!text || text === '/cancel') {
     marketplaceStore.clearPendingNote(userId.toString());
-    await ctx.reply('Cancelled.').catch(() => {});
+    const user = marketplaceStore.getUserByTelegramId(userId!);
+    const lang = marketplaceStore.getUserLanguage(userId!);
+    await ctx.reply(t(lang, 'order_cancelled')).catch(() => {});
     return;
   }
 
@@ -665,12 +675,10 @@ bot.on('text', async (ctx) => {
   marketplaceStore.clearPendingNote(userId.toString());
 
   const order = marketplaceStore.getOrder(orderId);
-  const lang = marketplaceStore.getUserLanguage(userId);
-
-  await ctx.reply('✅ ' + t(lang, 'admin_note_saved'), {
+  const lang = marketplaceStore.getUserLanguage(userId);    await ctx.reply('✅ ' + t(lang, 'admin_note_saved'), {
     parse_mode: 'HTML',
     ...Markup.inlineKeyboard([
-      [Markup.button.callback('👑 Admin Panel', 'ADMIN_MENU')],
+      [Markup.button.callback('👑 ' + t(lang, 'admin_menu_title').replace(/<[^>]*>/g, ''), 'ADMIN_MENU')],
     ]),
   }).catch(() => {});
 
@@ -882,11 +890,11 @@ async function showAdminMenu(ctx: ProtectedContext, lang: LangCode) {
     parse_mode: 'HTML',
     ...Markup.inlineKeyboard([
       [
-        Markup.button.callback('📊 ' + 'Statistics', 'ADMIN_STATS'),
-        Markup.button.callback('📋 ' + 'Orders', 'ADMIN_ORDERS'),
+        Markup.button.callback('📊 ' + t(lang, 'admin_stats_title').replace(/<[^>]*>/g, ''), 'ADMIN_STATS'),
+        Markup.button.callback('📋 ' + t(lang, 'admin_orders_title').replace(/<[^>]*>/g, ''), 'ADMIN_ORDERS'),
       ],
       [
-        Markup.button.callback('⭐ ' + 'Reviews', 'ADMIN_REVIEWS'),
+        Markup.button.callback('⭐ ' + t(lang, 'reviews_title').replace(/<[^>]*>/g, ''), 'ADMIN_REVIEWS'),
         Markup.button.callback('📢 ' + 'Broadcast', 'HELP_BROADCAST'),
       ],
     ]),
@@ -911,10 +919,10 @@ async function showAdminOrders(ctx: ProtectedContext, lang: LangCode, page: numb
   const pageOrders = allOrders.slice(start, start + perPage);
 
   if (pageOrders.length === 0) {
-    await ctx.reply('📋 No orders yet.', {
+    await ctx.reply(t(lang, 'no_orders'), {
       parse_mode: 'HTML',
       ...Markup.inlineKeyboard([
-        [Markup.button.callback('👑 Admin Panel', 'ADMIN_MENU')],
+        [Markup.button.callback('👑 ' + t(lang, 'admin_menu_title').replace(/<[^>]*>/g, ''), 'ADMIN_MENU')],
       ]),
     }).catch(() => {});
     return;
@@ -950,21 +958,21 @@ async function showAdminOrders(ctx: ProtectedContext, lang: LangCode, page: numb
 
     const statusActions: ReturnType<typeof Markup.button.callback>[] = [];
     if (order.status === 'PENDING') {
-      statusActions.push(Markup.button.callback('✅ Accept', `ADMIN_ACCEPT_${order.id}`));
-      statusActions.push(Markup.button.callback('❌ Reject', `ADMIN_REJECT_${order.id}`));
+      statusActions.push(Markup.button.callback('✅ ' + t(lang, 'admin_accept'), `ADMIN_ACCEPT_${order.id}`));
+      statusActions.push(Markup.button.callback('❌ ' + t(lang, 'admin_reject'), `ADMIN_REJECT_${order.id}`));
     }
     if (order.status === 'ACCEPTED') {
-      statusActions.push(Markup.button.callback('🚀 In Progress', `ADMIN_PROGRESS_${order.id}`));
+      statusActions.push(Markup.button.callback('🚀 ' + t(lang, 'admin_in_progress'), `ADMIN_PROGRESS_${order.id}`));
     }
     if (order.status === 'IN_PROGRESS') {
-      statusActions.push(Markup.button.callback('✔ Complete', `ADMIN_COMPLETE_${order.id}`));
+      statusActions.push(Markup.button.callback('✔ ' + t(lang, 'admin_complete'), `ADMIN_COMPLETE_${order.id}`));
     }
 
     await ctx.reply(message, {
       parse_mode: 'HTML',
       ...Markup.inlineKeyboard([
         statusActions,
-        [Markup.button.callback('💬 Reply', `ADMIN_NOTE_${order.id}`)],
+        [Markup.button.callback('💬 ' + t(lang, 'admin_reply').replace(/<[^>]*>/g, ''), `ADMIN_NOTE_${order.id}`)],
       ]),
     }).catch(() => {});
   }
@@ -972,19 +980,16 @@ async function showAdminOrders(ctx: ProtectedContext, lang: LangCode, page: numb
   // Pagination
   const navButtons: ReturnType<typeof Markup.button.callback>[] = [];
   if (page > 0) {
-    navButtons.push(Markup.button.callback('⬅️ Prev', `ADMIN_ORDERS_PAGE_${page - 1}`));
+    navButtons.push(Markup.button.callback('⬅️ ' + t(lang, 'btn_prev'), `ADMIN_ORDERS_PAGE_${page - 1}`));
   }
   if (page < totalPages - 1) {
-    navButtons.push(Markup.button.callback('➡️ Next', `ADMIN_ORDERS_PAGE_${page + 1}`));
-  }
-
-  await ctx.reply(
-    `📋 Page ${page + 1}/${totalPages} (${allOrders.length} total)`,
+    navButtons.push(Markup.button.callback('➡️ ' + t(lang, 'btn_next'), `ADMIN_ORDERS_PAGE_${page + 1}`));
+  }    await ctx.reply(`📋 ${t(lang, 'orders_page', { current: page + 1, total: totalPages || 1 })}`,
     {
       parse_mode: 'HTML',
       ...Markup.inlineKeyboard([
         navButtons,
-        [Markup.button.callback('👑 Admin Panel', 'ADMIN_MENU')],
+        [Markup.button.callback('👑 ' + t(lang, 'admin_menu_title').replace(/<[^>]*>/g, ''), 'ADMIN_MENU')],
       ]),
     }
   ).catch(() => {});
@@ -1001,10 +1006,11 @@ async function updateAdminOrderMessage(
       ? currentText.replace(/Status:.*/g, 'Status: ' + statusText)
       : currentText + '\n\n<b>Status:</b> ' + statusText;
 
+    const ulang = getLangFromCtx(ctx);
     await ctx.editMessageText(newText, {
       parse_mode: 'HTML',
       ...Markup.inlineKeyboard([
-        [Markup.button.callback('💬 Reply', `ADMIN_NOTE_${order.id}`)],
+        [Markup.button.callback('💬 ' + t(ulang, 'admin_reply').replace(/<[^>]*>/g, ''), `ADMIN_NOTE_${order.id}`)],
       ]),
     }).catch(() => {});
   } catch {
@@ -1090,11 +1096,11 @@ export async function notifyAdminOrder(order: MpOrder, user: MpUser) {
       parse_mode: 'HTML',
       ...Markup.inlineKeyboard([
         [
-          Markup.button.callback('✅ Accept', `ADMIN_ACCEPT_${order.id}`),
-          Markup.button.callback('❌ Reject', `ADMIN_REJECT_${order.id}`),
+          Markup.button.callback('✅ ' + t(lang, 'admin_accept'), `ADMIN_ACCEPT_${order.id}`),
+          Markup.button.callback('❌ ' + t(lang, 'admin_reject'), `ADMIN_REJECT_${order.id}`),
         ],
         [
-          Markup.button.callback('💬 Reply', `ADMIN_NOTE_${order.id}`),
+          Markup.button.callback('💬 ' + t(lang, 'admin_reply'), `ADMIN_NOTE_${order.id}`),
         ],
       ]),
     }).catch(() => {});

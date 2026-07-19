@@ -1,15 +1,20 @@
+/**
+ * src/modules/telegram/services/teacher-crm.service.ts
+ * CRM service for managing applications, status updates, and notifications.
+ * Deduplicated: uses shared data from telegram.service.ts, no duplicate maps.
+ */
 import { Markup } from 'telegraf';
 import type { Telegraf } from 'telegraf';
 import type { ProtectedContext } from '../middlewares/auth.middleware';
 import { t } from '../i18n/translations';
 import { applicationStore } from '../../applications/store';
 import type { RegistrationData } from '../telegram.service';
+import { telegramService } from '../telegram.service';
+import { withRetry } from '../bot-helpers';
 import { logger } from '../../../lib/security/logger';
 
 /**
- * Lazily resolves the bot instance to avoid circular dependency:
- *   bot.ts → teacher-crm.service.ts → bot.ts
- * The bot is only loaded when a Telegram message actually needs to be sent.
+ * Lazily resolves the bot instance to avoid circular dependency.
  */
 let _bot: Telegraf<ProtectedContext> | null = null;
 async function getBot(): Promise<Telegraf<ProtectedContext>> {
@@ -20,91 +25,9 @@ async function getBot(): Promise<Telegraf<ProtectedContext>> {
   return _bot;
 }
 
-// ── Hardcoded lookup maps (mirrors telegram.service.ts) ────────────
-
-const REGION_NAMES: Record<string, string> = {
-  toshkent: 'Toshkent',
-  samarqand: 'Samarqand',
-  buxoro: 'Buxoro',
-  qashqadaryo: 'Qashqadaryo',
-  surxondaryo: 'Surxondaryo',
-  andijon: 'Andijon',
-  namangan: 'Namangan',
-  fargona: "Farg'ona",
-  jizzax: 'Jizzax',
-  navoiy: 'Navoiy',
-  xorazm: 'Xorazm',
-  sirdaryo: 'Sirdaryo',
-  qoraqalpogiston: "Qoraqalpog'iston",
-};
-
-const DISTRICT_NAMES: Record<string, string> = {
-  chilonzor: 'Chilonzor',
-  sergeli: 'Sergeli',
-  'mirzo-ulugbek': "Mirzo Ulug'bek",
-  yunusobod: 'Yunusobod',
-  ishtixon: 'Ishtixon',
-  kattakurgon: 'Kattakurgon',
-  'samarqand-shahar': 'Samarqand shahar',
-  urgut: 'Urgut',
-  'buxoro-shahar': 'Buxoro shahar',
-  kogon: 'Kogon',
-  romitan: 'Romitan',
-  vobkent: 'Vobkent',
-  kitob: 'Kitob',
-  koson: 'Koson',
-  qarshi: 'Qarshi',
-  shahrisabz: 'Shahrisabz',
-  boysun: 'Boysun',
-  denov: 'Denov',
-  sariosiyo: 'Sariosiyo',
-  termiz: 'Termiz',
-  'andijon-shahar': 'Andijon shahar',
-  asaka: 'Asaka',
-  shahrixon: 'Shahrixon',
-  xonobod: 'Xonobod',
-  chust: 'Chust',
-  mingbuloq: 'Mingbuloq',
-  'namangan-shahar': 'Namangan shahar',
-  pop: 'Pop',
-  bgdod: "Bag'dod",
-  'fargona-shahar': "Farg'ona shahar",
-  quva: 'Quva',
-  rishton: 'Rishton',
-  baxmal: 'Baxmal',
-  dustlik: 'Dustlik',
-  'jizzax-shahar': 'Jizzax shahar',
-  zomin: 'Zomin',
-  'navoiy-shahar': 'Navoiy shahar',
-  nurota: 'Nurota',
-  qiziltepa: 'Qiziltepa',
-  zarafshon: 'Zarafshon',
-  bogot: "Bog'ot",
-  urganch: 'Urganch',
-  xiva: 'Xiva',
-  yangibozor: 'Yangibozor',
-  guliston: 'Guliston',
-  oqoltin: 'Oqoltin',
-  'sirdaryo-shahar': 'Sirdaryo shahar',
-  yangiyer: 'Yangiyer',
-  moynoq: "Mo'ynoq",
-  nukus: 'Nukus',
-};
-
-const COURSE_TITLES: Record<string, string> = {
-  backend: '⚙️ Backend dasturlash (Python/Node.js)',
-  'grafik-dizayn': '🎨 Grafik dizayn',
-  'ingliz-tili': '🇬🇧 Ingliz tili',
-  mobile: '📱 Mobil dasturlash',
-  smm: '📊 SMM / Marketing',
-  'web-dasturlash': '🌐 Web dasturlash (Frontend)',
-};
-
 export class TeacherCrmService {
   /**
-   * Notifies the admin chat about a new application.
-   * Uses the full wizard data to format a complete notification.
-   * Never sends an offline fallback — always sends the full application.
+   * Notifies the admin chat about a new application with full details.
    */
   async notifyTeacher(
     applicationId: string,
@@ -117,24 +40,27 @@ export class TeacherCrmService {
     },
     regionId?: string
   ) {
-    console.log('[Application] Sending application to admin...', { applicationId });
+    logger.info('[CRM] Sending application to admin', { applicationId });
 
     const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
-    console.log('[Application] TELEGRAM_ADMIN_CHAT_ID =', adminChatId);
-
     if (!adminChatId) {
-      const errMsg = 'TELEGRAM_ADMIN_CHAT_ID environment variable is not set';
-      console.error('[Application] Failed to send application:', errMsg);
-      logger.error('Failed to send application', { applicationId, error: errMsg });
-      throw new Error(errMsg);
+      logger.error('[CRM] TELEGRAM_ADMIN_CHAT_ID not set', { applicationId });
+      throw new Error('TELEGRAM_ADMIN_CHAT_ID environment variable is not set');
     }
 
-    // IMPORTANT: region and district MUST be resolved independently.
-    // The regionId parameter comes from state.regionId in the wizard,
-    // NOT from data.districtId. Never fall back to districtId for region.
-    const resolvedRegion = regionId ? (REGION_NAMES[regionId] || regionId) : '—';
-    const resolvedDistrict = data.districtId ? (DISTRICT_NAMES[data.districtId] || data.districtId) : '—';
-    const resolvedSchool = COURSE_TITLES[data.courseId] || data.courseId;
+    // Resolve names using telegram service's data
+    const allRegions = await telegramService.getRegions();
+    const resolvedDistrict = data.districtId
+      ? (await telegramService.getDistrictById(data.districtId))?.name || data.districtId
+      : '—';
+    const allCourses = await telegramService.getActiveCourses();
+
+    const resolvedRegion = regionId
+      ? allRegions.find((r) => r.id === regionId)?.name || regionId
+      : '—';
+    const resolvedCourse = data.courseId
+      ? allCourses.find((c) => c.id === data.courseId)?.title || data.courseId
+      : '—';
 
     const fullName = `${ctxInfo.firstName} ${ctxInfo.lastName}`.trim();
     const usernameDisplay = ctxInfo.username ? `@${ctxInfo.username}` : '—';
@@ -152,7 +78,7 @@ export class TeacherCrmService {
 📝 <b>Yangi Ariza / New Application</b>
 ━━━━━━━━━━━━━━━━━━
 
-👤 <b>To\'liq Ism / Full Name:</b>
+👤 <b>To'liq Ism / Full Name:</b>
 ${fullName}
 
 📞 <b>Telefon / Phone:</b>
@@ -164,8 +90,11 @@ ${resolvedRegion}
 🏫 <b>Tuman / District:</b>
 ${resolvedDistrict}
 
-📄 <b>Ariza Turi / Application Type:</b>
-${resolvedSchool} — ${data.shift || '—'}
+📄 <b>Kurs / Course:</b>
+${resolvedCourse} — ${data.shift || '—'}
+📅 <b>Yosh / Age:</b> ${data.age}
+💡 <b>Tajriba / Experience:</b> ${data.experience}
+💻 <b>Noutbuk / Laptop:</b> ${data.device === 'yes' ? 'Ha / Yes' : 'Yo\'q / No'}
 
 💬 <b>Xabar / Message:</b>
 ${noteText}
@@ -183,7 +112,7 @@ ${dateStr}
 <code>${applicationId}</code>
 ━━━━━━━━━━━━━━━━━━
 <b>Holat / Status: 🟡 Kutilmoqda / Pending</b>
-      `;
+    `;
 
     const keyboard = Markup.inlineKeyboard([
       [
@@ -192,61 +121,46 @@ ${dateStr}
       ],
       [
         Markup.button.callback('💬 ' + t(undefined, 'crm_reply'), `CRM_NOTE_${applicationId}`),
+        Markup.button.callback('👤 Profil', `CRM_PROFILE_${applicationId}`),
       ],
     ]);
 
     const bot = await getBot();
 
     try {
-      const result = await bot.telegram.sendMessage(adminChatId, message, {
-        parse_mode: 'HTML',
-        ...keyboard,
-      });
+      const result = await withRetry(() =>
+        bot.telegram.sendMessage(adminChatId, message, {
+          parse_mode: 'HTML',
+          ...keyboard,
+        }),
+        { maxRetries: 3, baseDelay: 1000, label: 'notifyTeacher' }
+      );
 
-      console.log('[Application] Full application sent successfully', {
-        applicationId,
-        adminChatId,
-        messageId: result.message_id,
-      });
-
-      logger.info('Teacher notified with full application data', {
+      logger.info('[CRM] Application sent to admin', {
         applicationId,
         adminChatId,
         messageId: result.message_id,
       });
     } catch (error) {
-      const fullError =
-        error instanceof Object
-          ? JSON.stringify(error, Object.getOwnPropertyNames(error))
-          : String(error);
-
-      console.error('[Application] Failed to send application', {
+      logger.error('[CRM] Failed to send application', {
         applicationId,
         adminChatId,
-        error: fullError,
+        error: String(error),
       });
-
-      logger.error('Failed to send application', {
-        applicationId,
-        adminChatId,
-        error: fullError,
-      });
-
-      // Re-throw so the caller knows the notification failed
       throw error;
     }
   }
 
+  /**
+   * Updates application status and notifies the user.
+   */
   async updateStatus(
     applicationId: string,
     status: 'APPROVED' | 'REJECTED' | 'PENDING' | 'CANCELLED',
     _actionUserId: string,
     _teacherNote?: string,
   ) {
-    logger.info('Application status update', {
-      applicationId,
-      status,
-    });
+    logger.info('[CRM] Status update', { applicationId, status, actionBy: _actionUserId });
 
     // Persist to in-memory store
     applicationStore.updateStatus(applicationId, status, _teacherNote);
@@ -282,39 +196,54 @@ ${t(lang, 'application_pending_text')}
         }
 
         if (message) {
-          await bot.telegram.sendMessage(userId, message, { parse_mode: 'HTML' }).catch(() => {});
+          await withRetry(
+            () => bot.telegram.sendMessage(userId, message, { parse_mode: 'HTML' }).catch(() => {}),
+            { maxRetries: 2, label: `notifyUser-${applicationId}` }
+          );
+          logger.info('[CRM] User notified', { userId, applicationId, status });
         }
       } catch (error) {
-        const fullError =
-            error instanceof Object
-              ? JSON.stringify(error, Object.getOwnPropertyNames(error))
-              : String(error);
-          logger.error('Failed to notify user about status change', {
-            userId,
-            applicationId,
-            status,
-            error: fullError,
-          });
+        logger.error('[CRM] Failed to notify user', {
+          userId,
+          applicationId,
+          status,
+          error: String(error),
+        });
       }
     }
 
     return null;
   }
 
-  async addNote(_applicationId: string, _note: string, _actionUserId: string) {
-    logger.info('Note add (no DB — not persisted)', {
-      applicationId: _applicationId,
-    });
+  /**
+   * Adds a note to an application.
+   */
+  async addNote(applicationId: string, note: string, actionUserId: string) {
+    logger.info('[CRM] Note added', { applicationId, actionUserId });
+    // In no-db mode, notes are not persisted
     return null;
   }
 
-  async getStudentProfileText(_studentId: string) {
-    const app = applicationStore.getById(_studentId);
+  /**
+   * Gets student profile text for display.
+   */
+  async getStudentProfileText(studentId: string) {
+    const app = applicationStore.getById(studentId);
     if (app) {
+      const allCourses = await telegramService.getActiveCourses();
+      const courseName = allCourses.find((c) => c.id === app.data.courseId)?.title || app.data.courseId;
+
       return `
 👤 <b>${app.data.firstName} ${app.data.lastName}</b>
 📞 ${app.data.phone}
-📋 ${t(undefined, 'application_id')}: <code>${app.id}</code>
+📋 Kurs: ${courseName}
+🕒 ${app.data.shift || '—'}
+🎂 Yosh: ${app.data.age}
+💡 Tajriba: ${app.data.experience}
+💻 Noutbuk: ${app.data.device === 'yes' ? 'Ha' : "Yo'q"}
+📝 ${app.data.note && app.data.note !== '-' ? app.data.note : '—'}
+
+🆔 <code>${app.id}</code>
 📌 ${t(undefined, 'status')}: ${app.status}
 📅 ${app.createdAt.toLocaleDateString()}
       `;
@@ -324,5 +253,3 @@ ${t(lang, 'application_pending_text')}
 }
 
 export const teacherCrmService = new TeacherCrmService();
-
-

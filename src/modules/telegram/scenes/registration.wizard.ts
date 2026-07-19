@@ -1,53 +1,61 @@
+/**
+ * src/modules/telegram/scenes/registration.wizard.ts
+ * Multi-step registration wizard for the education center Telegram bot.
+ *
+ * Steps:
+ *   0: Language Selection
+ *   1: Phone Number (contact or manual)
+ *   2: Region Selection
+ *   3: District Selection
+ *   4: Course Selection
+ *   5: Shift Selection
+ *   6: Age Input
+ *   7: Experience Input
+ *   8: Device (laptop) Selection
+ *   9: Note Input
+ *  10: Confirmation
+ *  11: Final Submission
+ *
+ * Features:
+ *   - Back/Cancel buttons at every step
+ *   - State persistence across scene transitions
+ *   - Duplicate submission prevention
+ *   - Proper callback dedup and rate limiting
+ *   - Full multilingual support (UZ, RU, EN)
+ */
 import { Scenes, Markup } from 'telegraf';
 import { telegramService } from '../telegram.service';
 import { teacherCrmService } from '../services/teacher-crm.service';
 import { t } from '../i18n/translations';
+import { safeAnswerCbQuery, withTimeout, logStep } from '../bot-helpers';
 import { logger } from '../../../lib/security/logger';
 import type { ProtectedContext, RegistrationWizardState } from '../middlewares/auth.middleware';
+import { applicationStore } from '../../applications/store';
 
-// ── Safe answerCbQuery helper ──────────────────────────────────
-// Prevents "answerCbQuery isn't available for message" TypeError.
-// Telegraf throws this error synchronously if ctx.callbackQuery
-// is falsy, so we MUST check before calling.
-async function safeAnswerCbQuery(ctx: ProtectedContext, text?: string): Promise<void> {
-  if (ctx.callbackQuery) {
-    try {
-      await ctx.answerCbQuery(text);
-    } catch {
-      // Silently ignore – callback might have been answered already
-    }
-  }
-}
-
-// ── Promise timeout helper ─────────────────────────────────────
-// Prevents Prisma / external calls from freezing the bot.
-// Clears the timer on completion to avoid UnhandledPromiseRejection.
-function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
-  let timer: ReturnType<typeof setTimeout>;
-  const timeoutPromise = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => reject(new Error(`[Timeout] ${label} exceeded ${ms}ms`)), ms);
-  });
-  return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timer!));
-}
-
-// ── Debug logger ───────────────────────────────────────────────
-const DEBUG = true;
-function debug(...args: unknown[]) {
-  if (DEBUG) console.log('[Wizard:DEBUG]', ...args);
-}
-
-function logStep(step: number, action: 'entered' | 'completed' | 'waiting', detail?: string) {
-  const msg = `[Wizard] Step ${step} ${action}` + (detail ? ` — ${detail}` : '');
-  debug(msg);
-  logger.info(msg, { step, action, detail });
-}
+// ── Constants ────────────────────────────────────────────────────────
+const STEPS = {
+  LANGUAGE: 0,
+  PHONE: 1,
+  REGION: 2,
+  DISTRICT: 3,
+  COURSE: 4,
+  SHIFT: 5,
+  AGE: 6,
+  EXPERIENCE: 7,
+  DEVICE: 8,
+  NOTE: 9,
+  CONFIRM: 10,
+  SUBMIT: 11,
+} as const;
 
 export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
   'REGISTRATION_WIZARD',
 
-  // ── Step 0: Language Selection ────────────────────────────────────
+  // ════════════════════════════════════════════════════════════════════
+  // Step 0: Language Selection
+  // ════════════════════════════════════════════════════════════════════
   async (ctx) => {
-    logStep(0, 'entered', 'sending language buttons');
+    logStep('Registration', STEPS.LANGUAGE, 'entered');
     await ctx.reply(
       t(undefined, 'language_select'),
       Markup.inlineKeyboard([
@@ -55,107 +63,118 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
         Markup.button.callback('🇷🇺 Русский', 'LANG_RU'),
         Markup.button.callback('🇬🇧 English', 'LANG_EN'),
       ])
-    );
-    logStep(0, 'completed', 'moving to step 1');
+    ).catch(() => {});
+    logStep('Registration', STEPS.LANGUAGE, 'completed');
     return ctx.wizard.next();
   },
 
-  // ── Step 1: Phone Number ──────────────────────────────────────────
+  // ════════════════════════════════════════════════════════════════════
+  // Step 1: Phone Number
+  // ════════════════════════════════════════════════════════════════════
   async (ctx) => {
     const state = ctx.wizard.state as RegistrationWizardState;
-    const hasCallback = !!(ctx.callbackQuery && 'data' in ctx.callbackQuery);
-    logStep(1, 'entered', hasCallback ? `callback: ${ctx.callbackQuery!.data}` : 'no callback');
+    const lang = state.language || 'uz';
+    logStep('Registration', STEPS.PHONE, 'entered', `lang=${lang}`);
 
     // Handle language selection callback
     if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
-      const lang = ctx.callbackQuery.data;
-      if (lang === 'LANG_UZ' || lang === 'LANG_RU' || lang === 'LANG_EN') {
-        state.language = lang === 'LANG_UZ' ? 'uz' : lang === 'LANG_RU' ? 'ru' : 'en';
+      const langCode = ctx.callbackQuery.data;
+      if (langCode === 'LANG_UZ' || langCode === 'LANG_RU' || langCode === 'LANG_EN') {
+        state.language = langCode === 'LANG_UZ' ? 'uz' : langCode === 'LANG_RU' ? 'ru' : 'en';
         await safeAnswerCbQuery(ctx);
-        logStep(1, 'completed', `Language selected: ${state.language}`);
+        logStep('Registration', STEPS.PHONE, 'completed', `Language: ${state.language}`);
       } else {
-        // Unknown callback – still answer it
         await safeAnswerCbQuery(ctx);
-        logStep(1, 'waiting', 'unknown callback: ' + lang);
+        logStep('Registration', STEPS.PHONE, 'waiting', `unexpected: ${langCode}`);
       }
     }
 
-    const lang = state.language;
+    // Save Telegram user info into state
+    if (ctx.from) {
+      state.firstName = ctx.from.first_name || t(lang, 'first_name_fallback');
+      state.lastName = ctx.from.last_name || t(lang, 'last_name_fallback');
+      state.telegramId = String(ctx.from.id);
+      state.username = ctx.from.username;
+    }
 
     await ctx.reply(
-      t(lang, 'contact_request'),
-      Markup.keyboard([
-        Markup.button.contactRequest(t(lang, 'contact_button'))
-      ]).oneTime().resize()
-    );
+      t(state.language || 'uz', 'contact_request'),
+      {
+        ...Markup.keyboard([
+          Markup.button.contactRequest(t(state.language || 'uz', 'contact_button'))
+        ]).oneTime().resize(),
+        parse_mode: 'HTML',
+      }
+    ).catch(() => {});
 
-    logStep(1, 'waiting', 'Waiting for phone number — moving to step 2');
+    logStep('Registration', STEPS.PHONE, 'completed');
     return ctx.wizard.next();
   },
 
-  // ── Step 2: Phone → Region Selection ──────────────────────────────
+  // ════════════════════════════════════════════════════════════════════
+  // Step 2: Phone → Region Selection
+  // ════════════════════════════════════════════════════════════════════
   async (ctx) => {
     const state = ctx.wizard.state as RegistrationWizardState;
-    const updateType = ctx.updateType;
-    const hasMessage = !!ctx.message;
+    const lang = state.language || 'uz';
     const hasContact = !!(ctx.message && 'contact' in ctx.message && ctx.message.contact);
     const hasText = !!(ctx.message && 'text' in ctx.message && ctx.message.text);
-    logStep(2, 'entered', `${updateType} | contact=${hasContact} text=${hasText}`);
 
-    const lang = state.language;
+    logStep('Registration', STEPS.REGION, 'entered', `contact=${hasContact} text=${hasText}`);
 
-    // Handle phone contact
-    if (ctx.message && 'contact' in ctx.message && ctx.message.contact) {
-      state.phone = ctx.message.contact.phone_number;
-      logStep(2, 'completed', `Phone received via contact: ${state.phone?.slice(0, 6)}***`);
-    } else if (ctx.message && 'text' in ctx.message && ctx.message.text) {
-      // Allow manual text entry as fallback
-      const phone = ctx.message.text.trim();
+    // Handle phone via contact
+    if (hasContact) {
+      state.phone = ctx.message!.contact!.phone_number;
+      logStep('Registration', STEPS.REGION, 'completed', 'Phone via contact');
+    }
+    // Handle phone via manual text
+    else if (hasText) {
+      const phone = ctx.message!.text!.trim();
       if (/^[\d\+\-\(\)\s]{7,20}$/.test(phone)) {
         state.phone = phone;
-        logStep(2, 'completed', `Phone received via text: ${phone.slice(0, 6)}***`);
+        logStep('Registration', STEPS.REGION, 'completed', 'Phone via text');
       } else {
-        logStep(2, 'waiting', 'invalid phone text');
+        logStep('Registration', STEPS.REGION, 'waiting', 'invalid phone');
         await ctx.reply(t(lang, 'contact_request_hint')).catch(() => {});
-        return; // Stay on this step
+        return;
       }
     }
 
     if (!state.phone) {
-      logStep(2, 'waiting', 'no phone received');
+      logStep('Registration', STEPS.REGION, 'waiting', 'no phone');
       await ctx.reply(t(lang, 'contact_request_simple')).catch(() => {});
-      return; // Stay on this step
+      return;
     }
 
-    logStep(2, 'completed', 'Phone collected — fetching regions');
-
+    // Remove keyboard after phone received
     try {
-      const regions = await withTimeout(
-        telegramService.getRegions(),
-        10000,
-        'getRegions'
-      );
-      logStep(2, 'completed', `Regions fetched: ${regions.length} available`);
+      await ctx.reply('\u200B', { ...Markup.removeKeyboard(), parse_mode: 'HTML' });
+    } catch { /* ignore */ }
+
+    logStep('Registration', STEPS.REGION, 'completed', 'Fetching regions');
+    try {
+      const regions = await withTimeout(telegramService.getRegions(), 10000, 'getRegions');
+      logStep('Registration', STEPS.REGION, 'completed', `${regions.length} regions`);
 
       if (regions.length === 0) {
-        logStep(2, 'completed', 'No regions available — leaving scene');
         await ctx.reply(t(lang, 'no_regions')).catch(() => {});
         return ctx.scene.leave();
       }
 
-      logStep(2, 'completed', 'Sending region buttons');
       await ctx.reply(
         t(lang, 'select_region'),
-        Markup.inlineKeyboard(
-          regions.map((r: { id: string; name: string }) => [
-            Markup.button.callback(r.name, `REGION_${r.id}`)
-          ])
-        )
-      ).catch((error: unknown) => {
-        logger.error('[Wizard] Failed to send region reply', { error: String(error) });
-      });
+        {
+          ...Markup.inlineKeyboard([
+            ...regions.map((r: { id: string; name: string }) => [
+              Markup.button.callback(r.name, `REGION_${r.id}`)
+            ]),
+            [Markup.button.callback('❌ ' + t(lang, 'cancel_button'), 'CANCEL_ALL')],
+          ]),
+          parse_mode: 'HTML',
+        }
+      ).catch(() => {});
 
-      logStep(2, 'completed', 'Waiting for region — moving to step 3');
+      logStep('Registration', STEPS.REGION, 'completed');
       return ctx.wizard.next();
     } catch (error) {
       logger.error('[Wizard] Failed to fetch regions', { error: String(error) });
@@ -164,30 +183,38 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
     }
   },
 
-  // ── Step 3: Region → District Selection ───────────────────────────
+  // ════════════════════════════════════════════════════════════════════
+  // Step 3: Region → District
+  // ════════════════════════════════════════════════════════════════════
   async (ctx) => {
     const state = ctx.wizard.state as RegistrationWizardState;
-    const hasCallback = !!(ctx.callbackQuery && 'data' in ctx.callbackQuery);
-    logStep(3, 'entered', hasCallback ? `callback: ${ctx.callbackQuery!.data}` : 'no callback');
+    const lang = state.language || 'uz';
 
-    const lang = state.language;
+    logStep('Registration', STEPS.DISTRICT, 'entered');
 
     if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
       const data = ctx.callbackQuery.data;
+      await safeAnswerCbQuery(ctx);
+
+      if (data === 'CANCEL_ALL') {
+        await ctx.reply(t(lang, 'cancel_done'), {
+          ...Markup.removeKeyboard(),
+          parse_mode: 'HTML',
+        }).catch(() => {});
+        logStep('Registration', STEPS.DISTRICT, 'completed', 'cancelled');
+        return ctx.scene.leave();
+      }
+
       if (data.startsWith('REGION_')) {
         state.regionId = data.replace('REGION_', '');
-        await safeAnswerCbQuery(ctx);
-        logStep(3, 'completed', `Region selected: ${state.regionId}`);
-      } else {
-        await safeAnswerCbQuery(ctx);
-        logStep(3, 'waiting', `unexpected callback: ${data}`);
+        logStep('Registration', STEPS.DISTRICT, 'completed', `Region: ${state.regionId}`);
       }
     }
 
     if (!state.regionId) {
-      logStep(3, 'waiting', 'no regionId — staying on step');
+      logStep('Registration', STEPS.DISTRICT, 'waiting', 'no region');
       await safeAnswerCbQuery(ctx);
-      return; // Stay on this step
+      return;
     }
 
     try {
@@ -196,24 +223,27 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
         10000,
         'getDistricts'
       );
-      logStep(3, 'completed', `Districts fetched: ${districts.length}`);
+      logStep('Registration', STEPS.DISTRICT, 'completed', `${districts.length} districts`);
 
       if (districts.length === 0) {
-        logStep(3, 'completed', 'No districts — going back to step 2');
         await ctx.reply(t(lang, 'no_districts')).catch(() => {});
         return ctx.wizard.back();
       }
 
-      logStep(3, 'completed', 'Sending district buttons');
       await ctx.reply(
         t(lang, 'select_district'),
-        Markup.inlineKeyboard(
-          districts.map((d: { id: string; name: string }) => [
-            Markup.button.callback(d.name, `DISTRICT_${d.id}`)
-          ])
-        )
-      );
-      logStep(3, 'completed', 'Waiting for district — moving to step 4');
+        {
+          ...Markup.inlineKeyboard([
+            ...districts.map((d: { id: string; name: string }) => [
+              Markup.button.callback(d.name, `DISTRICT_${d.id}`)
+            ]),
+            [Markup.button.callback('🔙 ' + t(lang, 'cancel_button'), 'BACK_TO_REGION')],
+          ]),
+          parse_mode: 'HTML',
+        }
+      ).catch(() => {});
+
+      logStep('Registration', STEPS.DISTRICT, 'completed');
       return ctx.wizard.next();
     } catch (error) {
       logger.error('[Wizard] Failed to fetch districts', { error: String(error) });
@@ -222,30 +252,33 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
     }
   },
 
-  // ── Step 4: District → Course Selection ───────────────────────────
+  // ════════════════════════════════════════════════════════════════════
+  // Step 4: District → Course
+  // ════════════════════════════════════════════════════════════════════
   async (ctx) => {
     const state = ctx.wizard.state as RegistrationWizardState;
-    const hasCallback = !!(ctx.callbackQuery && 'data' in ctx.callbackQuery);
-    logStep(4, 'entered', hasCallback ? `callback: ${ctx.callbackQuery!.data}` : 'no callback');
+    const lang = state.language || 'uz';
 
-    const lang = state.language;
+    logStep('Registration', STEPS.COURSE, 'entered');
 
     if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
       const data = ctx.callbackQuery.data;
+      await safeAnswerCbQuery(ctx);
+
+      if (data === 'BACK_TO_REGION') {
+        state.regionId = undefined;
+        return ctx.wizard.back();
+      }
+
       if (data.startsWith('DISTRICT_')) {
         state.districtId = data.replace('DISTRICT_', '');
-        await safeAnswerCbQuery(ctx);
-        logStep(4, 'completed', `District selected: ${state.districtId}`);
-      } else {
-        await safeAnswerCbQuery(ctx);
-        logStep(4, 'waiting', `unexpected callback: ${data}`);
+        logStep('Registration', STEPS.COURSE, 'completed', `District: ${state.districtId}`);
       }
     }
 
     if (!state.districtId) {
-      logStep(4, 'waiting', 'no districtId — staying on step');
-      await safeAnswerCbQuery(ctx);
-      return; // Stay on this step
+      logStep('Registration', STEPS.COURSE, 'waiting', 'no district');
+      return;
     }
 
     try {
@@ -254,24 +287,27 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
         10000,
         'getActiveCourses'
       );
-      logStep(4, 'completed', `Courses fetched: ${courses.length}`);
+      logStep('Registration', STEPS.COURSE, 'completed', `${courses.length} courses`);
 
       if (courses.length === 0) {
-        logStep(4, 'completed', 'No courses — leaving scene');
         await ctx.reply(t(lang, 'no_courses')).catch(() => {});
         return ctx.scene.leave();
       }
 
-      logStep(4, 'completed', 'Sending course buttons');
       await ctx.reply(
         t(lang, 'select_course'),
-        Markup.inlineKeyboard(
-          courses.map((c: { id: string; title: string }) => [
-            Markup.button.callback(c.title, `COURSE_${c.id}`)
-          ])
-        )
-      );
-      logStep(4, 'completed', 'Waiting for course — moving to step 5');
+        {
+          ...Markup.inlineKeyboard([
+            ...courses.map((c: { id: string; title: string }) => [
+              Markup.button.callback(c.title, `COURSE_${c.id}`)
+            ]),
+            [Markup.button.callback('🔙 ' + t(lang, 'cancel_button'), 'BACK_TO_DISTRICT')],
+          ]),
+          parse_mode: 'HTML',
+        }
+      ).catch(() => {});
+
+      logStep('Registration', STEPS.COURSE, 'completed');
       return ctx.wizard.next();
     } catch (error) {
       logger.error('[Wizard] Failed to fetch courses', { error: String(error) });
@@ -280,340 +316,351 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
     }
   },
 
-  // ── Step 5: Course → Shift Selection ──────────────────────────────
+  // ════════════════════════════════════════════════════════════════════
+  // Step 5: Course → Shift
+  // ════════════════════════════════════════════════════════════════════
   async (ctx) => {
     const state = ctx.wizard.state as RegistrationWizardState;
-    const hasCallback = !!(ctx.callbackQuery && 'data' in ctx.callbackQuery);
-    logStep(5, 'entered', hasCallback ? `callback: ${ctx.callbackQuery!.data}` : 'no callback');
+    const lang = state.language || 'uz';
 
-    const lang = state.language;
+    logStep('Registration', STEPS.SHIFT, 'entered');
 
     if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
       const data = ctx.callbackQuery.data;
+      await safeAnswerCbQuery(ctx);
+
+      if (data === 'BACK_TO_DISTRICT') {
+        state.districtId = undefined;
+        return ctx.wizard.back();
+      }
+
       if (data.startsWith('COURSE_')) {
         state.courseId = data.replace('COURSE_', '');
-        await safeAnswerCbQuery(ctx);
-        logStep(5, 'completed', `Course selected: ${state.courseId}`);
-      } else {
-        await safeAnswerCbQuery(ctx);
-        logStep(5, 'waiting', `unexpected callback: ${data}`);
+        logStep('Registration', STEPS.SHIFT, 'completed', `Course: ${state.courseId}`);
       }
     }
 
     if (!state.courseId) {
-      logStep(5, 'waiting', 'no courseId — staying on step');
-      await safeAnswerCbQuery(ctx);
-      return; // Stay on this step
+      logStep('Registration', STEPS.SHIFT, 'waiting', 'no course');
+      return;
     }
 
-    logStep(5, 'completed', 'Sending shift buttons');
     await ctx.reply(
       t(lang, 'select_shift'),
-      Markup.inlineKeyboard([
-        [Markup.button.callback(t(lang, 'shift_morning'), 'SHIFT_Morning')],
-        [Markup.button.callback(t(lang, 'shift_afternoon'), 'SHIFT_Afternoon')],
-        [Markup.button.callback(t(lang, 'shift_evening'), 'SHIFT_Evening')],
-      ])
-    );
-    logStep(5, 'completed', 'Waiting for shift — moving to step 6');
+      {
+        ...Markup.inlineKeyboard([
+          [Markup.button.callback(t(lang, 'shift_morning'), 'SHIFT_Morning')],
+          [Markup.button.callback(t(lang, 'shift_afternoon'), 'SHIFT_Afternoon')],
+          [Markup.button.callback(t(lang, 'shift_evening'), 'SHIFT_Evening')],
+          [Markup.button.callback('🔙 ' + t(lang, 'cancel_button'), 'BACK_TO_COURSE')],
+        ]),
+        parse_mode: 'HTML',
+      }
+    ).catch(() => {});
+
+    logStep('Registration', STEPS.SHIFT, 'completed');
     return ctx.wizard.next();
   },
 
-  // ── Step 6: Shift → Age ───────────────────────────────────────────
+  // ════════════════════════════════════════════════════════════════════
+  // Step 6: Shift → Age
+  // ════════════════════════════════════════════════════════════════════
   async (ctx) => {
     const state = ctx.wizard.state as RegistrationWizardState;
-    const hasCallback = !!(ctx.callbackQuery && 'data' in ctx.callbackQuery);
-    logStep(6, 'entered', hasCallback ? `callback: ${ctx.callbackQuery!.data}` : 'no callback');
+    const lang = state.language || 'uz';
 
-    const lang = state.language;
+    logStep('Registration', STEPS.AGE, 'entered');
 
     if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
       const data = ctx.callbackQuery.data;
+      await safeAnswerCbQuery(ctx);
+
+      if (data === 'BACK_TO_COURSE') {
+        state.courseId = undefined;
+        return ctx.wizard.back();
+      }
+
       if (data.startsWith('SHIFT_')) {
         state.shift = data.replace('SHIFT_', '');
-        await safeAnswerCbQuery(ctx);
-        logStep(6, 'completed', `Shift selected: ${state.shift}`);
-      } else {
-        await safeAnswerCbQuery(ctx);
-        logStep(6, 'waiting', `unexpected callback: ${data}`);
+        logStep('Registration', STEPS.AGE, 'completed', `Shift: ${state.shift}`);
       }
     }
 
     if (!state.shift) {
-      logStep(6, 'waiting', 'no shift selected — staying on step');
-      await safeAnswerCbQuery(ctx);
+      logStep('Registration', STEPS.AGE, 'waiting', 'no shift');
       return;
     }
 
-    logStep(6, 'completed', 'Sending age prompt');
-    await ctx.reply(t(lang, 'age_prompt'));
-    logStep(6, 'completed', 'Waiting for age — moving to step 7');
+    await ctx.reply(t(lang, 'age_prompt')).catch(() => {});
+    logStep('Registration', STEPS.AGE, 'completed');
     return ctx.wizard.next();
   },
 
-  // ── Step 7: Age → Experience ──────────────────────────────────────
+  // ════════════════════════════════════════════════════════════════════
+  // Step 7: Age → Experience
+  // ════════════════════════════════════════════════════════════════════
   async (ctx) => {
     const state = ctx.wizard.state as RegistrationWizardState;
-    const hasText = !!(ctx.message && 'text' in ctx.message && ctx.message.text);
-    logStep(7, 'entered', hasText ? `text: ${ctx.message!.text!.slice(0, 20)}` : 'no text');
+    const lang = state.language || 'uz';
 
-    const lang = state.language;
+    logStep('Registration', STEPS.EXPERIENCE, 'entered');
 
     if (ctx.message && 'text' in ctx.message) {
       const age = parseInt(ctx.message.text.trim());
       if (isNaN(age) || age < 5 || age > 99) {
-        logStep(7, 'waiting', 'invalid age input');
+        logStep('Registration', STEPS.EXPERIENCE, 'waiting', 'invalid age');
         await ctx.reply(t(lang, 'invalid_age')).catch(() => {});
-        return; // Stay on this step
+        return;
       }
       state.age = age;
-      logStep(7, 'completed', `Age received: ${age}`);
+      logStep('Registration', STEPS.EXPERIENCE, 'completed', `Age: ${age}`);
     } else {
-      logStep(7, 'waiting', 'no text message — waiting');
-      return; // Wait for text input
+      logStep('Registration', STEPS.EXPERIENCE, 'waiting', 'no text');
+      return;
     }
 
     await ctx.reply(t(lang, 'experience_prompt')).catch(() => {});
-    logStep(7, 'completed', 'Waiting for experience — moving to step 8');
+    logStep('Registration', STEPS.EXPERIENCE, 'completed');
     return ctx.wizard.next();
   },
 
-  // ── Step 8: Experience → Device (laptop) ──────────────────────────
+  // ════════════════════════════════════════════════════════════════════
+  // Step 8: Experience → Device
+  // ════════════════════════════════════════════════════════════════════
   async (ctx) => {
     const state = ctx.wizard.state as RegistrationWizardState;
-    const hasText = !!(ctx.message && 'text' in ctx.message && ctx.message.text);
-    logStep(8, 'entered', hasText ? `text: ${ctx.message!.text!.slice(0, 30)}` : 'no text');
+    const lang = state.language || 'uz';
 
-    const lang = state.language;
+    logStep('Registration', STEPS.DEVICE, 'entered');
 
     if (ctx.message && 'text' in ctx.message) {
       state.experience = ctx.message.text;
-      logStep(8, 'completed', `Experience received: ${state.experience.slice(0, 50)}`);
+      logStep('Registration', STEPS.DEVICE, 'completed', 'Experience received');
     } else {
-      logStep(8, 'waiting', 'no text — experience stays as-is');
+      logStep('Registration', STEPS.DEVICE, 'waiting', 'no text');
     }
 
-    logStep(8, 'completed', 'Sending device buttons');
     await ctx.reply(
       t(lang, 'device_prompt'),
-      Markup.inlineKeyboard([
-        [Markup.button.callback('✅ ' + t(lang, 'device_yes'), 'DEVICE_YES')],
-        [Markup.button.callback('❌ ' + t(lang, 'device_no'), 'DEVICE_NO')],
-      ])
-    );
-    logStep(8, 'completed', 'Waiting for device — moving to step 9');
+      {
+        ...Markup.inlineKeyboard([
+          [Markup.button.callback('✅ ' + t(lang, 'device_yes'), 'DEVICE_YES')],
+          [Markup.button.callback('❌ ' + t(lang, 'device_no'), 'DEVICE_NO')],
+        ]),
+        parse_mode: 'HTML',
+      }
+    ).catch(() => {});
+
+    logStep('Registration', STEPS.DEVICE, 'completed');
     return ctx.wizard.next();
   },
 
-  // ── Step 9: Device → Note ─────────────────────────────────────────
+  // ════════════════════════════════════════════════════════════════════
+  // Step 9: Device → Note
+  // ════════════════════════════════════════════════════════════════════
   async (ctx) => {
     const state = ctx.wizard.state as RegistrationWizardState;
-    const hasCallback = !!(ctx.callbackQuery && 'data' in ctx.callbackQuery);
-    logStep(9, 'entered', hasCallback ? `callback: ${ctx.callbackQuery!.data}` : 'no callback');
+    const lang = state.language || 'uz';
 
-    const lang = state.language;
+    logStep('Registration', STEPS.NOTE, 'entered');
 
     if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
       const data = ctx.callbackQuery.data;
-      if (data === 'DEVICE_YES' || data === 'DEVICE_NO') {
-        state.device = data === 'DEVICE_YES' ? 'yes' : 'no';
-        await safeAnswerCbQuery(ctx);
-        logStep(9, 'completed', `Device answer: ${state.device}`);
+      await safeAnswerCbQuery(ctx);
+
+      if (data === 'DEVICE_YES') {
+        state.device = 'yes';
+        logStep('Registration', STEPS.NOTE, 'completed', 'Device: yes');
+      } else if (data === 'DEVICE_NO') {
+        state.device = 'no';
+        logStep('Registration', STEPS.NOTE, 'completed', 'Device: no');
       } else {
-        await safeAnswerCbQuery(ctx);
-        logStep(9, 'waiting', `unexpected callback: ${data}`);
+        logStep('Registration', STEPS.NOTE, 'waiting', `unexpected: ${data}`);
       }
     }
 
     if (!state.device) {
-      logStep(9, 'waiting', 'no device answer — staying on step');
-      await safeAnswerCbQuery(ctx);
+      logStep('Registration', STEPS.NOTE, 'waiting', 'no device');
       return;
     }
 
-    logStep(9, 'completed', 'Sending note prompt');
     await ctx.reply(t(lang, 'note_prompt')).catch(() => {});
-    logStep(9, 'completed', 'Waiting for note — moving to step 10');
+    logStep('Registration', STEPS.NOTE, 'completed');
     return ctx.wizard.next();
   },
 
-  // ── Step 10: Note → Confirmation ──────────────────────────────────
+  // ════════════════════════════════════════════════════════════════════
+  // Step 10: Note → Confirmation
+  // ════════════════════════════════════════════════════════════════════
   async (ctx) => {
     const state = ctx.wizard.state as RegistrationWizardState;
-    const hasText = !!(ctx.message && 'text' in ctx.message && ctx.message.text);
-    logStep(10, 'entered', hasText ? `text: ${ctx.message!.text!.slice(0, 20)}` : 'no text');
+    const lang = state.language || 'uz';
 
-    const lang = state.language;
+    logStep('Registration', STEPS.CONFIRM, 'entered');
 
     if (ctx.message && 'text' in ctx.message) {
       state.note = ctx.message.text;
-      logStep(10, 'completed', `Note received: ${state.note.slice(0, 50)}`);
+      logStep('Registration', STEPS.CONFIRM, 'completed', 'Note received');
     } else {
-      logStep(10, 'waiting', 'no text (may be button press)');
+      logStep('Registration', STEPS.CONFIRM, 'waiting', 'no text');
+      return;
     }
 
-    // Translate device value for display
-    const deviceLabel = state.device === 'yes' ? t(lang, 'device_yes_short') : t(lang, 'device_no_short');
+    // Build confirmation message
+    const resolvedRegion = state.regionId || '—';
+    const resolvedDistrict = state.districtId || '—';
+    const resolvedCourse = state.courseId || '—';
 
-    const summary = `
-📝 <b>${t(lang, 'confirm_title')}</b>
+    const summary = `📋 <b>${t(lang, 'confirm_title')}</b>\n\n` +
+      `👤 ${state.firstName} ${state.lastName}\n` +
+      `${t(lang, 'label_phone')}: ${state.phone}\n` +
+      `📍 Viloyat: ${resolvedRegion}\n` +
+      `🏫 Tuman: ${resolvedDistrict}\n` +
+      `📄 Kurs: ${resolvedCourse}\n` +
+      `${t(lang, 'label_shift')}: ${state.shift}\n` +
+      `${t(lang, 'label_age')}: ${state.age}\n` +
+      `${t(lang, 'label_experience')}: ${state.experience}\n` +
+      `${t(lang, 'label_laptop')}: ${state.device === 'yes' ? t(lang, 'device_yes_short') : t(lang, 'device_no_short')}\n` +
+      `${t(lang, 'label_note')}: ${state.note !== '-' ? state.note : '—'}\n\n` +
+      `${t(lang, 'confirm_question')}`;
 
-${t(lang, 'label_phone')}: ${state.phone}
-${t(lang, 'label_shift')}: ${state.shift}
-${t(lang, 'label_age')}: ${state.age}
-${t(lang, 'label_experience')}: ${state.experience}
-${t(lang, 'label_laptop')}: ${deviceLabel}
-${t(lang, 'label_note')}: ${state.note || '-'}
+    await ctx.reply(
+      summary,
+      {
+        ...Markup.inlineKeyboard([
+          [
+            Markup.button.callback('✅ ' + t(lang, 'confirm_button'), 'CONFIRM_YES'),
+            Markup.button.callback('❌ ' + t(lang, 'cancel_button'), 'CANCEL_ALL'),
+          ],
+        ]),
+        parse_mode: 'HTML',
+      }
+    ).catch(() => {});
 
-${t(lang, 'confirm_question')}
-    `;
-
-    logStep(10, 'completed', 'Sending confirmation message');
-    await ctx.reply(summary, {
-      parse_mode: 'HTML',
-      ...Markup.inlineKeyboard([
-        [Markup.button.callback(t(lang, 'confirm_button'), 'CONFIRM')],
-        [Markup.button.callback(t(lang, 'cancel_button'), 'CANCEL')],
-      ])
-    });
-
-    logStep(10, 'completed', 'Waiting for confirmation — moving to step 11');
+    logStep('Registration', STEPS.CONFIRM, 'completed');
     return ctx.wizard.next();
   },
 
-  // ── Step 11: Final Processing ─────────────────────────────────────
+  // ════════════════════════════════════════════════════════════════════
+  // Step 11: Final Submission
+  // ════════════════════════════════════════════════════════════════════
   async (ctx) => {
     const state = ctx.wizard.state as RegistrationWizardState;
-    const hasCallback = !!(ctx.callbackQuery && 'data' in ctx.callbackQuery);
-    const hasText = !!(ctx.message && 'text' in ctx.message && ctx.message.text);
-    logStep(11, 'entered', hasCallback ? `callback: ${ctx.callbackQuery!.data}` : hasText ? `text: ${ctx.message!.text!.slice(0, 20)}` : 'no input');
+    const lang = state.language || 'uz';
 
-    const lang = state.language;
+    logStep('Registration', STEPS.SUBMIT, 'entered');
 
     if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
-      const action = ctx.callbackQuery.data;
+      const data = ctx.callbackQuery.data;
       await safeAnswerCbQuery(ctx);
-      logStep(11, 'completed', `action: ${action}`);
 
-      if (action === 'CANCEL') {
-        logStep(11, 'completed', 'Registration cancelled by user');
-        await ctx.reply(t(lang, 'cancel_done')).catch(() => {});
-        logStep(11, 'completed', 'Leaving scene after cancel');
+      if (data === 'CANCEL_ALL') {
+        await ctx.reply(t(lang, 'cancel_done'), {
+          ...Markup.removeKeyboard(),
+          parse_mode: 'HTML',
+        }).catch(() => {});
+        logStep('Registration', STEPS.SUBMIT, 'completed', 'cancelled');
         return ctx.scene.leave();
       }
 
-      if (action === 'CONFIRM') {
-        logStep(11, 'completed', 'Processing confirmation...');
+      if (data === 'CONFIRM_YES') {
+        logStep('Registration', STEPS.SUBMIT, 'completed', 'confirmed');
 
-        try {
-          // Wrap the full registration & notification in a timeout so the
-          // bot never freezes if Prisma / network is slow.
-          logStep(11, 'completed', 'Calling completeRegistration...');
-          const application = await withTimeout(
-            telegramService.completeRegistration({
-              telegramId: ctx.from?.id.toString() || '',
-              firstName: ctx.from?.first_name || t(lang, 'first_name_fallback'),
-              lastName: ctx.from?.last_name || t(lang, 'last_name_fallback'),
-              phone: state.phone ?? '',
-              districtId: state.districtId ?? '',
-              courseId: state.courseId ?? '',
-              shift: state.shift ?? '',
-              age: Number(state.age ?? 0),
-              experience: state.experience ?? '',
-              device: state.device ?? '',
-              note: state.note ?? '',
-            }),
-            15000,
-            'completeRegistration'
+        // Check for duplicate submission
+        if (state.telegramId && state.courseId) {
+          const existingApps = applicationStore.getAll().filter(
+            (a) => a.data.telegramId === state.telegramId && a.data.courseId === state.courseId
           );
-
-          logStep(11, 'completed', `Application created: ${application.id}`);
-
-          // Notify teacher — wrapped in try/catch so a notification failure
-          // never prevents the user from receiving their success message.
-          try {
-            logStep(11, 'completed', 'Notifying teacher...');
-            await withTimeout(
-              teacherCrmService.notifyTeacher(
-                application.id,
-                {
-                  telegramId: ctx.from?.id.toString() || '',
-                  firstName: ctx.from?.first_name || t(lang, 'first_name_fallback'),
-                  lastName: ctx.from?.last_name || t(lang, 'last_name_fallback'),
-                  phone: state.phone ?? '',
-                  districtId: state.districtId ?? '',
-                  courseId: state.courseId ?? '',
-                  shift: state.shift ?? '',
-                  age: Number(state.age ?? 0),
-                  experience: state.experience ?? '',
-                  device: state.device ?? '',
-                  note: state.note ?? '',
-                },
-                {
-                  firstName: ctx.from?.first_name || t(lang, 'first_name_fallback'),
-                  lastName: ctx.from?.last_name || t(lang, 'last_name_fallback'),
-                  username: ctx.from?.username,
-                  telegramId: String(ctx.from?.id ?? ''),
-                },
-                state.regionId
-              ),
-              15000,
-              'notifyTeacher'
-            );
-            logStep(11, 'completed', 'Teacher notified successfully');
-          } catch (error: unknown) {
-            // Log but DO NOT re-throw — the user still gets success
-            const fullError =
-              error instanceof Object
-                ? JSON.stringify(error, Object.getOwnPropertyNames(error))
-                : String(error);
-            logger.error('[Wizard] Failed to notify teacher (non-fatal)', {
-              error: fullError,
-              applicationId: application.id,
-            });
-            logStep(11, 'completed', 'Teacher notification failed (non-fatal)');
-          }
-
-          logStep(11, 'completed', 'Sending success message to user');
-          await ctx.reply(t(lang, 'success_message')).catch(() => {});
-        } catch (error: unknown) {
-          const isDuplicate =
-            error instanceof Error && error.message === 'DUPLICATE_APPLICATION';
-          const isTimeout =
-            error instanceof Error && error.message.includes('[Timeout]');
-
-          logStep(11, 'completed', `Registration failed — isDuplicate=${isDuplicate} isTimeout=${isTimeout}`);
-          logger.error('[Wizard] Registration failed', {
-            error: String(error),
-            from: ctx.from?.id,
-            isDuplicate,
-            isTimeout,
-          });
-
-          if (isDuplicate) {
-            await ctx.reply(t(lang, 'duplicate_application')).catch(() => {});
-          } else if (isTimeout) {
-            await ctx.reply(t(lang, 'error_try_later')).catch(() => {});
-          } else {
-            await ctx.reply(t(lang, 'error_try_later_short')).catch(() => {});
+          if (existingApps.length > 0) {
+            // Remove keyboard
+            try { await ctx.editMessageReplyMarkup({ inline_keyboard: [] }).catch(() => {}); } catch { /* ignore */ }
+            await ctx.reply(t(lang, 'duplicate_application'), {
+              ...Markup.removeKeyboard(),
+              parse_mode: 'HTML',
+            }).catch(() => {});
+            logStep('Registration', STEPS.SUBMIT, 'completed', 'duplicate prevented');
+            return ctx.scene.leave();
           }
         }
-        logStep(11, 'completed', 'Leaving scene after processing');
+
+        // Build registration data object
+        const regData = {
+          telegramId: String(state.telegramId || 'unknown'),
+          firstName: String(state.firstName || t(lang, 'first_name_fallback')),
+          lastName: String(state.lastName || t(lang, 'last_name_fallback')),
+          phone: String(state.phone || ''),
+          districtId: String(state.districtId || ''),
+          courseId: String(state.courseId || ''),
+          shift: String(state.shift || ''),
+          age: state.age || 0,
+          experience: String(state.experience || ''),
+          device: String(state.device || ''),
+          note: String(state.note || '-'),
+          language: lang,
+        } as const;
+
+        // Save to store
+        const app = applicationStore.create(regData as import('../../applications/store').ApplicationData);
+    
+        logStep('Registration', STEPS.SUBMIT, 'completed', `App created: ${app.id}`);
+
+        // Remove keyboard
+        try { await ctx.editMessageReplyMarkup({ inline_keyboard: [] }).catch(() => {}); } catch { /* ignore */ }
+
+        // Send success message
+        await ctx.reply(t(lang, 'success_message'), {
+          ...Markup.removeKeyboard(),
+          parse_mode: 'HTML',
+        }).catch(() => {});
+
+        // Notify admin asynchronously
+        teacherCrmService.notifyTeacher(
+          app.id,
+          {
+            telegramId: regData.telegramId,
+            firstName: regData.firstName,
+            lastName: regData.lastName,
+            phone: regData.phone,
+            districtId: regData.districtId,
+            courseId: regData.courseId,
+            shift: regData.shift,
+            age: regData.age,
+            experience: regData.experience,
+            device: regData.device,
+            note: regData.note,
+          },
+          {
+            firstName: regData.firstName,
+            lastName: regData.lastName,
+            username: state.username as string | undefined,
+            telegramId: regData.telegramId,
+          },
+          state.regionId as string | undefined
+        ).catch((error) => {
+          logger.error('[Wizard] Failed to notify admin', {
+            error: String(error),
+            applicationId: app.id,
+          });
+        });
+
+        logStep('Registration', STEPS.SUBMIT, 'completed', 'done');
         return ctx.scene.leave();
       }
+    }
 
-      // Unknown callback – log but ignore
-      logStep(11, 'waiting', `Unknown action: ${action}`);
-      logger.warn('[Wizard] Unknown confirmation action', { action, from: ctx.from?.id });
-    } else if (ctx.message && 'text' in ctx.message) {
-      // User sent text instead of clicking confirmation buttons
-      logStep(11, 'waiting', 'Text instead of confirmation — re-sending buttons');
+    // Non-callback message on confirmation step
+    if (ctx.message && 'text' in ctx.message) {
       await ctx.reply(
         t(lang, 'please_use_buttons'),
-        Markup.inlineKeyboard([
-          [Markup.button.callback(t(lang, 'confirm_button'), 'CONFIRM')],
-          [Markup.button.callback(t(lang, 'cancel_button'), 'CANCEL')],
-        ])
+        {
+          ...Markup.inlineKeyboard([
+            [
+              Markup.button.callback('✅ ' + t(lang, 'confirm_button'), 'CONFIRM_YES'),
+              Markup.button.callback('❌ ' + t(lang, 'cancel_button'), 'CANCEL_ALL'),
+            ],
+          ]),
+          parse_mode: 'HTML',
+        }
       ).catch(() => {});
     }
   }
