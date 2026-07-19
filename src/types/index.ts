@@ -318,24 +318,20 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  password: string;
   phone?: string;
   avatar?: string;
   location?: string;
   bio?: string;
   birthDate?: string;
   joinedDate: string;
-  role: 'student' | 'admin';
   enrolledCourses: string[];
 }
 
 export interface RegisterData {
-  firstName: string;
-  lastName: string;
+  name: string;
   email: string;
   password: string;
   confirmPassword: string;
-  phone?: string;
 }
 
 export interface AuthResult {

@@ -24,7 +24,7 @@ export type ProtectedContext = Scenes.WizardContext & {
 };
 
 /**
- * Middleware to restrict access to Teachers and Admins.
+ * Middleware to restrict access to authenticated users.
  * Populates ctx.user if authorized.
  */
 export const teacherAdminOnly = (): Middleware<ProtectedContext> => async (ctx, next) => {
@@ -38,12 +38,11 @@ export const teacherAdminOnly = (): Middleware<ProtectedContext> => async (ctx, 
   try {
     const user = await prisma.user.findUnique({
       where: { telegramId },
-      include: { role: true }
     });
 
-    if (!user || (user.role.name !== 'ADMIN' && user.role.name !== 'TEACHER')) {
-      logger.warn('Forbidden bot access attempt', { telegramId, role: user?.role?.name });
-      return ctx.answerCbQuery('❌ Ruxsat yo\'q (Faqat O\'qituvchilar)');
+    if (!user) {
+      logger.warn('Forbidden bot access attempt', { telegramId });
+      return ctx.answerCbQuery('❌ Ruxsat yo\'q');
     }
 
     ctx.user = user;
@@ -53,4 +52,3 @@ export const teacherAdminOnly = (): Middleware<ProtectedContext> => async (ctx, 
     return ctx.answerCbQuery('❌ Tizim xatosi, keyinroq urinib ko\'ring.');
   }
 };
-

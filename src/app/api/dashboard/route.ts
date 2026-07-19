@@ -1,14 +1,14 @@
 /**
  * GET /api/dashboard
- * Returns aggregate dashboard statistics. Protected: requires dashboard:read.
+ * Returns aggregate dashboard statistics. Protected: requires authentication.
  */
 import { NextResponse } from 'next/server';
 import prisma from '../../../lib/prisma';
-import { requirePermission } from '../../../lib/auth';
+import { requireUser } from '../../../lib/auth';
 import { withApiHandler, securityHeadersInit } from '@/lib/security/api-response';
 
 export const GET = withApiHandler(async () => {
-  const session = await requirePermission('dashboard:read').catch(() => null);
+  const session = await requireUser().catch(() => null);
   if (!session) return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403, headers: securityHeadersInit() });
 
   const [totalStudents, totalTeachers, totalCourses, totalApplications, pendingApplications] = await Promise.all([
@@ -24,4 +24,3 @@ export const GET = withApiHandler(async () => {
     { status: 200, headers: securityHeadersInit() },
   );
 });
-

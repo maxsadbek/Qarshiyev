@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { Helmet } from 'react-helmet-async';
 import { HeroSection } from '@/components/sections/HeroSection';
 import { AboutSection } from '@/components/sections/AboutSection';
 import { WhyChooseUs } from '@/components/sections/WhyChooseUs';
@@ -22,14 +21,6 @@ import { NewsletterSection } from '@/components/sections/NewsletterSection';
 export const HomePage: React.FC = () => {
   return (
     <>
-      <Helmet>
-        <title>Qarshiyev Education Center | Premium Language & Academic Hub</title>
-        <meta
-          name="description"
-          content="Unlock your global potential with Qarshi's premier education center. Specialized in IELTS, General English, and SAT preparation with internationally certified instructors."
-        />
-      </Helmet>
-
       <main>
         <HeroSection />
         <Partners />

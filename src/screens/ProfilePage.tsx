@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Helmet } from 'react-helmet-async';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -87,19 +86,62 @@ export const ProfilePage: React.FC = () => {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+  // Form state is initialised with empty defaults; a useEffect syncs from user later
   const [form, setForm] = useState({
-    name: user?.name ?? '',
-    phone: user?.phone ?? '',
-    location: user?.location ?? '',
-    bio: user?.bio ?? '',
-    birthDate: user?.birthDate ?? '',
-    avatar: user?.avatar ?? '',
+    name: '',
+    phone: '',
+    location: '',
+    bio: '',
+    birthDate: '',
+    avatar: '',
   });
 
-  if (!user) {
-    if (typeof window !== 'undefined') router.replace(ROUTES.LOGIN);
-    return null;
+  // ── Redirect to login if not authenticated ──
+  // Using useEffect to avoid calling router.replace() during the render phase.
+  // The typeof-window check is gone so hydration stays in sync.
+  useEffect(() => {
+    setMounted(true);
+    if (user === null) {
+      router.replace(ROUTES.LOGIN);
+    }
+  }, [user, router]);
+
+  // ── Sync form defaults when user data loads ──
+  useEffect(() => {
+    if (user) {
+      setForm({
+        name: user.name ?? '',
+        phone: user.phone ?? '',
+        location: user.location ?? '',
+        bio: user.bio ?? '',
+        birthDate: user.birthDate ?? '',
+        avatar: user.avatar ?? '',
+      });
+    }
+  }, [user]);
+
+  // While auth is still resolving or user is null, show a minimal loading state
+  if (!mounted || !user) {
+    return (
+      <main className="min-h-screen flex items-center justify-center" style={{ backgroundColor: BG }}>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 rounded-full border-2 border-violet-500/30 border-t-violet-600 animate-spin" />
+          <p className="text-sm text-slate-400">Yuklanmoqda…</p>
+        </div>
+      </main>
+    );
   }
+
+  // Safe fallbacks for all user fields to prevent crashes from missing API data
+  const s = {
+    joinedDate: user.joinedDate ?? '',
+    avatar: user.avatar ?? '',
+    phone: user.phone ?? '',
+    location: user.location ?? '',
+    bio: user.bio ?? '',
+    birthDate: user.birthDate ?? '',
+  };
 
   const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
@@ -134,24 +176,23 @@ export const ProfilePage: React.FC = () => {
   };
 
   const personalItems = [
-    { icon: <Calendar size={16} />, label: "A'zo bo‘lgan", value: formatDate(user.joinedDate) },
+    { icon: <Calendar size={16} />, label: "A'zo bo‘lgan", value: s.joinedDate ? formatDate(s.joinedDate) : '—' },
     { icon: <CheckCircle2 size={16} />, label: 'Holat', value: 'Faol' },
   ];
 
   const contactItems = [
-    { icon: <Phone size={16} />, label: 'Telefon', value: user.phone || '—' },
-    { icon: <MapPin size={16} />, label: 'Manzil', value: user.location || '—' },
-    { icon: <Calendar size={16} />, label: 'Tug‘ilgan sana', value: user.birthDate ? formatDate(user.birthDate) : '—' },
+    { icon: <Phone size={16} />, label: 'Telefon', value: s.phone || '—' },
+    { icon: <MapPin size={16} />, label: 'Manzil', value: s.location || '—' },
+    { icon: <Calendar size={16} />, label: 'Tug‘ilgan sana', value: s.birthDate ? formatDate(s.birthDate) : '—' },
   ];
 
   const quickStats = [
-    { icon: <Clock size={18} />, label: "A'zo", value: user.joinedDate.slice(0, 4) },
+    { icon: <Clock size={18} />, label: "A'zo", value: s.joinedDate ? s.joinedDate.slice(0, 4) : '—' },
     { icon: <CheckCircle2 size={18} />, label: 'Holat', value: 'Faol' },
   ];
 
   return (
     <>
-      <Helmet><title>Kabinet | Qarshiyev</title></Helmet>
       <main style={{ backgroundColor: BG }} className="min-h-screen pb-24 font-sans">
         {/* ===== HERO ===== */}
         <section className="relative overflow-hidden" style={{ backgroundColor: DARK, color: '#fff' }}>
@@ -192,8 +233,8 @@ export const ProfilePage: React.FC = () => {
                 >
                   {editing && avatarPreview ? (
                     <img src={avatarPreview} alt={user.name} className="w-full h-full object-cover" />
-                  ) : user.avatar ? (
-                    <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                  ) : s.avatar ? (
+                    <img src={s.avatar} alt={user.name} className="w-full h-full object-cover" />
                   ) : (
                     initials(user.name)
                   )}
@@ -215,7 +256,7 @@ export const ProfilePage: React.FC = () => {
                   <Mail size={14} /> {user.email}
                 </p>
                 <p className="mt-1 flex items-center justify-center md:justify-start gap-2 text-white/45 text-xs">
-                  <Calendar size={13} /> A'zo bo‘lgan: {formatDate(user.joinedDate)}
+                  <Calendar size={13} /> A'zo bo‘lgan: {s.joinedDate ? formatDate(s.joinedDate) : '—'}
                 </p>
               </div>
 
@@ -504,4 +545,3 @@ const WelcomeCard: React.FC = () => (
     </div>
   </motion.div>
 );
-

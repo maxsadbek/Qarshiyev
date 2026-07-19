@@ -80,7 +80,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       const res = await csrfFetch('/api/auth/register', {
         method: 'POST',
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          password: data.password,
+          confirmPassword: data.confirmPassword,
+        }),
       });
       const result = await res.json().catch(() => ({}));
       if (res.ok && result.success) {

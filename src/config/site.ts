@@ -28,20 +28,4 @@ export const features = {
   enableStudentPortal: false,
 } as const;
 
-// ============================================================
-// Role-Based Access Control
-// ============================================================
-// TODO: Move to database / config service when roles become dynamic
-
-export const roles = {
-  ADMIN: 'admin',
-  TEACHER: 'teacher',
-  STUDENT: 'student',
-} as const;
-
-export const rolePermissions = {
-  admin: ['*'],
-  teacher: ['read:own_courses', 'write:own_courses', 'read:students'],
-  student: ['read:courses', 'write:own_enrollments', 'read:own_profile'],
-} as const;
 

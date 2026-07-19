@@ -1,3 +1,3 @@
-export { siteConfig, features, roles, rolePermissions } from './site';
+export { siteConfig, features } from './site';
 export { supabaseConfig } from './supabase';
 

@@ -82,10 +82,8 @@ export class TelegramService {
           telegramId: data.telegramId,
           email: `${data.telegramId}@tg.local`, // Use telegramId for placeholder email
           passwordHash: 'tg-no-pass',
-          firstName: data.firstName,
-          lastName: data.lastName,
+          name: `${data.firstName} ${data.lastName}`.trim(),
           phone: data.phone,
-          role: { connect: { name: 'STUDENT' } },
         },
         update: {
           phone: data.phone, // Update phone if changed

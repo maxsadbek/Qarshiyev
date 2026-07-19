@@ -1,47 +1,32 @@
 /**
  * src/modules/roles/roles.service.ts
- * Role & RBAC service. Provides permission checks and the canonical role
- * permission matrix consumed by API routes and admin UI.
+ * DEPRECATED: RBAC has been removed. This file is kept for backward compatibility.
  */
 
-import prisma from '../../lib/prisma';
-import {
-  ROLE_PERMISSIONS,
-  roleHasPermission,
-  canAccessAdmin,
-  normalizeRoleName,
-  type RoleName,
-  type Permission,
-} from '@/modules/rbac/roles';
-
 export class RolesService {
-  /** All role → permission assignments (for admin UI / docs). */
-  getMatrix(): Record<RoleName, Permission[]> {
-    return ROLE_PERMISSIONS;
+  getMatrix(): Record<string, string[]> {
+    return {};
   }
 
-  hasPermission(role: string, permission: Permission): boolean {
-    return roleHasPermission(role, permission);
+  hasPermission(_role: string, _permission: string): boolean {
+    return true;
   }
 
-  canAccessAdmin(role: string): boolean {
-    return canAccessAdmin(role);
+  canAccessAdmin(_role: string): boolean {
+    return true;
   }
 
-  normalize(name: string): RoleName {
-    return normalizeRoleName(name);
+  normalize(name: string): string {
+    return name;
   }
 
-  /** List distinct role names present in the database. */
   async listRoles() {
-    return prisma.role.findMany({ orderBy: { name: 'asc' } });
+    return [];
   }
 
-  /** List all permissions. */
   async listPermissions() {
-    return prisma.permission.findMany({ orderBy: { name: 'asc' } });
+    return [];
   }
 }
 
 export const rolesService = new RolesService();
-

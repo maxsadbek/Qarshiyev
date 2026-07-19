@@ -8,7 +8,7 @@ export interface LoginResult {
   error?: string;
   token?: string;
   csrf?: string;
-  user?: { id: string; email: string; role: string };
+  user?: { id: string; email: string; name: string };
 }
 
 async function postJson(url: string, body: unknown) {
@@ -25,18 +25,16 @@ async function postJson(url: string, body: unknown) {
 export async function login(input: { email: string; password: string; rememberMe?: boolean }): Promise<LoginResult> {
   const { status, data } = await postJson('/api/auth/login', input);
   if (status === 200 && data.success) {
-    return { ok: true, token: data.user?.token, user: data.user };
+    return { ok: true, user: data.user };
   }
   return { ok: false, error: data.error ?? 'Kirish amalga oshmadi' };
 }
 
 export async function register(input: {
-  firstName: string;
-  lastName: string;
+  name: string;
   email: string;
   password: string;
   confirmPassword: string;
-  phone?: string;
 }): Promise<{ ok: boolean; error?: string }> {
   const { status, data } = await postJson('/api/auth/register', input);
   if (status === 200 && data.success) return { ok: true };

@@ -6,6 +6,7 @@
  */
 import { NextResponse } from 'next/server';
 import { resolveSession } from '@/lib/auth';
+import prisma from '@/lib/prisma';
 import { withApiHandler, securityHeadersInit } from '@/lib/security/api-response';
 
 export const GET = withApiHandler(async () => {
@@ -16,6 +17,13 @@ export const GET = withApiHandler(async () => {
       { status: 200, headers: securityHeadersInit() },
     );
   }
+
+  // Fetch the createdAt field (resolveSession already gives id/email/name/phone)
+  const { createdAt } = await prisma.user.findUniqueOrThrow({
+    where: { id: session.user.id },
+    select: { createdAt: true },
+  });
+
   return NextResponse.json(
     {
       success: true,
@@ -23,12 +31,12 @@ export const GET = withApiHandler(async () => {
       user: {
         id: session.user.id,
         email: session.user.email,
-        firstName: session.user.firstName,
-        lastName: session.user.lastName,
-        role: session.user.roleName,
+        name: session.user.name,
+        phone: session.user.phone ?? undefined,
+        joinedDate: createdAt.toISOString(),
+        enrolledCourses: [],
       },
     },
     { status: 200, headers: securityHeadersInit() },
   );
 });
-

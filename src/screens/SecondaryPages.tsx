@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { Badge } from '@/components/ui/Badge';
@@ -42,7 +41,6 @@ const PageHero: React.FC<{ title: string, subtitle: string, image: string }> = (
 
 export const AboutPage: React.FC = () => (
   <>
-    <Helmet><title>About Us | Qarshiyev Education Center</title></Helmet>
     <main>
       <PageHero 
         title="About Us" 
@@ -70,7 +68,6 @@ export const CoursesPage: React.FC = () => {
 
   return (
     <>
-      <Helmet><title>Courses | Qarshiyev Education Center</title></Helmet>
       <main>
         <PageHero
           title="Bizning Kurslar"
@@ -135,7 +132,6 @@ export const TeachersPage: React.FC = () => {
 
   return (
     <>
-      <Helmet><title>Teachers | Qarshiyev Education Center</title></Helmet>
       <main>
         <PageHero
           title="Our Teachers"
@@ -178,7 +174,6 @@ export const TeachersPage: React.FC = () => {
 
 export const GalleryPage: React.FC = () => (
   <>
-    <Helmet><title>Gallery | Qarshiyev Education Center</title></Helmet>
     <main>
       <PageHero
         title="Gallery"
@@ -237,10 +232,6 @@ export const ResultsPage: React.FC = () => {
 
   return (
     <>
-      <Helmet>
-        <title>O'quvchilarning Yutuqlari | Qarshiyev Education Center</title>
-        <meta name="description" content="Bizning o'quvchilarimizning erishgan yutuqlari, mukofotlari va muvaffaqiyatli natijalari." />
-      </Helmet>
       <main>
         <PageHero
           title="O'quvchilarning Yutuqlari"
@@ -387,7 +378,6 @@ export const ResultsPage: React.FC = () => {
 
 export const EventsPage: React.FC = () => (
   <>
-    <Helmet><title>Events | Qarshiyev Education Center</title></Helmet>
     <main>
       <PageHero 
         title="Events" 
@@ -403,7 +393,6 @@ export const EventsPage: React.FC = () => (
 
 export const BlogPage: React.FC = () => (
   <>
-    <Helmet><title>Blog | Qarshiyev Education Center</title></Helmet>
     <main>
       <PageHero 
         title="Blog & Insights" 
@@ -419,7 +408,6 @@ export const BlogPage: React.FC = () => (
 
 export const FAQPage: React.FC = () => (
   <>
-    <Helmet><title>FAQ | Qarshiyev Education Center</title></Helmet>
     <main>
       <PageHero 
         title="Help & FAQ" 

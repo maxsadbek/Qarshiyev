@@ -1,36 +1,20 @@
 /**
  * GET /api/export/students
- * Exports students as CSV or Excel. Protected: requires ADMIN/OWNER + reports:export.
+ * Exports students as CSV or Excel. Protected: requires authentication.
  */
 import { NextResponse } from 'next/server';
 import prisma from '../../../../lib/prisma';
 import * as XLSX from 'xlsx';
-import { requirePermission } from '../../../../lib/auth';
+import { requireUser } from '../../../../lib/auth';
 import { withApiHandler, securityHeadersInit, rateLimitHeaders } from '@/lib/security/api-response';
 import { rateLimit, RATE_LIMITS } from '@/lib/security/rate-limit';
 import { getClientIp } from '@/lib/security/request-context';
 
-/**
- * Local interface matching the exact shape returned by `prisma.student.findMany`
- * with the `include: { user: true, district: { include: { region: true } } }`
- * clause used below.
- *
- * Why this exists: Prisma 7 no longer exports a `Prisma` namespace from
- * `@prisma/client`, so `Prisma.StudentGetPayload<...>` is no longer available.
- * Relying purely on inference from the bare `await prisma.student.findMany(...)`
- * call (with no assignment-site annotation) turned out to widen the result to
- * `any[]` in this build, which is what caused `s` in `.map((s) => ...)` to
- * implicitly become `any`. Declaring this interface explicitly and pinning the
- * query result to it removes the implicit-any error without disabling strict
- * mode, without `@ts-ignore`, without `any`, and without reintroducing a Prisma
- * namespace import. Only the fields actually used in this file are included.
- */
 interface StudentWithRelations {
   id: string;
   createdAt: Date;
   user: {
-    firstName: string;
-    lastName: string;
+    name: string;
     phone: string | null;
     email: string;
   };
@@ -43,7 +27,7 @@ interface StudentWithRelations {
 }
 
 export const GET = withApiHandler(async (req) => {
-  const session = await requirePermission('reports:export').catch(() => null);
+  const session = await requireUser().catch(() => null);
   if (!session) return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403, headers: securityHeadersInit() });
 
   const ip = getClientIp(req);
@@ -64,8 +48,7 @@ export const GET = withApiHandler(async (req) => {
 
   const flatData = students.map((s: StudentWithRelations) => ({
     ID: s.id,
-    FirstName: s.user.firstName,
-    LastName: s.user.lastName,
+    Name: s.user.name,
     Phone: s.user.phone ?? '',
     Email: s.user.email,
     Region: s.district?.region.name || '',

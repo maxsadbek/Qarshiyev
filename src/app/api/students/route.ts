@@ -1,15 +1,15 @@
 /**
  * /api/students
- * CRUD endpoints for student management. Protected: requires students:read/write/manage.
+ * CRUD endpoints for student management. Protected: requires authentication.
  */
 import { NextResponse } from 'next/server';
 import prisma from '../../../lib/prisma';
-import { requirePermission } from '../../../lib/auth';
+import { requireUser } from '../../../lib/auth';
 import { createStudentSchema, updateStudentSchema, studentFilterSchema } from '@/validation/students';
 import { withApiHandler, securityHeadersInit } from '@/lib/security/api-response';
 
 export const GET = withApiHandler(async (req) => {
-  await requirePermission('students:read');
+  await requireUser();
 
   const url = new URL(req.url);
   const params = studentFilterSchema.safeParse(Object.fromEntries(url.searchParams));
@@ -18,8 +18,7 @@ export const GET = withApiHandler(async (req) => {
   const where: Record<string, unknown> = {};
   if (filters.search) {
     where.OR = [
-      { user: { firstName: { contains: filters.search, mode: 'insensitive' } } },
-      { user: { lastName: { contains: filters.search, mode: 'insensitive' } } },
+      { user: { name: { contains: filters.search, mode: 'insensitive' } } },
       { user: { email: { contains: filters.search, mode: 'insensitive' } } },
     ];
   }
@@ -27,7 +26,7 @@ export const GET = withApiHandler(async (req) => {
   const [students, total] = await Promise.all([
     prisma.student.findMany({
       where,
-      include: { user: { select: { id: true, firstName: true, lastName: true, email: true, phone: true, isActive: true } }, district: { include: { region: true } } },
+      include: { user: { select: { id: true, name: true, email: true, phone: true, isActive: true } }, district: { include: { region: true } } },
       skip: (filters.page - 1) * filters.limit,
       take: filters.limit,
       orderBy: { createdAt: 'desc' },
@@ -42,7 +41,7 @@ export const GET = withApiHandler(async (req) => {
 });
 
 export const POST = withApiHandler(async (req) => {
-  await requirePermission('students:write');
+  await requireUser();
 
   const body = await req.json().catch(() => null);
   const parsed = createStudentSchema.safeParse(body);
@@ -51,11 +50,6 @@ export const POST = withApiHandler(async (req) => {
       { success: false, error: 'Noto‘g‘ri ma’lumotlar', fields: parsed.error.flatten().fieldErrors },
       { status: 422, headers: securityHeadersInit() },
     );
-  }
-
-  const role = await prisma.role.findUnique({ where: { name: 'STUDENT' } });
-  if (!role) {
-    return NextResponse.json({ success: false, error: 'Role not found' }, { status: 500, headers: securityHeadersInit() });
   }
 
   const existing = await prisma.user.findUnique({ where: { email: parsed.data.email } });
@@ -69,15 +63,13 @@ export const POST = withApiHandler(async (req) => {
         create: {
           email: parsed.data.email,
           passwordHash: 'sso-managed',
-          firstName: parsed.data.firstName,
-          lastName: parsed.data.lastName,
+          name: `${parsed.data.firstName} ${parsed.data.lastName}`.trim(),
           phone: parsed.data.phone || null,
-          roleId: role.id,
           isActive: true,
         },
       },
     },
-    include: { user: { select: { id: true, firstName: true, lastName: true, email: true, phone: true } } },
+    include: { user: { select: { id: true, name: true, email: true, phone: true } } },
   });
 
   return NextResponse.json({ success: true, data: student }, { status: 201, headers: securityHeadersInit() });

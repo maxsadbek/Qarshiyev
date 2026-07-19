@@ -46,46 +46,6 @@ model Language {
 }
 
 // ==========================================
-// RBAC (ROLE-BASED ACCESS CONTROL)
-// ==========================================
-
-model Role {
-  id          String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name        String           @unique @db.VarChar(50) // e.g. 'SUPER_ADMIN', 'TEACHER'
-  description String?          @db.Text
-  permissions RolePermission[]
-  users       User[]
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-
-  @@map("roles")
-}
-
-model Permission {
-  id          String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name        String           @unique @db.VarChar(100) // e.g. 'create:course', 'read:users'
-  description String?          @db.Text
-  roles       RolePermission[]
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-
-  @@map("permissions")
-}
-
-model RolePermission {
-  roleId       String     @db.Uuid
-  permissionId String     @db.Uuid
-  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
-  createdAt    DateTime   @default(now())
-
-  @@id([roleId, permissionId])
-  @@index([roleId])
-  @@index([permissionId])
-  @@map("role_permissions")
-}
-
-// ==========================================
 // USERS & PROFILES
 // ==========================================
 
@@ -93,15 +53,12 @@ model User {
   id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   email        String    @unique @db.VarChar(255)
   passwordHash String    @db.VarChar(255)
-  firstName    String    @db.VarChar(100)
-  lastName     String    @db.VarChar(100)
+  name         String    @db.VarChar(200)
   phone        String?   @db.VarChar(20)
   telegramId   String?   @unique @db.VarChar(50)
-  roleId       String    @db.Uuid
   isActive     Boolean   @default(true)
   lastLogin    DateTime?
 
-  role          Role           @relation(fields: [roleId], references: [id], onDelete: Restrict)
   student       Student?
   teacher       Teacher?
   admin         Admin?
@@ -115,7 +72,6 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([roleId])
   @@index([email])
   @@index([telegramId])
   @@index([isActive])
@@ -255,13 +211,11 @@ model ActivityLog {
 // ==========================================
 // SECURITY: AUDIT TRAIL
 // ==========================================
-// Immutable record of every sensitive mutation for compliance/forensics.
-// Tracks WHO changed WHAT, the previous value and the new value.
 
 model AuditLog {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId    String?  @db.Uuid
-  action    String   @db.VarChar(100) // e.g. 'ROLE_CHANGED', 'PERMISSION_CHANGED', 'STATUS_CHANGED'
+  action    String   @db.VarChar(100) // e.g. 'STATUS_CHANGED'
   entity    String   @db.VarChar(100) // e.g. 'User', 'Application', 'Course'
   entityId  String?  @db.VarChar(100)
   field     String?  @db.VarChar(100)
@@ -281,12 +235,12 @@ model AuditLog {
 }
 
 // ==========================================
-// SECURITY: SESSIONS (remember-me / revocation)
+// SECURITY: SESSIONS
 // ==========================================
 
 model Session {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  token     String   @unique @db.VarChar(255) // SHA-256 hashed session token
+  token     String   @unique @db.VarChar(255)
   userId    String   @db.Uuid
   ipAddress String?  @db.VarChar(45)
   userAgent String?  @db.VarChar(512)
@@ -302,7 +256,7 @@ model Session {
 }
 
 // ==========================================
-// SECURITY: ACCOUNT LOCKOUT (brute-force defense)
+// SECURITY: ACCOUNT LOCKOUT
 // ==========================================
 
 model AccountLock {
@@ -328,7 +282,7 @@ model AccountLock {
 model PasswordResetToken {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId    String   @db.Uuid
-  tokenHash String   @unique @db.VarChar(255) // SHA-256 of the reset token
+  tokenHash String   @unique @db.VarChar(255)
   expiresAt DateTime
   usedAt    DateTime?
   createdAt DateTime @default(now())
@@ -345,7 +299,7 @@ model PasswordResetToken {
 // ==========================================
 
 model TelegramSession {
-  key       String   @id @db.VarChar(255) // e.g. "chatId:userId"
+  key       String   @id @db.VarChar(255)
   session   Json
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -357,12 +311,11 @@ model TelegramSession {
 // NOTIFICATION SYSTEM
 // ==========================================
 
-/// Persistent log of every dispatched notification across all channels.
 model NotificationLog {
   id         String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   event      NotificationEvent
   channel    NotificationChannel
-  recipient  String             @db.VarChar(255) // userId, email, chatId, etc.
+  recipient  String             @db.VarChar(255)
   subject    String?            @db.VarChar(500)
   body       String             @db.Text
   status     DispatchStatus     @default(PENDING)

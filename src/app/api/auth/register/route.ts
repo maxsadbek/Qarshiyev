@@ -32,12 +32,9 @@ export const POST = withApiHandler(async (req) => {
   }
 
   const result = await registerUser({
-    firstName: parsed.data.firstName,
-    lastName: parsed.data.lastName,
+    name: parsed.data.name,
     email: parsed.data.email,
     password: parsed.data.password,
-    phone: parsed.data.phone,
-    role: parsed.data.role,
     req,
   });
 

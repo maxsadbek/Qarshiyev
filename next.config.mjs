@@ -1,13 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  /*
-   * Tell Turbopack the project root so it doesn't scan parent directories
-   * for additional lockfiles and emit an inference warning.
-   */
-  turbopack: {
-    root: process.cwd(),
-  },
   experimental: {
     serverActions: {
       bodySizeLimit: '2mb',

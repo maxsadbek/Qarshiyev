@@ -1,31 +1,13 @@
 import prisma from '../../../lib/prisma';
-import { requirePermission } from '../../../lib/auth';
+import { requireUser } from '../../../lib/auth';
 
 export const dynamic = 'force-dynamic';
 
-/**
- * Local interface matching the exact shape returned by `prisma.student.findMany`
- * with the `include: { user: true, district: { include: { region: true } } }`
- * clause used below.
- *
- * Why this exists: Prisma 7 no longer exports a `Prisma` namespace from
- * `@prisma/client`, so `Prisma.StudentGetPayload<...>` is no longer available.
- * Relying purely on inference through `Promise.all([...])` in this project's
- * build turned out to widen the result to `any[]` (the conditional `where`
- * object's type isn't narrow enough for TypeScript to carry the inferred
- * `include` shape cleanly through the tuple in `Promise.all`), which is what
- * caused `student` in `.map((student) => ...)` to implicitly become `any`.
- * Declaring this interface explicitly and pinning the query result to it
- * removes the implicit-any error without disabling strict mode, without
- * `@ts-ignore`, without `any`, and without reintroducing a Prisma namespace
- * import. Only the fields actually used in this file are included.
- */
 interface StudentWithRelations {
   id: string;
   createdAt: Date;
   user: {
-    firstName: string;
-    lastName: string;
+    name: string;
     phone: string | null;
   };
   district: {
@@ -40,7 +22,7 @@ export default async function StudentsPage({
 }: {
   searchParams: Promise<{ q?: string; page?: string }>;
 }) {
-  await requirePermission('students:read');
+  await requireUser();
 
   const params = await searchParams;
   const query = (params.q || '').trim();
@@ -52,8 +34,7 @@ export default async function StudentsPage({
     ? {
       user: {
         OR: [
-          { firstName: { contains: query, mode: 'insensitive' as const } },
-          { lastName: { contains: query, mode: 'insensitive' as const } },
+          { name: { contains: query, mode: 'insensitive' as const } },
           { phone: { contains: query } },
         ],
       },
@@ -114,7 +95,7 @@ export default async function StudentsPage({
             <tbody>
               {students.map((student: StudentWithRelations) => (
                 <tr key={student.id} className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
-                  <td className="py-2 px-4">{student.user.firstName} {student.user.lastName}</td>
+                  <td className="py-2 px-4">{student.user.name}</td>
                   <td className="py-2 px-4">{student.user.phone}</td>
                   <td className="py-2 px-4">{student.district?.region.name || 'N/A'}</td>
                   <td className="py-2 px-4">{student.createdAt.toLocaleDateString()}</td>

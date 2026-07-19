@@ -24,7 +24,7 @@ export default async function StudentDashboardPage() {
       {/* Welcome Header */}
       <div>
         <h1 className="text-3xl font-bold">
-          Welcome, {user.firstName} 👋
+          Welcome, {user.name} 👋
         </h1>
         <p className="text-gray-500 dark:text-gray-400 mt-1">Here is a summary of your enrollment status.</p>
       </div>
@@ -65,7 +65,7 @@ export default async function StudentDashboardPage() {
             <InfoRow label="Price"       value={`${course.price.toString()} UZS`} />
             <InfoRow
               label="Teacher"
-              value={`${course.teacher.user.firstName} ${course.teacher.user.lastName}`}
+              value={course.teacher.user.name}
             />
             {course.teacher.specialization && (
               <InfoRow label="Specialization" value={course.teacher.specialization} />
@@ -93,4 +93,3 @@ function InfoRow({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
-

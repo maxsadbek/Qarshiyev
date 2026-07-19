@@ -25,15 +25,11 @@ export default async function SettingsPage() {
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <p className="text-xs text-gray-400 uppercase font-semibold">Name</p>
-            <p className="mt-0.5 font-medium">{user.firstName} {user.lastName}</p>
+            <p className="mt-0.5 font-medium">{user.name}</p>
           </div>
           <div>
             <p className="text-xs text-gray-400 uppercase font-semibold">Email</p>
             <p className="mt-0.5 font-medium">{user.email}</p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-400 uppercase font-semibold">Role</p>
-            <p className="mt-0.5 font-medium capitalize">{user.role.name.toLowerCase()}</p>
           </div>
           <div>
             <p className="text-xs text-gray-400 uppercase font-semibold">Member Since</p>
@@ -66,4 +62,3 @@ export default async function SettingsPage() {
     </div>
   );
 }
-

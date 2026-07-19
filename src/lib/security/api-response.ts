@@ -75,7 +75,7 @@ export function apiError(err: unknown) {
  * Usage: export const POST = withApiHandler(async (req) => { ... });
  */
 export function withApiHandler<Params extends Record<string, string | string[]> = {}>(
-  handler: (req: NextRequest, ctx?: { params: Params }) => Promise<Response | void> | Response | void,
+  handler: (req: NextRequest, ctx: { params: Params }) => Promise<Response> | Response,
 ) {
   return async (req: NextRequest, ctx: { params: Promise<Params> }) => {
     try {
@@ -90,7 +90,7 @@ export function withApiHandler<Params extends Record<string, string | string[]> 
           );
         }
       }
-      return await handler(req, { params: (await ctx.params) ?? {} });
+      return await handler(req, { params: await ctx.params });
     } catch (err) {
       return apiError(err);
     }

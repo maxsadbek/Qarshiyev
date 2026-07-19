@@ -3,7 +3,7 @@
  * Real authentication service: registration, login (with account lockout),
  * logout, remember-me, and password reset flow.
  *
- * Uses Argon2/bcrypt password hashing, signed DB-backed sessions, and writes
+ * Uses Bcrypt password hashing, signed DB-backed sessions, and writes
  * security events to the activity log.
  */
 
@@ -11,8 +11,7 @@ import crypto from 'node:crypto';
 import prisma from '../../lib/prisma';
 import { hashPassword, verifyPassword } from '../../lib/security/password';
 import { sha256 } from '../../lib/security/session';
-import { issueSession, revokeSession, type IssueSessionResult } from '../../lib/auth';
-import { ROLE, normalizeRoleName, type RoleName } from '@/modules/rbac/roles';
+import { issueSession, revokeSession } from '../../lib/auth';
 import { logSecurityEvent, type SecurityEventInput } from '../../lib/security/logger';
 import { getClientIp, getUserAgent } from '../../lib/security/request-context';
 
@@ -23,7 +22,7 @@ export interface LoginResult {
   ok: boolean;
   token?: string;
   csrf?: string;
-  user?: { id: string; email: string; role: RoleName };
+  user?: { id: string; email: string; name: string };
   error?: string;
   locked?: boolean;
   lockMinutes?: number;
@@ -39,18 +38,13 @@ async function recordSecurity(req: Request, input: Omit<SecurityEventInput, 'ipA
 }
 
 export async function registerUser(input: {
-  firstName: string;
-  lastName: string;
+  name: string;
   email: string;
   password: string;
   phone?: string;
-  role?: RoleName;
   req: Request;
 }): Promise<{ ok: boolean; error?: string; token?: string; csrf?: string }> {
   const email = input.email.trim().toLowerCase();
-  const normalizedRole = input.role ?? ROLE.STUDENT;
-  const role = await prisma.role.findUnique({ where: { name: normalizedRole } });
-  if (!role) return { ok: false, error: 'Invalid role' };
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
@@ -63,25 +57,20 @@ export async function registerUser(input: {
     data: {
       email,
       passwordHash,
-      firstName: input.firstName.trim(),
-      lastName: input.lastName.trim(),
+      name: input.name.trim(),
       phone: input.phone?.trim() || null,
-      roleId: role.id,
       isActive: true,
-      student: normalizedRole === ROLE.STUDENT ? { create: {} } : undefined,
     },
   });
 
   const meta = await buildClientMeta(input.req);
-  const issued: IssueSessionResult = await issueSession({
+  const issued = await issueSession({
     userId: user.id,
-    roleName: normalizedRole,
     ip: meta.ip,
     userAgent: meta.userAgent,
   });
   await recordSecurity(input.req, { action: 'REGISTRATION', userId: user.id, entity: 'User', entityId: user.id });
 
-  // No plaintext password stored, so nothing to sanitize.
   return { ok: true, token: issued.token, csrf: issued.csrf };
 }
 
@@ -94,7 +83,7 @@ export async function loginUser(input: {
   const email = input.email.trim().toLowerCase();
   const meta = await buildClientMeta(input.req);
 
-  const user = await prisma.user.findUnique({ where: { email }, include: { role: true } });
+  const user = await prisma.user.findUnique({ where: { email } });
 
   // ── Account lockout check ──────────────────────────────────────────
   if (user) {
@@ -109,8 +98,6 @@ export async function loginUser(input: {
   }
 
   if (!user || !user.isActive) {
-    // Constant-time-ish: still hash to avoid user enumeration timing differences.
-    await verifyPassword('dummy', '$argon2id$v=19$m=65536,t=3,p=4$Zm9vYmFyYmF6$b25lZm9vYmFyYmF6');
     await recordSecurity(input.req, { action: 'LOGIN_FAILED', details: { email, reason: 'no_user' } });
     return { ok: false, error: 'Email yoki parol noto‘g‘ri' };
   }
@@ -129,10 +116,8 @@ export async function loginUser(input: {
   // Success → reset failed attempts
   await prisma.accountLock.deleteMany({ where: { userId: user.id } });
 
-  const roleName = normalizeRoleName(user.role.name);
   const issued = await issueSession({
     userId: user.id,
-    roleName,
     rememberMe: input.rememberMe,
     ip: meta.ip,
     userAgent: meta.userAgent,
@@ -145,7 +130,7 @@ export async function loginUser(input: {
     ok: true,
     token: issued.token,
     csrf: issued.csrf,
-    user: { id: user.id, email: user.email, role: roleName },
+    user: { id: user.id, email: user.email, name: user.name },
   };
 }
 
@@ -185,7 +170,6 @@ export async function requestPasswordReset(input: { email: string; req: Request 
   const email = input.email.trim().toLowerCase();
   const user = await prisma.user.findUnique({ where: { email } });
   if (user && user.isActive) {
-    // Invalidate prior unused tokens
     await prisma.passwordResetToken.updateMany({
       where: { userId: user.id, usedAt: null },
       data: { usedAt: new Date() },
@@ -195,7 +179,7 @@ export async function requestPasswordReset(input: { email: string; req: Request 
       data: {
         userId: user.id,
         tokenHash: sha256(rawToken),
-        expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
+        expiresAt: new Date(Date.now() + 60 * 60 * 1000),
       },
     });
     await recordSecurity(input.req, { action: 'PASSWORD_RESET_REQUESTED', userId: user.id });

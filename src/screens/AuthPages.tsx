@@ -3,7 +3,6 @@
 import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Mail, Lock, ArrowRight, User,
@@ -256,7 +255,6 @@ export const RegisterPage: React.FC = () => {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Guard against double-submit (React StrictMode or rapid clicks)
     if (submittedRef.current || loading || success) return;
     submittedRef.current = true;
 
@@ -268,26 +266,19 @@ export const RegisterPage: React.FC = () => {
         return;
       }
 
-      // Let the click/door animation play first, then show the loading state
       await new Promise((resolve) => setTimeout(resolve, 500));
       setLoading(true);
 
-      // Premium loading animation
       await new Promise((resolve) => setTimeout(resolve, 1200));
 
-      const nameParts = name.trim().split(/\s+/);
-      const firstName = nameParts.shift() ?? name.trim();
-      const lastName = nameParts.join(' ') || name.trim();
       const result = await register({
-        firstName,
-        lastName,
+        name: name.trim(),
         email,
         password,
         confirmPassword: password,
       });
       if (result.ok) {
         setSuccess(true);
-        // User is now authenticated — go straight to the profile
         setTimeout(() => router.push(ROUTES.PROFILE), 900);
       } else {
         setLoading(false);
@@ -305,7 +296,6 @@ export const RegisterPage: React.FC = () => {
 
   return (
     <>
-      <Helmet><title>Ro'yxatdan o'tish | Qarshiyev</title></Helmet>
       <div className="min-h-screen grid lg:grid-cols-2">
         <BrandPanel />
         <div className="flex items-center justify-center px-6 py-16 bg-slate-50">
@@ -415,7 +405,6 @@ export const LoginPage: React.FC = () => {
 
   return (
     <>
-      <Helmet><title>Kirish | Qarshiyev</title></Helmet>
       <div className="min-h-screen grid lg:grid-cols-2">
         <BrandPanel />
         <div className="flex items-center justify-center px-6 py-16 bg-slate-50">

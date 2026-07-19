@@ -1,11 +1,11 @@
 import prisma from '../../lib/prisma';
-import { requirePermission } from '../../lib/auth';
+import { requireUser } from '../../lib/auth';
 import { OverviewCharts } from './OverviewCharts';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminOverviewPage() {
-  await requirePermission('dashboard:read');
+  await requireUser();
 
   const [totalStudents, totalTeachers, totalCourses, totalApplications] = await Promise.all([
     prisma.student.count(),
@@ -39,7 +39,6 @@ function StatCard({ title, value, color }: { title: string, value: number, color
   return (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700 flex items-center space-x-4">
       <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white ${color}`}>
-        {/* Placeholder icon */}
         <span className="text-xl font-bold">#</span>
       </div>
       <div>
@@ -49,4 +48,3 @@ function StatCard({ title, value, color }: { title: string, value: number, color
     </div>
   );
 }
-

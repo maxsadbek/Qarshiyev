@@ -129,9 +129,7 @@ export const AnalyticsPage: React.FC = () => {
   // ============================================================
   // Authorization Guard
   // ============================================================
-  // TODO: Replace with proper role-based access control
-  // TODO: Add teacher-specific data filtering
-  if (!user || user.role !== 'admin') {
+  if (!user) {
     return null;
   }
 

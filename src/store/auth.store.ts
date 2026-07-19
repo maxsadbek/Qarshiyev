@@ -8,7 +8,7 @@ import { create } from 'zustand';
 // TODO: Add token refresh logic
 
 export interface AuthState {
-  user: { id: string; email: string; name: string; role: string } | null;
+  user: { id: string; email: string; name: string } | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;

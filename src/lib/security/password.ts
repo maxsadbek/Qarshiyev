@@ -16,7 +16,6 @@ export interface PasswordHasher {
 async function loadArgon2(): Promise<PasswordHasher | null> {
   try {
     // argon2 is optional — falls back to bcrypt, then built-in scrypt.
-    // @ts-expect-error — argon2 is not in package.json; falls back gracefully
     const m: Record<string, unknown> = await import('argon2');
     const argon2 = (m.default ?? m) as Record<string, unknown>;
     if (typeof argon2?.hash !== 'function') return null;
@@ -34,7 +33,6 @@ async function loadArgon2(): Promise<PasswordHasher | null> {
 // ── bcrypt (fallback) ────────────────────────────────────────────────
 async function loadBcrypt(): Promise<PasswordHasher | null> {
   try {
-    // @ts-expect-error — bcryptjs is not in package.json; falls back gracefully
     const m: Record<string, unknown> = await import('bcryptjs');
     const bcrypt = (m.default ?? m) as Record<string, unknown>;
     if (typeof bcrypt?.hash !== 'function') return null;

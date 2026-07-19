@@ -3,8 +3,7 @@
  * Authentication & authorization for Server Components, Route Handlers and
  * Server Actions.
  *
- * Replaces the previous plain-userId-cookie approach with a signed session
- * token (HS256) carrying a DB-backed session id, role and CSRF token.
+ * Signed session token (HS256) carrying a DB-backed session id and CSRF token.
  */
 
 import { cookies } from 'next/headers';
@@ -15,37 +14,22 @@ import {
   verifySessionToken,
   createSessionToken,
   sha256,
-  type SessionPayload,
 } from './security/session';
-import { normalizeRoleName, roleHasPermission, type Permission, type RoleName, ROLE } from '@/modules/rbac/roles';
 
 export interface AuthUser {
   id: string;
   email: string;
-  firstName: string;
-  lastName: string;
+  name: string;
   phone: string | null;
   telegramId: string | null;
-  roleId: string;
-  roleName: RoleName;
   isActive: boolean;
 }
 
 // ── Session resolution ─────────────────────────────────────────────────
 
 export interface ResolvedSession {
-  token: SessionPayload;
+  token: import('./security/session').SessionPayload;
   user: AuthUser;
-}
-
-const ROLE_CACHE = new Map<string, RoleName>();
-async function loadRoleName(roleId: string): Promise<RoleName> {
-  const cached = ROLE_CACHE.get(roleId);
-  if (cached) return cached;
-  const role = await prisma.role.findUnique({ where: { id: roleId }, select: { name: true } });
-  const name = normalizeRoleName(role?.name ?? 'STUDENT');
-  ROLE_CACHE.set(roleId, name);
-  return name;
 }
 
 export async function resolveSession(): Promise<ResolvedSession | null> {
@@ -65,22 +49,17 @@ export async function resolveSession(): Promise<ResolvedSession | null> {
     select: {
       id: true,
       email: true,
-      firstName: true,
-      lastName: true,
+      name: true,
       phone: true,
       telegramId: true,
-      roleId: true,
       isActive: true,
     },
   });
   if (!user || !user.isActive) return null;
 
-  const roleName = await loadRoleName(user.roleId);
-  if (roleName !== payload.role) return null; // role changed → force re-login
-
   return {
     token: payload,
-    user: { ...user, roleName },
+    user,
   };
 }
 
@@ -98,22 +77,6 @@ export async function requireUser(): Promise<ResolvedSession> {
   const session = await resolveSession();
   if (!session) throw new AuthError('UNAUTHENTICATED', 'Authentication required');
   if (!session.user.isActive) throw new AuthError('INACTIVE', 'Account is disabled');
-  return session;
-}
-
-export async function requireRole(...roles: RoleName[]): Promise<ResolvedSession> {
-  const session = await requireUser();
-  if (!roles.includes(session.user.roleName)) {
-    throw new AuthError('FORBIDDEN', 'Insufficient permissions');
-  }
-  return session;
-}
-
-export async function requirePermission(permission: Permission): Promise<ResolvedSession> {
-  const session = await requireUser();
-  if (!roleHasPermission(session.user.roleName, permission)) {
-    throw new AuthError('FORBIDDEN', 'Insufficient permissions');
-  }
   return session;
 }
 
@@ -151,7 +114,6 @@ export interface IssueSessionResult {
 
 export async function issueSession(opts: {
   userId: string;
-  roleName: RoleName;
   rememberMe?: boolean;
   ip?: string;
   userAgent?: string;
@@ -160,10 +122,8 @@ export async function issueSession(opts: {
   const token = createSessionToken({
     userId: opts.userId,
     sessionId,
-    role: opts.roleName,
     rememberMe: opts.rememberMe,
   });
-  // Extract csrf from the freshly created token payload (re-verify to read it)
   const payload = verifySessionToken(token)!;
   const ttlMs = opts.rememberMe ? 30 * 24 * 3600 * 1000 : 7 * 24 * 3600 * 1000;
   await prisma.session.create({
@@ -187,17 +147,15 @@ export async function revokeSession(sessionToken: string | undefined): Promise<v
   });
 }
 
-// ── Backward-compatible helpers (used by existing student/admin pages) ──
+// ── Backward-compatible helpers ────────────────────────────────────────
 
 export interface CurrentUser {
   id: string;
   email: string;
-  firstName: string;
-  lastName: string;
+  name: string;
   phone: string | null;
   telegramId: string | null;
   isActive: boolean;
-  role: { id: string; name: string };
   student?: {
     id: string;
     applications: Array<{
@@ -205,7 +163,7 @@ export interface CurrentUser {
       status: string;
       notes: string | null;
       createdAt: Date;
-      course: { title: string; language: { name: string }; price: number; description: string; teacher: { user: { firstName: string; lastName: string }; specialization: string | null; experienceYears: number } };
+      course: { title: string; language: { name: string }; price: number; description: string; teacher: { user: { name: string }; specialization: string | null; experienceYears: number } };
     }>;
     district?: { name: string; region: { name: string } } | null;
   } | null;
@@ -214,8 +172,7 @@ export interface CurrentUser {
 
 /**
  * Resolves the current user (with the student profile + applications eagerly
- * loaded) for Server Components that previously called getCurrentUser().
- * Returns null when unauthenticated or inactive.
+ * loaded) for Server Components.
  */
 export async function getCurrentUser(): Promise<CurrentUser | null> {
   const session = await resolveSession();
@@ -224,7 +181,6 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
     include: {
-      role: { select: { id: true, name: true } },
       student: {
         include: {
           applications: {
@@ -236,7 +192,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
                   description: true,
                   price: true,
                   language: { select: { name: true } },
-                  teacher: { select: { specialization: true, experienceYears: true, user: { select: { firstName: true, lastName: true } } } },
+                  teacher: { select: { specialization: true, experienceYears: true, user: { select: { name: true } } } },
                 },
               },
             },
@@ -250,12 +206,3 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   if (!user) return null;
   return user as unknown as CurrentUser;
 }
-
-export async function requireStudentAuth() {
-  const session = await requireUser();
-  if (session.user.roleName !== ROLE.STUDENT && session.user.roleName !== ROLE.TEACHER && session.user.roleName !== ROLE.ADMIN && session.user.roleName !== ROLE.OWNER) {
-    throw new AuthError('FORBIDDEN', 'FORBIDDEN');
-  }
-  return getCurrentUser();
-}
-

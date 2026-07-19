@@ -52,7 +52,7 @@ export class TeacherCrmService {
 
       const message = `
 🆕 <b>Yangi Ariza!</b>
-O'quvchi: <b>${application.student.user.firstName} ${application.student.user.lastName}</b>
+O'quvchi: <b>${application.student.user.name}</b>
 Telefon: ${application.student.user.phone}
 Kurs: <b>${application.course.title}</b>
 Holat: PENDING
@@ -123,7 +123,7 @@ Ma'lumot:
 
       // ── Async Multi-Channel Notifications ────────────────────────────
       const studentPayload = {
-        studentName: `${updated.student.user.firstName} ${updated.student.user.lastName}`,
+        studentName: updated.student.user.name,
         courseName: updated.course.title,
         applicationId,
         newStatus: status as 'APPROVED' | 'REJECTED' | 'PENDING',
@@ -206,7 +206,7 @@ Ma'lumot:
 
       if (!student) return 'O\'quvchi topilmadi.';
 
-      let text = `👤 <b>${student.user.firstName} ${student.user.lastName}</b>\n`;
+      let text = `👤 <b>${student.user.name}</b>\n`;
       text += `📞 ${student.user.phone}\n\n`;
       text += `📋 <b>Tarix (Arizalar):</b>\n`;
       

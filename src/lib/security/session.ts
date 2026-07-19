@@ -5,11 +5,10 @@
  * The token is a compact, HMAC-signed (HS256) JWT carrying:
  *   - sub: user id
  *   - sid: opaque session id (stored hashed in DB for revocation)
- *   - role: role name (cached to avoid a DB hit on every request)
  *   - csrf: short random token (double-submit cookie for CSRF protection)
  *   - exp / iat
  *
- * The signature uses AUTH_SECRET. Plaintext userId-in-cookie auth is gone.
+ * The signature uses AUTH_SECRET.
  */
 
 import crypto from 'node:crypto';
@@ -43,7 +42,6 @@ function verifySignature(data: string, sig: string): boolean {
 export interface SessionPayload {
   sub: string;
   sid: string;
-  role: string;
   csrf: string;
   iat: number;
   exp: number;
@@ -61,7 +59,7 @@ export function sha256(value: string): string {
   return crypto.createHash('sha256').update(value).digest('hex');
 }
 
-export function createSessionToken(opts: { userId: string; sessionId: string; role: string; rememberMe?: boolean }): string {
+export function createSessionToken(opts: { userId: string; sessionId: string; rememberMe?: boolean }): string {
   const csrf = generateCsrfToken();
   const iat = Math.floor(Date.now() / 1000);
   const ttl = opts.rememberMe ? REMEMBER_ME_TTL_SECONDS : SESSION_TTL_SECONDS;
@@ -69,7 +67,6 @@ export function createSessionToken(opts: { userId: string; sessionId: string; ro
   const payload: SessionPayload = {
     sub: opts.userId,
     sid: opts.sessionId,
-    role: opts.role,
     csrf,
     iat,
     exp,
@@ -98,4 +95,3 @@ export function verifySessionToken(token: string | undefined | null): SessionPay
 }
 
 export const SESSION_TTL = { rememberMe: REMEMBER_ME_TTL_SECONDS, session: SESSION_TTL_SECONDS };
-

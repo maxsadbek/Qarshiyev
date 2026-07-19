@@ -1,9 +1,6 @@
 /**
  * src/modules/rbac/roles.ts
- * Role-Based Access Control definitions and permission checks.
- *
- * Roles: OWNER (full), ADMIN, TEACHER (own data), STUDENT (own profile).
- * Permissions are coarse resources with actions: read/write/manage.
+ * DEPRECATED: RBAC has been removed. This file is kept for backward compatibility.
  */
 
 export const ROLE = {
@@ -15,84 +12,20 @@ export const ROLE = {
 
 export type RoleName = (typeof ROLE)[keyof typeof ROLE];
 
-export type Permission =
-  | 'students:read'
-  | 'students:write'
-  | 'students:manage'
-  | 'teachers:read'
-  | 'teachers:write'
-  | 'teachers:manage'
-  | 'dashboard:read'
-  | 'analytics:read'
-  | 'reports:read'
-  | 'reports:export'
-  | 'roles:manage'
-  | 'applications:read'
-  | 'applications:write'
-  | 'notifications:read'
-  | 'notifications:write'
-  | 'profile:read'
-  | 'profile:write';
+export type Permission = string;
 
-const OWNER_PERMISSIONS: Permission[] = [
-  'students:read', 'students:write', 'students:manage',
-  'teachers:read', 'teachers:write', 'teachers:manage',
-  'dashboard:read', 'analytics:read', 'reports:read', 'reports:export',
-  'roles:manage', 'applications:read', 'applications:write',
-  'notifications:read', 'notifications:write', 'profile:read', 'profile:write',
-];
+export const ROLE_PERMISSIONS: Record<string, string[]> = {};
 
-const ADMIN_PERMISSIONS: Permission[] = [
-  'students:read', 'students:write', 'students:manage',
-  'teachers:read', 'teachers:write',
-  'dashboard:read', 'analytics:read', 'reports:read', 'reports:export',
-  'applications:read', 'applications:write',
-  'notifications:read', 'notifications:write',
-  'profile:read', 'profile:write',
-];
-
-const TEACHER_PERMISSIONS: Permission[] = [
-  'students:read',
-  'teachers:read',
-  'dashboard:read', 'analytics:read',
-  'applications:read', 'applications:write',
-  'notifications:read', 'notifications:write',
-  'profile:read', 'profile:write',
-];
-
-const STUDENT_PERMISSIONS: Permission[] = [
-  'profile:read', 'profile:write',
-  'notifications:read',
-  'applications:read',
-];
-
-export const ROLE_PERMISSIONS: Record<RoleName, Permission[]> = {
-  [ROLE.OWNER]: OWNER_PERMISSIONS,
-  [ROLE.ADMIN]: ADMIN_PERMISSIONS,
-  [ROLE.TEACHER]: TEACHER_PERMISSIONS,
-  [ROLE.STUDENT]: STUDENT_PERMISSIONS,
-};
-
-export function roleHasPermission(role: string, permission: Permission): boolean {
-  const perms = ROLE_PERMISSIONS[role as RoleName];
-  if (!perms) return false;
-  return perms.includes(permission);
+export function roleHasPermission(_role: string, _permission: string): boolean {
+  return true;
 }
 
-/** Roles allowed to access the admin dashboard area. */
-export const ADMIN_AREA_ROLES: RoleName[] = [ROLE.OWNER, ROLE.ADMIN];
+export const ADMIN_AREA_ROLES: string[] = [];
 
-export function canAccessAdmin(role: string): boolean {
-  return ADMIN_AREA_ROLES.includes(role as RoleName);
+export function canAccessAdmin(_role: string): boolean {
+  return true;
 }
 
-/** Map legacy role names used in seeds/bot to canonical names. */
-export function normalizeRoleName(name: string): RoleName {
-  const upper = name.toUpperCase();
-  if (upper === 'SUPER_ADMIN' || upper === 'OWNER') return ROLE.OWNER;
-  if (upper === 'ADMIN') return ROLE.ADMIN;
-  if (upper === 'TEACHER') return ROLE.TEACHER;
-  // 'USER' or anything else is treated as STUDENT
-  return ROLE.STUDENT;
+export function normalizeRoleName(name: string): string {
+  return name;
 }
-
