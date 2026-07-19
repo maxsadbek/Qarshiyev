@@ -107,6 +107,7 @@ const translations: TranslationsDict = {
     no_db_hint: '<i>Ma\'lumotlar bazasiz rejim — tafsilotlarni ko\'rish uchun veb-panelga kiring.</i>',
     crm_accept: '✅ Qabul qilish',
     crm_reject: '❌ Rad etish',
+    crm_reply: '💬 Javob yozish',
     student_profile: '👤 <b>O\'quvchi profili</b>',
     profile_no_db_hint: '📋 <i>Ma\'lumotlar bazasiz rejim — profil ma\'lumotlarini ko\'rish uchun veb-panelga kiring.</i>',
 
@@ -253,6 +254,7 @@ const translations: TranslationsDict = {
     no_db_hint: '<i>Режим без базы данных — для просмотра деталей войдите в веб-панель.</i>',
     crm_accept: '✅ Принять',
     crm_reject: '❌ Отклонить',
+    crm_reply: '💬 Ответить',
     student_profile: '👤 <b>Профиль ученика</b>',
     profile_no_db_hint: '📋 <i>Режим без базы данных — для просмотра данных профиля войдите в веб-панель.</i>',
 
@@ -399,6 +401,7 @@ const translations: TranslationsDict = {
     no_db_hint: '<i>No-database mode — view details in the web panel.</i>',
     crm_accept: '✅ Accept',
     crm_reject: '❌ Reject',
+    crm_reply: '💬 Reply',
     student_profile: '👤 <b>Student Profile</b>',
     profile_no_db_hint: '📋 <i>No-database mode — view profile details in the web panel.</i>',
 

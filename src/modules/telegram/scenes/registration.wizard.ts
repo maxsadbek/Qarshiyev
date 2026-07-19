@@ -572,12 +572,34 @@ ${t(lang, 'confirm_question')}
             from: ctx.from?.id,
           });
 
-          // Notify teacher – send to admin and wait for it
-          console.log('[Application] Sending application to admin...', {
+          // Notify teacher with FULL wizard data — never offline fallback
+          console.log('[Application] Sending full application to admin...', {
             applicationId: application.id,
           });
           try {
-            await teacherCrmService.notifyTeacher(application.id);
+            await teacherCrmService.notifyTeacher(
+              application.id,
+              {
+                telegramId: ctx.from?.id.toString() || '',
+                firstName: ctx.from?.first_name || t(lang, 'first_name_fallback'),
+                lastName: ctx.from?.last_name || t(lang, 'last_name_fallback'),
+                phone: state.phone ?? '',
+                districtId: state.districtId ?? '',
+                courseId: state.courseId ?? '',
+                shift: state.shift ?? '',
+                age: Number(state.age ?? 0),
+                experience: state.experience ?? '',
+                device: state.device ?? '',
+                note: state.note ?? '',
+              },
+              {
+                firstName: ctx.from?.first_name || t(lang, 'first_name_fallback'),
+                lastName: ctx.from?.last_name || t(lang, 'last_name_fallback'),
+                username: ctx.from?.username,
+                telegramId: String(ctx.from?.id ?? ''),
+              },
+              state.regionId
+            );
           } catch (error: unknown) {
             const fullError =
               error instanceof Object

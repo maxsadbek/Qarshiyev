@@ -3,6 +3,7 @@ import type { Telegraf } from 'telegraf';
 import type { ProtectedContext } from '../middlewares/auth.middleware';
 import { t } from '../i18n/translations';
 import { applicationStore } from '../../applications/store';
+import type { RegistrationData } from '../telegram.service';
 import { logger } from '../../../lib/security/logger';
 
 /**
@@ -19,12 +20,103 @@ async function getBot(): Promise<Telegraf<ProtectedContext>> {
   return _bot;
 }
 
+// ── Hardcoded lookup maps (mirrors telegram.service.ts) ────────────
+
+const REGION_NAMES: Record<string, string> = {
+  toshkent: 'Toshkent',
+  samarqand: 'Samarqand',
+  buxoro: 'Buxoro',
+  qashqadaryo: 'Qashqadaryo',
+  surxondaryo: 'Surxondaryo',
+  andijon: 'Andijon',
+  namangan: 'Namangan',
+  fargona: "Farg'ona",
+  jizzax: 'Jizzax',
+  navoiy: 'Navoiy',
+  xorazm: 'Xorazm',
+  sirdaryo: 'Sirdaryo',
+  qoraqalpogiston: "Qoraqalpog'iston",
+};
+
+const DISTRICT_NAMES: Record<string, string> = {
+  chilonzor: 'Chilonzor',
+  sergeli: 'Sergeli',
+  'mirzo-ulugbek': "Mirzo Ulug'bek",
+  yunusobod: 'Yunusobod',
+  ishtixon: 'Ishtixon',
+  kattakurgon: 'Kattakurgon',
+  'samarqand-shahar': 'Samarqand shahar',
+  urgut: 'Urgut',
+  'buxoro-shahar': 'Buxoro shahar',
+  kogon: 'Kogon',
+  romitan: 'Romitan',
+  vobkent: 'Vobkent',
+  kitob: 'Kitob',
+  koson: 'Koson',
+  qarshi: 'Qarshi',
+  shahrisabz: 'Shahrisabz',
+  boysun: 'Boysun',
+  denov: 'Denov',
+  sariosiyo: 'Sariosiyo',
+  termiz: 'Termiz',
+  'andijon-shahar': 'Andijon shahar',
+  asaka: 'Asaka',
+  shahrixon: 'Shahrixon',
+  xonobod: 'Xonobod',
+  chust: 'Chust',
+  mingbuloq: 'Mingbuloq',
+  'namangan-shahar': 'Namangan shahar',
+  pop: 'Pop',
+  bgdod: "Bag'dod",
+  'fargona-shahar': "Farg'ona shahar",
+  quva: 'Quva',
+  rishton: 'Rishton',
+  baxmal: 'Baxmal',
+  dustlik: 'Dustlik',
+  'jizzax-shahar': 'Jizzax shahar',
+  zomin: 'Zomin',
+  'navoiy-shahar': 'Navoiy shahar',
+  nurota: 'Nurota',
+  qiziltepa: 'Qiziltepa',
+  zarafshon: 'Zarafshon',
+  bogot: "Bog'ot",
+  urganch: 'Urganch',
+  xiva: 'Xiva',
+  yangibozor: 'Yangibozor',
+  guliston: 'Guliston',
+  oqoltin: 'Oqoltin',
+  'sirdaryo-shahar': 'Sirdaryo shahar',
+  yangiyer: 'Yangiyer',
+  moynoq: "Mo'ynoq",
+  nukus: 'Nukus',
+};
+
+const COURSE_TITLES: Record<string, string> = {
+  backend: '⚙️ Backend dasturlash (Python/Node.js)',
+  'grafik-dizayn': '🎨 Grafik dizayn',
+  'ingliz-tili': '🇬🇧 Ingliz tili',
+  mobile: '📱 Mobil dasturlash',
+  smm: '📊 SMM / Marketing',
+  'web-dasturlash': '🌐 Web dasturlash (Frontend)',
+};
+
 export class TeacherCrmService {
   /**
    * Notifies the admin chat about a new application.
-   * Without a database, sends a simplified notification.
+   * Uses the full wizard data to format a complete notification.
+   * Never sends an offline fallback — always sends the full application.
    */
-  async notifyTeacher(applicationId: string) {
+  async notifyTeacher(
+    applicationId: string,
+    data: RegistrationData,
+    ctxInfo: {
+      firstName: string;
+      lastName: string;
+      username?: string;
+      telegramId: string;
+    },
+    regionId?: string
+  ) {
     console.log('[Application] Sending application to admin...', { applicationId });
 
     const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
@@ -37,18 +129,66 @@ export class TeacherCrmService {
       throw new Error(errMsg);
     }
 
-    const message = `
-${t(undefined, 'new_application_title')}
-${t(undefined, 'application_id')}: <code>${applicationId}</code>
-${t(undefined, 'status')}: PENDING
+    const resolvedRegion = (regionId ? REGION_NAMES[regionId] : undefined) || data.districtId;
+    const resolvedDistrict = DISTRICT_NAMES[data.districtId] || data.districtId;
+    const resolvedSchool = COURSE_TITLES[data.courseId] || data.courseId;
 
-${t(undefined, 'no_db_hint')}
+    const fullName = `${ctxInfo.firstName} ${ctxInfo.lastName}`.trim();
+    const usernameDisplay = ctxInfo.username ? `@${ctxInfo.username}` : '—';
+    const dateStr = new Date().toLocaleDateString('uz-UZ', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    const noteText = data.note && data.note !== '-' ? data.note : '—';
+
+    const message = `
+━━━━━━━━━━━━━━━━━━
+📝 <b>Yangi Ariza / New Application</b>
+━━━━━━━━━━━━━━━━━━
+
+👤 <b>To\'liq Ism / Full Name:</b>
+${fullName}
+
+📞 <b>Telefon / Phone:</b>
+${data.phone}
+
+🌍 <b>Viloyat / Region:</b>
+${resolvedRegion}
+
+🏫 <b>Maktab / School:</b>
+${resolvedDistrict}
+
+📄 <b>Ariza Turi / Application Type:</b>
+${resolvedSchool} — ${data.shift || '—'}
+
+💬 <b>Xabar / Message:</b>
+${noteText}
+
+🆔 <b>User ID:</b>
+<code>${ctxInfo.telegramId}</code>
+
+👤 <b>Username:</b>
+${usernameDisplay}
+
+📅 <b>Sana / Date:</b>
+${dateStr}
+
+🆔 <b>Ariza ID / App ID:</b>
+<code>${applicationId}</code>
+━━━━━━━━━━━━━━━━━━
+<b>Holat / Status: 🟡 Kutilmoqda / Pending</b>
       `;
 
     const keyboard = Markup.inlineKeyboard([
       [
         Markup.button.callback(t(undefined, 'crm_accept'), `CRM_ACCEPT_${applicationId}`),
         Markup.button.callback(t(undefined, 'crm_reject'), `CRM_REJECT_${applicationId}`),
+      ],
+      [
+        Markup.button.callback('💬 ' + t(undefined, 'crm_reply'), `CRM_NOTE_${applicationId}`),
       ],
     ]);
 
@@ -60,13 +200,13 @@ ${t(undefined, 'no_db_hint')}
         ...keyboard,
       });
 
-      console.log('[Application] Application sent successfully', {
+      console.log('[Application] Full application sent successfully', {
         applicationId,
         adminChatId,
         messageId: result.message_id,
       });
 
-      logger.info('Teacher notified about new application (no-DB mode)', {
+      logger.info('Teacher notified with full application data', {
         applicationId,
         adminChatId,
         messageId: result.message_id,
