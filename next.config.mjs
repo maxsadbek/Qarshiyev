@@ -23,6 +23,11 @@ const nextConfig = {
   },
   // Ensure server components can access Node.js APIs used by Prisma, Telegraf, etc.
   serverExternalPackages: ['@prisma/client', 'telegraf', 'sharp'],
+  turbopack: {
+    // Fix: Prevents Turbopack from detecting the wrong workspace root
+    // when there are multiple package-lock.json files in parent directories.
+    root: process.cwd(),
+  },
 };
 
 export default nextConfig;

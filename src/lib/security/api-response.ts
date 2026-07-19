@@ -62,12 +62,36 @@ export function apiError(err: unknown) {
     });
   }
 
-  // Unknown error — log server-side, return generic message.
-  console.error('[API ERROR]', err);
-  return NextResponse.json(jsonBody(false, undefined, 'Internal server error'), {
-    status: 500,
-    headers: securityHeadersInit(),
-  });
+  // Unknown error — log the FULL error details server-side
+  const message = err instanceof Error ? err.message : String(err);
+  const stack = err instanceof Error ? err.stack : undefined;
+  console.error('[API ERROR]', message);
+  if (stack) console.error('[API ERROR] Stack:', stack);
+
+  // Return a safe error message — never leak internal config details to clients.
+  // Error messages from our own auth service are prefixed with known patterns.
+  // Everything else (Prisma errors, config errors) is hidden behind a generic message.
+  const knownSafePrefixes = [
+    'Email yoki parol',
+    'Hisob vaqtincha',
+    'Ro‘yxatdan o‘tishda',
+    'Kirishda',
+    'Sessiya yaratishda',
+    'Foydalanuvchi yaratishda',
+    'Parolni',
+    'Bu email',
+    'Xatolik yuz berdi',
+    'Token yaroqsiz',
+    'Juda ko‘p urinish',
+    'Noto‘g‘ri ma’lumotlar',
+    'So‘rov formati',
+  ];
+  const isSafe = knownSafePrefixes.some(prefix => message.startsWith(prefix));
+  const safeMessage = isSafe ? message : 'Xatolik yuz berdi. Iltimos, qayta urinib ko\'ring.';
+  return NextResponse.json(
+    jsonBody(false, undefined, safeMessage),
+    { status: 500, headers: securityHeadersInit() },
+  );
 }
 
 /**
@@ -96,4 +120,3 @@ export function withApiHandler<Params extends Record<string, string | string[]> 
     }
   };
 }
-

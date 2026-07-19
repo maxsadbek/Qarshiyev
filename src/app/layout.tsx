@@ -8,9 +8,19 @@ import '../index.css';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
+  title: {
+    default: 'Qarshiyev AVYD — Taʼlim markazi',
+    template: '%s | Qarshiyev AVYD',
+  },
+  description:
+    "Qarshiyev AVYD — sifatli ta'lim, IELTS, ingliz tili, matematika va boshqa fanlar. O'quv markaziga xush kelibsiz.",
   icons: {
-    icon: '/favicon.svg',
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.png', type: 'image/png', sizes: '32x32' },
+    ],
     shortcut: '/favicon.svg',
+    apple: [{ url: '/favicon.svg', type: 'image/svg+xml' }],
   },
 };
 
