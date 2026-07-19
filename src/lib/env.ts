@@ -19,6 +19,10 @@ const envSchema = z.object({
   TELEGRAM_WEBHOOK_SECRET: z.string().optional(),
   TELEGRAM_ADMIN_CHAT_ID: z.string().optional(),
 
+  FREE_BUFF_BOT_TOKEN: z.string().optional(),
+  FREE_BUFF_ADMIN_CHAT_ID: z.string().optional(),
+  FREE_BUFF_WEBHOOK_SECRET: z.string().optional(),
+
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().optional(),
 
@@ -53,6 +57,9 @@ export function getEnv(): AppEnv {
       TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN,
       TELEGRAM_WEBHOOK_SECRET: process.env.TELEGRAM_WEBHOOK_SECRET,
       TELEGRAM_ADMIN_CHAT_ID: process.env.TELEGRAM_ADMIN_CHAT_ID,
+      FREE_BUFF_BOT_TOKEN: process.env.FREE_BUFF_BOT_TOKEN,
+      FREE_BUFF_ADMIN_CHAT_ID: process.env.FREE_BUFF_ADMIN_CHAT_ID,
+      FREE_BUFF_WEBHOOK_SECRET: process.env.FREE_BUFF_WEBHOOK_SECRET,
       RESEND_API_KEY: process.env.RESEND_API_KEY,
       EMAIL_FROM: process.env.EMAIL_FROM,
       OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
