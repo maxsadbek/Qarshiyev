@@ -129,8 +129,11 @@ export class TeacherCrmService {
       throw new Error(errMsg);
     }
 
-    const resolvedRegion = (regionId ? REGION_NAMES[regionId] : undefined) || data.districtId;
-    const resolvedDistrict = DISTRICT_NAMES[data.districtId] || data.districtId;
+    // IMPORTANT: region and district MUST be resolved independently.
+    // The regionId parameter comes from state.regionId in the wizard,
+    // NOT from data.districtId. Never fall back to districtId for region.
+    const resolvedRegion = regionId ? (REGION_NAMES[regionId] || regionId) : '—';
+    const resolvedDistrict = data.districtId ? (DISTRICT_NAMES[data.districtId] || data.districtId) : '—';
     const resolvedSchool = COURSE_TITLES[data.courseId] || data.courseId;
 
     const fullName = `${ctxInfo.firstName} ${ctxInfo.lastName}`.trim();
@@ -158,7 +161,7 @@ ${data.phone}
 🌍 <b>Viloyat / Region:</b>
 ${resolvedRegion}
 
-🏫 <b>Maktab / School:</b>
+🏫 <b>Tuman / District:</b>
 ${resolvedDistrict}
 
 📄 <b>Ariza Turi / Application Type:</b>

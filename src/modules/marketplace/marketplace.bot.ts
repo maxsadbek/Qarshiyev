@@ -16,6 +16,18 @@ import type { MpOrder, MpUser } from './marketplace.store';
 import { logger } from '../../lib/security/logger';
 import { getEnv } from '../../lib/env';
 
+// ── Safe answerCbQuery helper ──────────────────────────────────
+// Prevents "answerCbQuery isn't available for message" TypeError.
+async function safeAnswerCbQuery(ctx: ProtectedContext, text?: string): Promise<void> {
+  if (ctx.callbackQuery) {
+    try {
+      await ctx.answerCbQuery(text);
+    } catch {
+      // Silently ignore
+    }
+  }
+}
+
 const env = getEnv();
 
 if (!env.FREE_BUFF_BOT_TOKEN) {
@@ -344,28 +356,28 @@ export async function showMainMenu(ctx: ProtectedContext, lang: LangCode) {
 const menuActions: Record<string, (ctx: ProtectedContext, lang: LangCode) => Promise<void>> = {
   // ── Main Menu ──────────────────────────────────────────
   MP_MAIN_MENU: async (ctx, lang) => {
-    await ctx.answerCbQuery().catch(() => {});
+    await safeAnswerCbQuery(ctx);
     await ctx.deleteMessage().catch(() => {});
     await showMainMenu(ctx, lang);
   },
 
   // ── Buy Service ────────────────────────────────────────
   MP_BUY: async (ctx, lang) => {
-    await ctx.answerCbQuery().catch(() => {});
+    await safeAnswerCbQuery(ctx);
     await ctx.deleteMessage().catch(() => {});
     await ctx.scene.enter('MARKETPLACE_ORDER');
   },
 
   // ── Prices ─────────────────────────────────────────────
   MP_PRICES: async (ctx, lang) => {
-    await ctx.answerCbQuery().catch(() => {});
+    await safeAnswerCbQuery(ctx);
     await ctx.deleteMessage().catch(() => {});
     await showPrices(ctx, lang);
   },
 
   // ── My Orders ──────────────────────────────────────────
   MP_MY_ORDERS: async (ctx, lang) => {
-    await ctx.answerCbQuery().catch(() => {});
+    await safeAnswerCbQuery(ctx);
     await ctx.deleteMessage().catch(() => {});
     const userId = ctx.from?.id;
     const user = marketplaceStore.getUserByTelegramId(userId!);
@@ -389,14 +401,14 @@ const menuActions: Record<string, (ctx: ProtectedContext, lang: LangCode) => Pro
 
   // ── Reviews ────────────────────────────────────────────
   MP_REVIEWS: async (ctx, lang) => {
-    await ctx.answerCbQuery().catch(() => {});
+    await safeAnswerCbQuery(ctx);
     await ctx.deleteMessage().catch(() => {});
     await showReviews(ctx, lang);
   },
 
   // ── News ───────────────────────────────────────────────
   MP_NEWS: async (ctx, lang) => {
-    await ctx.answerCbQuery().catch(() => {});
+    await safeAnswerCbQuery(ctx);
     await ctx.reply(t(lang, 'no_news') + '\n\n' +
       '📢 Stay tuned for upcoming promotions and events!', {
       parse_mode: 'HTML',
@@ -408,7 +420,7 @@ const menuActions: Record<string, (ctx: ProtectedContext, lang: LangCode) => Pro
 
   // ── Profile ────────────────────────────────────────────
   MP_PROFILE: async (ctx, lang) => {
-    await ctx.answerCbQuery().catch(() => {});
+    await safeAnswerCbQuery(ctx);
     await ctx.deleteMessage().catch(() => {});
     const userId = ctx.from?.id;
     const user = marketplaceStore.getUserByTelegramId(userId!);
@@ -421,14 +433,14 @@ const menuActions: Record<string, (ctx: ProtectedContext, lang: LangCode) => Pro
 
   // ── Language ───────────────────────────────────────────
   MP_LANGUAGE: async (ctx, lang) => {
-    await ctx.answerCbQuery().catch(() => {});
+    await safeAnswerCbQuery(ctx);
     await ctx.deleteMessage().catch(() => {});
     await showLanguageSelection(ctx);
   },
 
   // ── Support ────────────────────────────────────────────
   MP_SUPPORT: async (ctx, lang) => {
-    await ctx.answerCbQuery().catch(() => {});
+    await safeAnswerCbQuery(ctx);
     await ctx.reply(t(lang, 'support_message'), {
       parse_mode: 'HTML',
       ...Markup.inlineKeyboard([
@@ -451,7 +463,7 @@ for (const [action, handler] of Object.entries(menuActions)) {
 for (const l of LANGUAGES) {
   bot.action(`MPLANG_${l.code}`, async (ctx) => {
     const userId = ctx.from?.id;
-    await ctx.answerCbQuery().catch(() => {});
+    await safeAnswerCbQuery(ctx);
     marketplaceStore.setUserLanguage(userId!, l.code);
     const langName = langLabel(l.code);
     await ctx.editMessageText(
@@ -471,7 +483,7 @@ bot.action(/MP_ORDERS_PAGE_(\d+)/, async (ctx) => {
   const userId = ctx.from?.id;
   const lang = marketplaceStore.getUserLanguage(userId!);
   const page = parseInt(ctx.match[1]);
-  await ctx.answerCbQuery().catch(() => {});
+  await safeAnswerCbQuery(ctx);
   const user = marketplaceStore.getUserByTelegramId(userId!);
   if (!user) return;
   const orders = marketplaceStore.getUserOrders(user.id);
@@ -487,7 +499,7 @@ bot.action(/MP_ORDERS_PAGE_(\d+)/, async (ctx) => {
 bot.action('ADMIN_MENU', adminGuard, async (ctx) => {
   const userId = ctx.from?.id;
   const lang = marketplaceStore.getUserLanguage(userId!);
-  await ctx.answerCbQuery().catch(() => {});
+  await safeAnswerCbQuery(ctx);
   await ctx.deleteMessage().catch(() => {});
   await showAdminMenu(ctx, lang);
 });
@@ -495,7 +507,7 @@ bot.action('ADMIN_MENU', adminGuard, async (ctx) => {
 bot.action('ADMIN_STATS', adminGuard, async (ctx) => {
   const userId = ctx.from?.id;
   const lang = marketplaceStore.getUserLanguage(userId!);
-  await ctx.answerCbQuery().catch(() => {});
+  await safeAnswerCbQuery(ctx);
   const stats = marketplaceStore.getStats();
   await ctx.editMessageText(
     t(lang, 'admin_stats', {
@@ -522,7 +534,7 @@ bot.action('ADMIN_STATS', adminGuard, async (ctx) => {
 bot.action('ADMIN_ORDERS', adminGuard, async (ctx) => {
   const userId = ctx.from?.id;
   const lang = marketplaceStore.getUserLanguage(userId!);
-  await ctx.answerCbQuery().catch(() => {});
+  await safeAnswerCbQuery(ctx);
   await ctx.deleteMessage().catch(() => {});
   await showAdminOrders(ctx, lang, 0);
 });
@@ -530,7 +542,7 @@ bot.action('ADMIN_ORDERS', adminGuard, async (ctx) => {
 bot.action('ADMIN_REVIEWS', adminGuard, async (ctx) => {
   const userId = ctx.from?.id;
   const lang = marketplaceStore.getUserLanguage(userId!);
-  await ctx.answerCbQuery().catch(() => {});
+  await safeAnswerCbQuery(ctx);
   const pendingReviews = marketplaceStore.getPendingReviews();
 
   if (pendingReviews.length === 0) {
@@ -560,7 +572,7 @@ bot.action('ADMIN_REVIEWS', adminGuard, async (ctx) => {
 // ── Approve Review ──────────────────────────────────────────────────
 bot.action(/APPROVE_REVIEW_(.+)/, adminGuard, async (ctx) => {
   const reviewId = ctx.match[1];
-  await ctx.answerCbQuery().catch(() => {});
+  await safeAnswerCbQuery(ctx);
   marketplaceStore.approveReview(reviewId);
   await ctx.editMessageText(
     '✅ Review approved!\n🆔 <code>' + reviewId + '</code>',
@@ -571,7 +583,7 @@ bot.action(/APPROVE_REVIEW_(.+)/, adminGuard, async (ctx) => {
 // ── Order Status Management ─────────────────────────────────────────
 bot.action(/ADMIN_ACCEPT_(.+)/, adminGuard, async (ctx) => {
   const orderId = ctx.match[1];
-  await ctx.answerCbQuery().catch(() => {});
+  await safeAnswerCbQuery(ctx);
   const order = marketplaceStore.updateOrderStatus(orderId, 'ACCEPTED');
   if (order) {
     await updateAdminOrderMessage(ctx, order, '🔵 ' + ORDER_STATUS_META.ACCEPTED.label.en);
@@ -581,7 +593,7 @@ bot.action(/ADMIN_ACCEPT_(.+)/, adminGuard, async (ctx) => {
 
 bot.action(/ADMIN_REJECT_(.+)/, adminGuard, async (ctx) => {
   const orderId = ctx.match[1];
-  await ctx.answerCbQuery().catch(() => {});
+  await safeAnswerCbQuery(ctx);
   const order = marketplaceStore.updateOrderStatus(orderId, 'REJECTED');
   if (order) {
     await updateAdminOrderMessage(ctx, order, '🔴 ' + ORDER_STATUS_META.REJECTED.label.en);
@@ -591,7 +603,7 @@ bot.action(/ADMIN_REJECT_(.+)/, adminGuard, async (ctx) => {
 
 bot.action(/ADMIN_PROGRESS_(.+)/, adminGuard, async (ctx) => {
   const orderId = ctx.match[1];
-  await ctx.answerCbQuery().catch(() => {});
+  await safeAnswerCbQuery(ctx);
   const order = marketplaceStore.updateOrderStatus(orderId, 'IN_PROGRESS');
   if (order) {
     await updateAdminOrderMessage(ctx, order, '🟠 ' + ORDER_STATUS_META.IN_PROGRESS.label.en);
@@ -601,7 +613,7 @@ bot.action(/ADMIN_PROGRESS_(.+)/, adminGuard, async (ctx) => {
 
 bot.action(/ADMIN_COMPLETE_(.+)/, adminGuard, async (ctx) => {
   const orderId = ctx.match[1];
-  await ctx.answerCbQuery().catch(() => {});
+  await safeAnswerCbQuery(ctx);
   const order = marketplaceStore.updateOrderStatus(orderId, 'COMPLETED');
   if (order) {
     await updateAdminOrderMessage(ctx, order, '🟢 ' + ORDER_STATUS_META.COMPLETED.label.en);
@@ -612,7 +624,7 @@ bot.action(/ADMIN_COMPLETE_(.+)/, adminGuard, async (ctx) => {
 bot.action(/ADMIN_NOTE_(.+)/, adminGuard, async (ctx) => {
   const orderId = ctx.match[1];
   const userId = ctx.from?.id;
-  await ctx.answerCbQuery().catch(() => {});
+  await safeAnswerCbQuery(ctx);
   const lang = marketplaceStore.getUserLanguage(userId!);
   marketplaceStore.setPendingNoteUser(userId!.toString(), orderId);
   await ctx.reply(t(lang, 'admin_note_prompt'), {
@@ -625,7 +637,7 @@ bot.action(/ADMIN_ORDERS_PAGE_(\d+)/, adminGuard, async (ctx) => {
   const userId = ctx.from?.id;
   const lang = marketplaceStore.getUserLanguage(userId!);
   const page = parseInt(ctx.match[1]);
-  await ctx.answerCbQuery().catch(() => {});
+  await safeAnswerCbQuery(ctx);
   await ctx.deleteMessage().catch(() => {});
   await showAdminOrders(ctx, lang, page);
 });
@@ -885,7 +897,7 @@ async function showAdminMenu(ctx: ProtectedContext, lang: LangCode) {
 bot.action('HELP_BROADCAST', adminGuard, async (ctx) => {
   const userId = ctx.from?.id;
   const lang = marketplaceStore.getUserLanguage(userId!);
-  await ctx.answerCbQuery().catch(() => {});
+  await safeAnswerCbQuery(ctx);
   await ctx.reply(t(lang, 'admin_broadcast_usage'), {
     parse_mode: 'HTML',
   }).catch(() => {});

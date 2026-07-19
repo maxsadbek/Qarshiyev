@@ -214,9 +214,22 @@ bot.command('broadcast', teacherAdminOnly(), async (ctx) => {
   }).catch(() => {});
 });
 
+// ── Safe answerCbQuery helper ────────────────────────────────────
+// Prevents "answerCbQuery isn't available for message" TypeError.
+// Must only be called when ctx.callbackQuery is truthy.
+async function safeAnswerCbQuery(ctx: ProtectedContext, text?: string): Promise<void> {
+  if (ctx.callbackQuery) {
+    try {
+      await ctx.answerCbQuery(text);
+    } catch {
+      // Silently ignore
+    }
+  }
+}
+
 // ── Admin Menu ────────────────────────────────────────────────────────
 bot.action('ADMIN_MENU', teacherAdminOnly(), async (ctx) => {
-  await ctx.answerCbQuery().catch(() => {});
+  await safeAnswerCbQuery(ctx);
   await ctx.editMessageText(
     `🏠 <b>${t(undefined, 'admin_menu_title')}</b>\n\n${t(undefined, 'admin_menu_desc')}`,
     {
@@ -236,7 +249,7 @@ bot.action('ADMIN_MENU', teacherAdminOnly(), async (ctx) => {
 });
 
 bot.action('ADMIN_STATS', teacherAdminOnly(), async (ctx) => {
-  await ctx.answerCbQuery().catch(() => {});
+  await safeAnswerCbQuery(ctx);
   const stats = applicationStore.getStats();
   const userCount = applicationStore.getUserCount();
   const message = `
@@ -260,7 +273,7 @@ bot.action('ADMIN_STATS', teacherAdminOnly(), async (ctx) => {
 });
 
 bot.action('ADMIN_USERS', teacherAdminOnly(), async (ctx) => {
-  await ctx.answerCbQuery().catch(() => {});
+  await safeAnswerCbQuery(ctx);
   const userCount = applicationStore.getUserCount();
   const stats = applicationStore.getStats();
   const message = `
@@ -283,7 +296,7 @@ ${t(undefined, 'users_total')}: <b>${userCount}</b>
 });
 
 bot.action('ADMIN_APPS', teacherAdminOnly(), async (ctx) => {
-  await ctx.answerCbQuery().catch(() => {});
+  await safeAnswerCbQuery(ctx);
   const stats = applicationStore.getStats();
   await ctx.editMessageText(
     `📋 <b>${t(undefined, 'admin_applications')}</b>\n\n${t(undefined, 'admin_apps_desc')}\n\n📊 ${t(undefined, 'stats_total_applications')}: <b>${stats.total}</b>`,
@@ -299,7 +312,7 @@ bot.action('ADMIN_APPS', teacherAdminOnly(), async (ctx) => {
 });
 
 bot.action('ADMIN_BROADCAST', teacherAdminOnly(), async (ctx) => {
-  await ctx.answerCbQuery().catch(() => {});
+  await safeAnswerCbQuery(ctx);
   await ctx.editMessageText(
     `📢 <b>${t(undefined, 'broadcast_usage')}</b>\n\n${t(undefined, 'broadcast_usage_detail')}`,
     {
@@ -324,10 +337,10 @@ bot.action(/CRM_ACCEPT_(.+)/, teacherAdminOnly(), async (ctx) => {
     await ctx.editMessageText(
       ((ctx.callbackQuery?.message as { text?: string } | undefined)?.text ?? '') + '\n\n' + t(undefined, 'status_approved')
     ).catch(() => {});
-    await ctx.answerCbQuery(t(undefined, 'approved')).catch(() => {});
+    await safeAnswerCbQuery(ctx, t(undefined, 'approved'));
   } catch (error) {
     logger.error('[Telegram] Failed to approve application', { appId, error: String(error) });
-    await ctx.answerCbQuery(t(undefined, 'error_generic')).catch(() => {});
+    await safeAnswerCbQuery(ctx, t(undefined, 'error_generic'));
   }
 });
 
@@ -340,10 +353,10 @@ bot.action(/CRM_REJECT_(.+)/, teacherAdminOnly(), async (ctx) => {
     await ctx.editMessageText(
       ((ctx.callbackQuery?.message as { text?: string } | undefined)?.text ?? '') + '\n\n' + t(undefined, 'status_rejected')
     ).catch(() => {});
-    await ctx.answerCbQuery(t(undefined, 'rejected')).catch(() => {});
+    await safeAnswerCbQuery(ctx, t(undefined, 'rejected'));
   } catch (error) {
     logger.error('[Telegram] Failed to reject application', { appId, error: String(error) });
-    await ctx.answerCbQuery(t(undefined, 'error_generic')).catch(() => {});
+    await safeAnswerCbQuery(ctx, t(undefined, 'error_generic'));
   }
 });
 
@@ -356,10 +369,10 @@ bot.action(/CRM_PENDING_(.+)/, teacherAdminOnly(), async (ctx) => {
     await ctx.editMessageText(
       ((ctx.callbackQuery?.message as { text?: string } | undefined)?.text ?? '') + '\n\n' + t(undefined, 'status_pending')
     ).catch(() => {});
-    await ctx.answerCbQuery(t(undefined, 'pending')).catch(() => {});
+    await safeAnswerCbQuery(ctx, t(undefined, 'pending'));
   } catch (error) {
     logger.error('[Telegram] Failed to set application to pending', { appId, error: String(error) });
-    await ctx.answerCbQuery(t(undefined, 'error_generic')).catch(() => {});
+    await safeAnswerCbQuery(ctx, t(undefined, 'error_generic'));
   }
 });
 
@@ -367,7 +380,7 @@ bot.action(/CRM_NOTE_(.+)/, teacherAdminOnly(), async (ctx) => {
   const appId = ctx.match[1];
   logger.info('[Telegram] CRM_NOTE (no-DB mode)', { appId });
 
-  await ctx.answerCbQuery().catch(() => {});
+  await safeAnswerCbQuery(ctx);
   await ctx.scene.enter('CRM_WRITE_NOTE', {
     applicationId: appId,
     actionUserId: 'no-db-mode',
@@ -381,10 +394,10 @@ bot.action(/CRM_PROFILE_(.+)/, teacherAdminOnly(), async (ctx) => {
   try {
     const profileText = await teacherCrmService.getStudentProfileText(studentId);
     await ctx.reply(profileText, { parse_mode: 'HTML' }).catch(() => {});
-    await ctx.answerCbQuery().catch(() => {});
+    await safeAnswerCbQuery(ctx);
   } catch (error) {
     logger.error('[Telegram] Failed to fetch student profile', { studentId, error: String(error) });
-    await ctx.answerCbQuery(t(undefined, 'profile_load_error')).catch(() => {});
+    await safeAnswerCbQuery(ctx, t(undefined, 'profile_load_error'));
   }
 });
 
@@ -397,13 +410,13 @@ bot.action(/CRM_PROFILE_(.+)/, teacherAdminOnly(), async (ctx) => {
 //
 // IMPORTANT: The regex explicitly EXCLUDES scene-related callbacks
 // (LANG_UZ, LANG_RU, CONFIRM, CANCEL, DEVICE_*, SHIFT_*, COURSE_*,
-//  DISTRICT_*, REGION_*) so that callbacks ALREADY handled by the
-// active scene wizard are NOT processed here. If we used /.*/, the
-// catch-all would fire AFTER the scene processed the callback and
-// call ctx.scene.enter() again, which would reset the session and
-// re-display buttons — causing an infinite loop.
+//  DISTRICT_*, REGION_*) AND CRM callbacks so that callbacks ALREADY
+// handled by the active scene wizard or CRM handlers are NOT processed
+// here. If we used /.*/, the catch-all would fire AFTER the scene
+// processed the callback and call ctx.scene.enter() again, which would
+// reset the session and re-display buttons — causing an infinite loop.
 bot.action(
-  /^(?!(?:LANG_UZ|LANG_RU|LANG_EN|CONFIRM|CANCEL|DEVICE_|SHIFT_|COURSE_|DISTRICT_|REGION_|ADMIN_))/,
+  /^(?!(?:LANG_UZ|LANG_RU|LANG_EN|CONFIRM|CANCEL|DEVICE_|SHIFT_|COURSE_|DISTRICT_|REGION_|ADMIN_|CRM_))/,
   async (ctx) => {
     const data = ctx.callbackQuery && 'data' in ctx.callbackQuery
       ? ctx.callbackQuery.data
@@ -413,7 +426,7 @@ bot.action(
 
     try {
       // Acknowledge the callback to prevent Telegram's "button loading" state
-      await ctx.answerCbQuery().catch(() => {});
+      await safeAnswerCbQuery(ctx);
     } catch (error) {
       logger.error('[Telegram] Catch-all handler error', { error: String(error), data });
     }

@@ -11,6 +11,17 @@ import { GAMES, SERVICES, PLATFORMS, REFERRAL_BONUS_PERCENT } from '../types';
 import type { LangCode, OrderWizardState } from '../types';
 import { logger } from '../../../lib/security/logger';
 
+// ── Safe answerCbQuery helper ──────────────────────────────────
+async function safeAnswerCbQuery(ctx: ProtectedContext, text?: string): Promise<void> {
+  if (ctx.callbackQuery) {
+    try {
+      await ctx.answerCbQuery(text);
+    } catch {
+      // Silently ignore
+    }
+  }
+}
+
 export const orderWizard = new Scenes.WizardScene<ProtectedContext>(
   'MARKETPLACE_ORDER',
 
@@ -46,7 +57,7 @@ export const orderWizard = new Scenes.WizardScene<ProtectedContext>(
 
     if (hasCallback) {
       const data = ctx.callbackQuery.data;
-      await ctx.answerCbQuery().catch(() => {});
+      await safeAnswerCbQuery(ctx);
 
       if (data === 'CANCEL_ORDER') {
         await ctx.editMessageText(t(state.language, 'order_cancelled'), {

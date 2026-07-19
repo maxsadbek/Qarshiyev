@@ -9,6 +9,17 @@ import { t } from '../i18n/translations';
 import type { ReviewWizardState } from '../types';
 import { logger } from '../../../lib/security/logger';
 
+// ── Safe answerCbQuery helper ──────────────────────────────────
+async function safeAnswerCbQuery(ctx: ProtectedContext, text?: string): Promise<void> {
+  if (ctx.callbackQuery) {
+    try {
+      await ctx.answerCbQuery(text);
+    } catch {
+      // Silently ignore
+    }
+  }
+}
+
 export const reviewWizard = new Scenes.WizardScene<ProtectedContext>(
   'MARKETPLACE_REVIEW',
 
@@ -104,7 +115,7 @@ export const reviewWizard = new Scenes.WizardScene<ProtectedContext>(
 
     if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
       const data = ctx.callbackQuery.data;
-      await ctx.answerCbQuery().catch(() => {});
+      await safeAnswerCbQuery(ctx);
 
       if (data === 'REVIEW_CANCEL') {
         await ctx.editMessageText('❌ ' + t(lang, 'btn_cancel'), {
@@ -157,7 +168,7 @@ export const reviewWizard = new Scenes.WizardScene<ProtectedContext>(
 
     if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
       const data = ctx.callbackQuery.data;
-      await ctx.answerCbQuery().catch(() => {});
+      await safeAnswerCbQuery(ctx);
 
       if (data === 'REVIEW_CANCEL') {
         await ctx.editMessageText('❌ ' + t(lang, 'btn_cancel'), {
@@ -204,7 +215,7 @@ export const reviewWizard = new Scenes.WizardScene<ProtectedContext>(
 
     if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
       const data = ctx.callbackQuery.data;
-      await ctx.answerCbQuery().catch(() => {});
+      await safeAnswerCbQuery(ctx);
 
       if (data === 'REVIEW_CANCEL') {
         await ctx.editMessageText('❌ ' + t(lang, 'btn_cancel')).catch(() => {});
