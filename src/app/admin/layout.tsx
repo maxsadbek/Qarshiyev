@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { LogoutButton } from '@/components/auth/LogoutButton';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -13,9 +14,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <nav className="flex-1 p-4 space-y-2">
           <Link href="/admin" className="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition">Overview</Link>
           <Link href="/admin/students" className="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition">Students</Link>
-          <Link href="/admin/teachers" className="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition">Teachers</Link>
-          <Link href="/admin/courses" className="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition">Courses</Link>
           <Link href="/admin/applications" className="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition">Applications</Link>
+          <Link href="/student" className="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition">Student Panel</Link>
         </nav>
       </aside>
 
@@ -25,11 +25,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <header className="h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-6">
           <h1 className="text-xl font-semibold">Dashboard</h1>
           <div className="flex items-center space-x-4">
-            {/* Dark mode toggle logic would be a client component, leaving placeholder for UI */}
-            <button className="text-sm px-3 py-1 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">
-              Toggle Theme
-            </button>
-            <Link href="/admin/login" className="text-sm text-red-500 hover:underline">Logout</Link>
+            <LogoutButton className="text-sm px-3 py-1 rounded border border-red-300 dark:border-red-700 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition cursor-pointer" />
           </div>
         </header>
 

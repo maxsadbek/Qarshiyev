@@ -17,7 +17,7 @@ import {
   sha256,
   type SessionPayload,
 } from './security/session';
-import { ROLE, normalizeRoleName, roleHasPermission, type Permission, type RoleName } from '@/modules/rbac/roles';
+import { normalizeRoleName, roleHasPermission, type Permission, type RoleName, ROLE } from '@/modules/rbac/roles';
 
 export interface AuthUser {
   id: string;
@@ -224,14 +224,25 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
     include: {
-      role: true,
+      role: { select: { id: true, name: true } },
       student: {
         include: {
           applications: {
-            include: { course: { include: { teacher: { include: { user: true } }, language: true } } },
+            include: {
+              course: {
+                select: {
+                  id: true,
+                  title: true,
+                  description: true,
+                  price: true,
+                  language: { select: { name: true } },
+                  teacher: { select: { specialization: true, experienceYears: true, user: { select: { firstName: true, lastName: true } } } },
+                },
+              },
+            },
             orderBy: { createdAt: 'desc' },
           },
-          district: { include: { region: true } },
+          district: { include: { region: { select: { name: true } } } },
         },
       },
     },

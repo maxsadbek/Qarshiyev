@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '../../../lib/auth';
 import prisma from '../../../lib/prisma';
+import { MarkReadWrapper } from '@/components/notifications/MarkReadWrapper';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,16 +42,18 @@ export default async function NotificationsPage() {
 
   const unreadCount = notifications.filter((n: NotificationItem) => !n.isRead).length;
 
-  // Mark all as read (fire-and-forget — safe for server component)
-  if (unreadCount > 0) {
-    await prisma.notification.updateMany({
-      where: { userId: user.id, isRead: false },
-      data: { isRead: true },
-    });
-  }
+  // Note: Marking notifications as read is intentionally NOT done here in the Server
+  // Component because database mutations in render functions can cause unexpected
+  // side effects (double-marks, race conditions with concurrent requests).
+  // The client-side notifications page uses a useEffect to mark individual
+  // notifications as read via a lightweight API call.
+  // See src/app/student/notifications/actions.ts for the implementation.
 
   return (
     <div className="space-y-6">
+      {/* Client component that marks notifications as read on mount */}
+      <MarkReadWrapper />
+
       <div className="flex items-center gap-3">
         <h1 className="text-3xl font-bold">🔔 Notifications</h1>
         {unreadCount > 0 && (
@@ -72,9 +75,9 @@ export default async function NotificationsPage() {
             <li
               key={n.id}
               className={`rounded-xl border p-5 flex gap-4 transition-colors ${
-                !n.isRead
-                  ? 'border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-900/20'
-                  : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900'
+                n.isRead
+                  ? 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900'
+                  : 'border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-900/20'
               }`}
             >
               <div className="text-2xl flex-shrink-0">📩</div>

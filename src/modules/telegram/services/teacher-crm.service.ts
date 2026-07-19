@@ -1,9 +1,24 @@
 import prisma from '../../../lib/prisma';
 import { Markup } from 'telegraf';
-import bot from '../bot';
+import type { Telegraf } from 'telegraf';
+import type { ProtectedContext } from '../middlewares/auth.middleware';
 import { notificationService } from '../../notifications/notification.service';
 import { auditChange } from '../../audit/audit.service';
 import { logger } from '../../../lib/security/logger';
+
+/**
+ * Lazily resolves the bot instance to avoid circular dependency:
+ *   bot.ts → teacher-crm.service.ts → bot.ts
+ * The bot is only loaded when a Telegram message actually needs to be sent.
+ */
+let _bot: Telegraf<ProtectedContext> | null = null;
+async function getBot(): Promise<Telegraf<ProtectedContext>> {
+  if (!_bot) {
+    const mod = await import('../bot');
+    _bot = mod.default as Telegraf<ProtectedContext>;
+  }
+  return _bot;
+}
 
 export class TeacherCrmService {
   /**
@@ -60,6 +75,7 @@ Ma'lumot:
         ]
       ]);
 
+      const bot = await getBot();
       await bot.telegram.sendMessage(targetChatId, message, {
         parse_mode: 'HTML',
         ...keyboard

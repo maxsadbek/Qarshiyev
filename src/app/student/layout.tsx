@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { LogoutButton } from '@/components/auth/LogoutButton';
 
 interface NavLinkProps {
   href: string;
@@ -39,12 +40,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
             <NavLink href="/student/settings" icon="⚙️" label="Settings" />
           </nav>
 
-          <Link
-            href="/student/login"
-            className="text-sm text-red-500 hover:text-red-700 dark:hover:text-red-400 transition"
-          >
-            Logout
-          </Link>
+          <LogoutButton className="text-sm text-red-500 hover:text-red-700 dark:hover:text-red-400 transition cursor-pointer" label="Logout" />
         </div>
       </header>
 

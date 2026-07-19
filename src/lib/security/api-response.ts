@@ -81,7 +81,8 @@ export function withApiHandler<Params extends Record<string, string | string[]> 
     try {
       const method = req.method.toUpperCase();
       if (method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS') {
-        const hasSession = !!req.headers.get('cookie')?.includes('qarshiyev_session');
+        const cookieHeader = req.headers.get('cookie') ?? '';
+        const hasSession = cookieHeader.includes('qarshiyev_session=');
         if (hasSession && !(await verifyCsrf(req))) {
           return NextResponse.json(
             { success: false, error: 'Invalid CSRF token' },

@@ -15,9 +15,10 @@ export interface PasswordHasher {
 // ── argon2 (preferred) ───────────────────────────────────────────────
 async function loadArgon2(): Promise<PasswordHasher | null> {
   try {
-    const mod = (await (Function('return import("argon2")')() as Promise<Record<string, unknown>>).catch(() => null)) as Record<string, unknown> | null;
-    if (!mod) return null;
-    const argon2 = (mod.default ?? mod) as Record<string, unknown>;
+    // argon2 is optional — falls back to bcrypt, then built-in scrypt.
+    // @ts-expect-error — argon2 is not in package.json; falls back gracefully
+    const m: Record<string, unknown> = await import('argon2');
+    const argon2 = (m.default ?? m) as Record<string, unknown>;
     if (typeof argon2?.hash !== 'function') return null;
     const hashFn = argon2.hash as (plain: string, opts: { type: unknown; memoryCost: number; timeCost: number }) => Promise<string>;
     const verifyFn = argon2.verify as (hash: string, plain: string) => Promise<boolean>;
@@ -33,9 +34,9 @@ async function loadArgon2(): Promise<PasswordHasher | null> {
 // ── bcrypt (fallback) ────────────────────────────────────────────────
 async function loadBcrypt(): Promise<PasswordHasher | null> {
   try {
-    const mod = (await (Function('return import("bcryptjs")')() as Promise<Record<string, unknown>>).catch(() => null)) as Record<string, unknown> | null;
-    if (!mod) return null;
-    const bcrypt = (mod.default ?? mod) as Record<string, unknown>;
+    // @ts-expect-error — bcryptjs is not in package.json; falls back gracefully
+    const m: Record<string, unknown> = await import('bcryptjs');
+    const bcrypt = (m.default ?? m) as Record<string, unknown>;
     if (typeof bcrypt?.hash !== 'function') return null;
     const hashFn = bcrypt.hash as (plain: string, rounds: number) => Promise<string>;
     const compareFn = bcrypt.compare as (plain: string, hash: string) => Promise<boolean>;

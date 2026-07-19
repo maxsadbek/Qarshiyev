@@ -17,14 +17,19 @@ const env = getEnv();
  * - Auth middleware for CRM actions
  * - Environment validation via getEnv()
  */
-const bot = new Telegraf<ProtectedContext>(env.TELEGRAM_BOT_TOKEN!);
+
+if (!env.TELEGRAM_BOT_TOKEN) {
+  logger.error('TELEGRAM_BOT_TOKEN is not configured. Bot will not function.');
+}
+
+const bot = new Telegraf<ProtectedContext>(env.TELEGRAM_BOT_TOKEN ?? '');
 
 // ── Global Error Handling ──────────────────────────────────────────
 bot.catch((err, ctx) => {
-  logger.error('Telegraf error caught', { 
-    error: String(err), 
+  logger.error('Telegraf error caught', {
+    error: String(err),
     updateType: ctx.updateType,
-    from: ctx.from?.id 
+    from: ctx.from?.id
   });
 });
 
@@ -102,7 +107,7 @@ bot.action(/CRM_NOTE_(.+)/, teacherAdminOnly(), async (ctx) => {
 
 bot.action(/CRM_PROFILE_(.+)/, teacherAdminOnly(), async (ctx) => {
   const studentId = ctx.match[1];
-  
+
   try {
     const profileText = await teacherCrmService.getStudentProfileText(studentId);
     await ctx.reply(profileText, { parse_mode: 'HTML' });
