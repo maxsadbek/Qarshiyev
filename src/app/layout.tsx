@@ -6,6 +6,15 @@ import { AssistantProvider } from '@/assistant/AssistantContext';
 import { HelmetWrapper } from '@/components/layout/HelmetWrapper';
 import '../index.css';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+  },
+};
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>

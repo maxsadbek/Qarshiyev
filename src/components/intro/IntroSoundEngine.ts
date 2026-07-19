@@ -23,11 +23,22 @@ export class IntroSoundEngine {
   /** Master volume */
   private readonly MASTER_VOLUME = 0.8;
 
+  /** Queue of sound IDs to play once audio is allowed to start */
+  private pendingSounds: SoundId[] = [];
+
+  /** Bound handler for first user interaction (used for cleanup) */
+  private boundResumeHandler: (() => void) | null = null;
+
   get isMuted(): boolean {
     return this.muted;
   }
 
-  /** Initialize audio context — must be called after user gesture or on first play attempt */
+  /**
+   * Initialize audio context.
+   * Creates the AudioContext (it starts in suspended state per browser autoplay policy).
+   * If the context cannot resume immediately, it registers one-time document-level
+   * event listeners to resume on the next user gesture (click, touch, keydown).
+   */
   async init(): Promise<boolean> {
     if (this.initialized || this.muted) return false;
 
@@ -39,7 +50,20 @@ export class IntroSoundEngine {
       this.masterGain.connect(this.ctx.destination);
 
       if (this.ctx.state === 'suspended') {
-        await this.ctx.resume();
+        // Try to resume immediately — may work if called within a user gesture chain
+        try {
+          await this.ctx.resume();
+        } catch {
+          /* ignore */
+        }
+
+        // If still suspended, listen for the first user gesture to unlock audio
+        if (this.ctx.state === 'suspended') {
+          this.boundResumeHandler = this.handleFirstInteraction.bind(this);
+          document.addEventListener('click', this.boundResumeHandler, { once: true });
+          document.addEventListener('touchstart', this.boundResumeHandler, { once: true });
+          document.addEventListener('keydown', this.boundResumeHandler, { once: true });
+        }
       }
 
       this.initialized = true;
@@ -47,6 +71,34 @@ export class IntroSoundEngine {
     } catch {
       this.muted = true;
       return false;
+    }
+  }
+
+  /** Resume AudioContext on first user gesture and flush any queued sounds */
+  private async handleFirstInteraction(): Promise<void> {
+    this.cleanupResumeListeners();
+
+    if (!this.ctx || this.ctx.state === 'closed') return;
+
+    try {
+      await this.ctx.resume();
+      // Play any sounds that were queued before the gesture
+      for (const id of this.pendingSounds) {
+        this.play(id);
+      }
+      this.pendingSounds = [];
+    } catch {
+      this.muted = true;
+    }
+  }
+
+  /** Remove gesture listeners so they don't fire again */
+  private cleanupResumeListeners(): void {
+    if (this.boundResumeHandler) {
+      document.removeEventListener('click', this.boundResumeHandler);
+      document.removeEventListener('touchstart', this.boundResumeHandler);
+      document.removeEventListener('keydown', this.boundResumeHandler);
+      this.boundResumeHandler = null;
     }
   }
 
@@ -65,6 +117,14 @@ export class IntroSoundEngine {
   /** Play a named sound effect */
   play(id: SoundId): void {
     if (this.muted || !this.ctx || !this.masterGain) return;
+
+    // If AudioContext is still suspended (autoplay policy), queue the sound
+    if (this.ctx.state === 'suspended') {
+      if (!this.pendingSounds.includes(id)) {
+        this.pendingSounds.push(id);
+      }
+      return;
+    }
 
     switch (id) {
       case 'ambient':
@@ -255,6 +315,9 @@ export class IntroSoundEngine {
 
   /** Stop every currently playing node and tear down the audio context */
   stopAll(): void {
+    this.cleanupResumeListeners();
+    this.pendingSounds = [];
+    
     for (const node of this.activeNodes) {
       try {
         if (node instanceof AudioBufferSourceNode || node instanceof OscillatorNode) {

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Helmet } from 'react-helmet-async';
@@ -251,40 +251,55 @@ export const RegisterPage: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const submittedRef = useRef(false);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
 
-    if (!name.trim() || !email.trim() || !password) {
-      setError('Barcha maydonlarni to‘ldiring');
-      return;
-    }
+    // Guard against double-submit (React StrictMode or rapid clicks)
+    if (submittedRef.current || loading || success) return;
+    submittedRef.current = true;
 
-    // Let the click/door animation play first, then show the loading state
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    setLoading(true);
+    try {
+      setError('');
 
-    // Premium loading animation
-    await new Promise((resolve) => setTimeout(resolve, 1200));
+      if (!name.trim() || !email.trim() || !password) {
+        setError('Barcha maydonlarni to‘ldiring');
+        return;
+      }
 
-    const nameParts = name.trim().split(/\s+/);
-    const firstName = nameParts.shift() ?? name.trim();
-    const lastName = nameParts.join(' ') || name.trim();
-    const result = await register({
-      firstName,
-      lastName,
-      email,
-      password,
-      confirmPassword: password,
-    });
-    if (result.ok) {
-      setSuccess(true);
-      // User is now authenticated — go straight to the profile
-      setTimeout(() => router.push(ROUTES.PROFILE), 900);
-    } else {
-      setLoading(false);
-      setError(result.error ?? 'Xatolik yuz berdi');
+      // Let the click/door animation play first, then show the loading state
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      setLoading(true);
+
+      // Premium loading animation
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+
+      const nameParts = name.trim().split(/\s+/);
+      const firstName = nameParts.shift() ?? name.trim();
+      const lastName = nameParts.join(' ') || name.trim();
+      const result = await register({
+        firstName,
+        lastName,
+        email,
+        password,
+        confirmPassword: password,
+      });
+      if (result.ok) {
+        setSuccess(true);
+        // User is now authenticated — go straight to the profile
+        setTimeout(() => router.push(ROUTES.PROFILE), 900);
+      } else {
+        setLoading(false);
+        setError(result.error ?? 'Xatolik yuz berdi');
+      }
+    } catch {
+      setError('Xatolik yuz berdi');
+    } finally {
+      if (!success) {
+        setLoading(false);
+        submittedRef.current = false;
+      }
     }
   };
 
