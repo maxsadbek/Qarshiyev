@@ -109,6 +109,56 @@ const translations: TranslationsDict = {
     crm_reject: '❌ Rad etish',
     student_profile: '👤 <b>O\'quvchi profili</b>',
     profile_no_db_hint: '📋 <i>Ma\'lumotlar bazasiz rejim — profil ma\'lumotlarini ko\'rish uchun veb-panelga kiring.</i>',
+
+    // ── Auth ──────────────────────────────────────────────
+    admin_only: '❌ Bu buyruq faqat adminlar uchun. /start orqali botdan foydalaning.',
+
+    // ── Admin Commands ────────────────────────────────────
+    admin_menu: "🏠 Menyu",
+    admin_menu_title: "Admin panel",
+    admin_menu_desc: "Quyidagi bo\'limlardan birini tanlang:",
+    admin_stats: "📊 Statistika",
+    admin_users: "👥 Foydalanuvchilar",
+    admin_view_applications: "📋 Arizalar",
+    admin_broadcast: "📢 Xabar yuborish",
+    admin_open_panel: "🌐 Veb-panel",
+    admin_refresh: "Yangilash",
+    admin_applications: "Arizalar",
+    admin_apps_desc: "Barcha arizalarni veb-panelda ko\'ring va boshqaring.",
+
+    // ── Stats ─────────────────────────────────────────────
+    stats_title: "Bot statistikasi",
+    stats_total_applications: "Jami arizalar",
+    stats_pending: "Kutilayotgan",
+    stats_approved: "Qabul qilingan",
+    stats_rejected: "Rad etilgan",
+    stats_users: "Foydalanuvchilar",
+    stats_pages: "Sahifalar",
+
+    // ── Users ─────────────────────────────────────────────
+    users_title: "Foydalanuvchilar",
+    users_total: "Jami foydalanuvchilar",
+    users_applications: "Arizalar soni",
+    users_approved: "Qabul qilingan",
+    users_rejected: "Rad etilgan",
+    users_pending: "Kutilayotgan",
+
+    // ── Broadcast ─────────────────────────────────────────
+    broadcast_usage: "📢 Xabar yuborish uchun:\n/broadcast <matn>",
+    broadcast_usage_detail: "Barcha foydalanuvchilarga xabar yuborish uchun /broadcast buyrug\'ini ishlating.\n\nMisol:\n/broadcast Hurmatli foydalanuvchilar! Yangi kurslar ochildi!",
+    broadcast_start: "Xabar yuborilmoqda...",
+    broadcast_header: "📢 Admin xabari",
+    broadcast_done: "Xabar yuborildi",
+    broadcast_sent: "Yuborilgan",
+    broadcast_failed: "Xatolik",
+
+    // ── User notifications on status change ───────────────
+    application_status_approved: "Arizangiz qabul qilindi!",
+    application_approved_text: "Tabriklaymiz! Arizangiz muvaffaqiyatli qabul qilindi. Tez orada administratorlarimiz siz bilan bog\'lanishadi.",
+    application_status_rejected: "Arizangiz rad etildi",
+    application_rejected_text: "Afsuski, arizangiz rad etildi. Batafsil ma\'lumot olish uchun administrator bilan bog\'laning.",
+    application_status_pending: "Arizangiz ko\'rib chiqilmoqda",
+    application_pending_text: "Arizangiz qayta ko\'rib chiqish uchun ochildi. Tez orada natija haqida xabar beramiz.",
   },
 
   ru: {
@@ -205,6 +255,56 @@ const translations: TranslationsDict = {
     crm_reject: '❌ Отклонить',
     student_profile: '👤 <b>Профиль ученика</b>',
     profile_no_db_hint: '📋 <i>Режим без базы данных — для просмотра данных профиля войдите в веб-панель.</i>',
+
+    // ── Auth ──────────────────────────────────────────────
+    admin_only: '❌ Эта команда только для администраторов. Используйте /start для использования бота.',
+
+    // ── Admin Commands ────────────────────────────────────
+    admin_menu: "🏠 Меню",
+    admin_menu_title: "Админ панель",
+    admin_menu_desc: "Выберите один из разделов:",
+    admin_stats: "📊 Статистика",
+    admin_users: "👥 Пользователи",
+    admin_view_applications: "📋 Заявки",
+    admin_broadcast: "📢 Отправить",
+    admin_open_panel: "🌐 Веб-панель",
+    admin_refresh: "Обновить",
+    admin_applications: "Заявки",
+    admin_apps_desc: "Просматривайте и управляйте заявками в веб-панели.",
+
+    // ── Stats ─────────────────────────────────────────────
+    stats_title: "Статистика бота",
+    stats_total_applications: "Всего заявок",
+    stats_pending: "В ожидании",
+    stats_approved: "Принятых",
+    stats_rejected: "Отклоненных",
+    stats_users: "Пользователей",
+    stats_pages: "Страниц",
+
+    // ── Users ─────────────────────────────────────────────
+    users_title: "Пользователи",
+    users_total: "Всего пользователей",
+    users_applications: "Количество заявок",
+    users_approved: "Принятых",
+    users_rejected: "Отклоненных",
+    users_pending: "В ожидании",
+
+    // ── Broadcast ─────────────────────────────────────────
+    broadcast_usage: "📢 Чтобы отправить сообщение:\n/broadcast <текст>",
+    broadcast_usage_detail: "Используйте /broadcast для отправки сообщения всем пользователям.\n\nПример:\n/broadcast Уважаемые пользователи! Открыты новые курсы!",
+    broadcast_start: "Отправка сообщения...",
+    broadcast_header: "📢 Сообщение от администрации",
+    broadcast_done: "Сообщение отправлено",
+    broadcast_sent: "Отправлено",
+    broadcast_failed: "Ошибок",
+
+    // ── User notifications on status change ───────────────
+    application_status_approved: "Ваша заявка принята!",
+    application_approved_text: "Поздравляем! Ваша заявка успешно принята. Наши администраторы свяжутся с вами в ближайшее время.",
+    application_status_rejected: "Ваша заявка отклонена",
+    application_rejected_text: "К сожалению, ваша заявка отклонена. Для получения подробной информации обратитесь к администратору.",
+    application_status_pending: "Ваша заявка рассматривается",
+    application_pending_text: "Ваша заявка открыта для повторного рассмотрения. Скоро сообщим о результате.",
   },
 
   en: {
@@ -301,6 +401,56 @@ const translations: TranslationsDict = {
     crm_reject: '❌ Reject',
     student_profile: '👤 <b>Student Profile</b>',
     profile_no_db_hint: '📋 <i>No-database mode — view profile details in the web panel.</i>',
+
+    // ── Auth ──────────────────────────────────────────────
+    admin_only: '❌ This command is for admins only. Use /start to use the bot.',
+
+    // ── Admin Commands ────────────────────────────────────
+    admin_menu: "🏠 Menu",
+    admin_menu_title: "Admin Panel",
+    admin_menu_desc: "Select one of the sections below:",
+    admin_stats: "📊 Statistics",
+    admin_users: "👥 Users",
+    admin_view_applications: "📋 Applications",
+    admin_broadcast: "📢 Broadcast",
+    admin_open_panel: "🌐 Web Panel",
+    admin_refresh: "Refresh",
+    admin_applications: "Applications",
+    admin_apps_desc: "View and manage all applications in the web panel.",
+
+    // ── Stats ─────────────────────────────────────────────
+    stats_title: "Bot Statistics",
+    stats_total_applications: "Total Applications",
+    stats_pending: "Pending",
+    stats_approved: "Approved",
+    stats_rejected: "Rejected",
+    stats_users: "Users",
+    stats_pages: "Pages",
+
+    // ── Users ─────────────────────────────────────────────
+    users_title: "Users",
+    users_total: "Total Users",
+    users_applications: "Applications",
+    users_approved: "Approved",
+    users_rejected: "Rejected",
+    users_pending: "Pending",
+
+    // ── Broadcast ─────────────────────────────────────────
+    broadcast_usage: "📢 To send a message:\n/broadcast <text>",
+    broadcast_usage_detail: "Use /broadcast to send a message to all users.\n\nExample:\n/broadcast Dear users! New courses are now open!",
+    broadcast_start: "Sending message...",
+    broadcast_header: "📢 Admin Message",
+    broadcast_done: "Broadcast sent",
+    broadcast_sent: "Sent",
+    broadcast_failed: "Failed",
+
+    // ── User notifications on status change ───────────────
+    application_status_approved: "Your application has been approved!",
+    application_approved_text: "Congratulations! Your application has been approved. Our administrators will contact you shortly.",
+    application_status_rejected: "Your application has been rejected",
+    application_rejected_text: "Unfortunately, your application has been rejected. Please contact the administrator for more information.",
+    application_status_pending: "Your application is under review",
+    application_pending_text: "Your application has been reopened for review. We will notify you of the result soon.",
   },
 };
 

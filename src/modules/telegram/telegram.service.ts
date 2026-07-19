@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { logger } from '../../lib/security/logger';
+import { applicationStore } from '../applications/store';
 
 // ── Validation Schema ──────────────────────────────────────────────
 export const RegistrationSchema = z.object({
@@ -143,10 +144,10 @@ export class TelegramService {
   }
 
   /**
-   * Logs the completed registration (no database writes).
+   * Logs the completed registration and saves to in-memory store.
    */
   async completeRegistration(data: RegistrationData) {
-    logger.info('Telegram registration completed (no DB)', {
+    logger.info('Telegram registration completed', {
       telegramId: data.telegramId,
       name: `${data.firstName} ${data.lastName}`,
       phone: data.phone,
@@ -156,9 +157,10 @@ export class TelegramService {
       age: data.age,
     });
 
-    // Return a mock application object so callers that reference
-    // `application.id` still compile and behave correctly.
-    return { id: crypto.randomUUID(), status: 'PENDING' };
+    // Save to in-memory store so it appears in the admin panel
+    const application = applicationStore.create(data);
+
+    return { id: application.id, status: application.status };
   }
 }
 

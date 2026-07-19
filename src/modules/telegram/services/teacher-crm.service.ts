@@ -2,6 +2,7 @@ import { Markup } from 'telegraf';
 import type { Telegraf } from 'telegraf';
 import type { ProtectedContext } from '../middlewares/auth.middleware';
 import { t } from '../i18n/translations';
+import { applicationStore } from '../../applications/store';
 import { logger } from '../../../lib/security/logger';
 
 /**
@@ -61,14 +62,61 @@ ${t(undefined, 'no_db_hint')}
 
   async updateStatus(
     applicationId: string,
-    _status: 'APPROVED' | 'REJECTED' | 'PENDING' | 'CANCELLED',
+    status: 'APPROVED' | 'REJECTED' | 'PENDING' | 'CANCELLED',
     _actionUserId: string,
     _teacherNote?: string,
   ) {
-    logger.info('Application status update (no DB — not persisted)', {
+    logger.info('Application status update', {
       applicationId,
-      status: _status,
+      status,
     });
+
+    // Persist to in-memory store
+    applicationStore.updateStatus(applicationId, status, _teacherNote);
+
+    // Notify the user about the status change
+    const app = applicationStore.getById(applicationId);
+    if (app) {
+      const lang = app.data.language;
+      const userId = Number(app.data.telegramId);
+
+      try {
+        const bot = await getBot();
+        let message = '';
+
+        if (status === 'APPROVED') {
+          message = `
+✅ <b>${t(lang, 'application_status_approved')}</b>
+
+${t(lang, 'application_approved_text')}
+          `;
+        } else if (status === 'REJECTED') {
+          message = `
+❌ <b>${t(lang, 'application_status_rejected')}</b>
+
+${t(lang, 'application_rejected_text')}
+          `;
+        } else if (status === 'PENDING') {
+          message = `
+⏳ <b>${t(lang, 'application_status_pending')}</b>
+
+${t(lang, 'application_pending_text')}
+          `;
+        }
+
+        if (message) {
+          await bot.telegram.sendMessage(userId, message, { parse_mode: 'HTML' }).catch(() => {});
+        }
+      } catch (error) {
+        logger.error('Failed to notify user about status change', {
+          userId,
+          applicationId,
+          status,
+          error: String(error),
+        });
+      }
+    }
+
     return null;
   }
 
@@ -80,6 +128,16 @@ ${t(undefined, 'no_db_hint')}
   }
 
   async getStudentProfileText(_studentId: string) {
+    const app = applicationStore.getById(_studentId);
+    if (app) {
+      return `
+👤 <b>${app.data.firstName} ${app.data.lastName}</b>
+📞 ${app.data.phone}
+📋 ${t(undefined, 'application_id')}: <code>${app.id}</code>
+📌 ${t(undefined, 'status')}: ${app.status}
+📅 ${app.createdAt.toLocaleDateString()}
+      `;
+    }
     return `${t(undefined, 'student_profile')}\n\n${t(undefined, 'profile_no_db_hint')}`;
   }
 }
