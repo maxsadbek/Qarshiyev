@@ -49,7 +49,7 @@ export function useIntroTimeline({
 
   useGSAP(
     () => {
-      const { overlay, mask, glow, orb, rings, logoSvg, logoContainer, typography } = refs;
+      const { overlay, mask, stage, glow, orb, rings, logoSvg, logoContainer, typography } = refs;
       if (
         !overlay.current ||
         !mask.current ||
@@ -79,6 +79,9 @@ export function useIntroTimeline({
         mask.current!.style.maskImage = css;
       };
       setMask(fullyBlackMask);
+
+      // Reveal the stage container (hidden initially to prevent pre-animation flash)
+      gsap.set(stage.current, { opacity: 1 });
 
       // Center every element on the viewport
       gsap.set([glow.current, orb.current, rings.current, logoContainer.current], {

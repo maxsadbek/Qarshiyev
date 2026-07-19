@@ -200,7 +200,8 @@ export const CinematicIntro: React.FC = () => {
       />
 
       {/* Foreground content — never masked, so the emblem stays visible through the reveal */}
-      <div ref={stageRef} className="absolute inset-0">
+      {/* Hidden until GSAP sets it up, preventing pre-animation flash */}
+      <div ref={stageRef} className="absolute inset-0" style={{ opacity: 0 }}>
         {/* Scene 1 — the seed of light */}
         <div
           ref={glowRef}
