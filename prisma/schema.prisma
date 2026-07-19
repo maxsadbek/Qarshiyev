@@ -294,18 +294,6 @@ model PasswordResetToken {
   @@map("password_reset_tokens")
 }
 
-// ==========================================
-// TELEGRAM BOT (SESSIONS)
-// ==========================================
-
-model TelegramSession {
-  key       String   @id @db.VarChar(255)
-  session   Json
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("telegram_sessions")
-}
 
 // ==========================================
 // NOTIFICATION SYSTEM
