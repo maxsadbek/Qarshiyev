@@ -185,7 +185,9 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
 
     if (!state.regionId) {
       debug('[Wizard] No regionId — staying on step 3');
-      await ctx.answerCbQuery().catch(() => {});
+      if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
+        await ctx.answerCbQuery().catch(() => {});
+      }
       return; // Stay on this step
     }
 
@@ -246,7 +248,9 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
 
     if (!state.districtId) {
       debug('[Wizard] No districtId — staying on step 4');
-      await ctx.answerCbQuery().catch(() => {});
+      if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
+        await ctx.answerCbQuery().catch(() => {});
+      }
       return; // Stay on this step
     }
 
@@ -307,7 +311,9 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
 
     if (!state.courseId) {
       debug('[Wizard] No courseId — staying on step 5');
-      await ctx.answerCbQuery().catch(() => {});
+      if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
+        await ctx.answerCbQuery().catch(() => {});
+      }
       return; // Stay on this step
     }
 
@@ -351,7 +357,9 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
 
     if (!state.shift) {
       debug('[Wizard] No shift — staying on step 6');
-      await ctx.answerCbQuery().catch(() => {});
+      if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
+        await ctx.answerCbQuery().catch(() => {});
+      }
       return;
     }
 
@@ -446,7 +454,9 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
 
     if (!state.device) {
       debug('[Wizard] No device — staying on step 9');
-      await ctx.answerCbQuery().catch(() => {});
+      if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
+        await ctx.answerCbQuery().catch(() => {});
+      }
       return;
     }
 

@@ -28,7 +28,7 @@ export class TeacherCrmService {
     console.log('[Application] Sending application to admin...', { applicationId });
 
     const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
-    console.log('[Application] ADMIN_CHAT_ID =', adminChatId);
+    console.log('[Application] TELEGRAM_ADMIN_CHAT_ID =', adminChatId);
 
     if (!adminChatId) {
       const errMsg = 'TELEGRAM_ADMIN_CHAT_ID environment variable is not set';
