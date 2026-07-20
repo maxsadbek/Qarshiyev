@@ -969,7 +969,6 @@ export function startReminderScheduler(intervalMs: number = 30000): void {
         const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
         if (!adminChatId) continue;
 
-        const bot = await getBot();
         const message = `
 🔔 <b>${t(undefined, 'reminder_trigger_title')}</b>
 

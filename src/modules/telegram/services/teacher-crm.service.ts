@@ -15,7 +15,7 @@ import type { Telegraf } from 'telegraf';
 import type { ProtectedContext } from '../middlewares/auth.middleware';
 import { t } from '../i18n/translations';
 import { applicationStore } from '../../applications/store';
-import type { Application, HistoryEntry, ApplicationStatusType } from '../../applications/store';
+import type { Application, ApplicationStatusType } from '../../applications/store';
 import type { RegistrationData } from '../telegram.service';
 import { telegramService } from '../telegram.service';
 import { withRetry } from '../bot-helpers';
@@ -88,12 +88,12 @@ export class TeacherCrmService {
     const resolvedDistrict = data.districtId
       ? (await telegramService.getDistrictById(data.districtId))?.name || data.districtId
       : '—';
-    const allCourses = await telegramService.getActiveCourses();
     const resolvedRegion = regionId
       ? allRegions.find((r) => r.id === regionId)?.name || regionId
       : '—';
+    // Admin premium card always shows canonical (Uzbek) course name
     const resolvedCourse = data.courseId
-      ? allCourses.find((c) => c.id === data.courseId)?.title || data.courseId
+      ? telegramService.getCanonicalCourseTitle(data.courseId)
       : '—';
 
     const fullName = `${ctxInfo.firstName} ${ctxInfo.lastName}`.trim();
@@ -433,8 +433,8 @@ ${t(lang, 'application_contacted_text')}
   async getStudentProfileText(studentId: string): Promise<string> {
     const app = applicationStore.getById(studentId);
     if (app) {
-      const allCourses = await telegramService.getActiveCourses();
-      const courseName = allCourses.find((c) => c.id === app.data.courseId)?.title || app.data.courseId;
+      // Profile always shows canonical (Uzbek) course name for admin consistency
+      const courseName = telegramService.getCanonicalCourseTitle(app.data.courseId);
 
       const priorityLabel = getPriorityLabel(app);
 

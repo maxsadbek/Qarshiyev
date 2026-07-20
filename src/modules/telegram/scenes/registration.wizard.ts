@@ -299,7 +299,7 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
         {
           ...Markup.inlineKeyboard([
             ...courses.map((c: { id: string; title: string }) => [
-              Markup.button.callback(c.title, `COURSE_${c.id}`)
+              Markup.button.callback(telegramService.getCourseTitle(c.id, lang), `COURSE_${c.id}`)
             ]),
             [Markup.button.callback('🔙 ' + t(lang, 'cancel_button'), 'BACK_TO_DISTRICT')],
           ]),
@@ -506,10 +506,12 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
       return;
     }
 
-    // Build confirmation message
+    // Build confirmation message with translated course name
     const resolvedRegion = state.regionId || '—';
     const resolvedDistrict = state.districtId || '—';
-    const resolvedCourse = state.courseId || '—';
+    const resolvedCourse = state.courseId
+      ? telegramService.getCourseTitle(state.courseId, lang)
+      : '—';
 
     const summary = `📋 <b>${t(lang, 'confirm_title')}</b>\n\n` +
       `👤 ${state.firstName} ${state.lastName}\n` +
