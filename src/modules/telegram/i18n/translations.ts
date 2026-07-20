@@ -96,9 +96,11 @@ const translations: TranslationsDict = {
     status_approved: '✅ Holat: QABUL QILINDI',
     status_rejected: '❌ Holat: RAD ETILDI',
     status_pending: '⏳ Holat: KUTTIRISHGA OLINDI',
+    status_contacted: '🔵 Holat: BOG\'LANDI',
     approved: '✅ Qabul qilindi',
     rejected: '❌ Rad etildi',
     pending: '⏳ Kuttirishga olindi',
+    contacted: '🔵 Bog\'landi',
 
     // ── Admin Notifications ───────────────────────────────
     new_application_title: '🆕 <b>Yangi Ariza! (offline)</b>',
@@ -117,7 +119,7 @@ const translations: TranslationsDict = {
     // ── Admin Commands ────────────────────────────────────
     admin_menu: "🏠 Menyu",
     admin_menu_title: "Admin panel",
-    admin_menu_desc: "Quyidagi bo\'limlardan birini tanlang:",
+    admin_menu_desc: "Quyidagi bo'limlardan birini tanlang:",
     admin_stats: "📊 Statistika",
     admin_users: "👥 Foydalanuvchilar",
     admin_view_applications: "📋 Arizalar",
@@ -125,12 +127,13 @@ const translations: TranslationsDict = {
     admin_open_panel: "🌐 Veb-panel",
     admin_refresh: "Yangilash",
     admin_applications: "Arizalar",
-    admin_apps_desc: "Barcha arizalarni veb-panelda ko\'ring va boshqaring.",
+    admin_apps_desc: "Barcha arizalarni veb-panelda ko'ring va boshqaring.",
 
     // ── Stats ─────────────────────────────────────────────
     stats_title: "Bot statistikasi",
     stats_total_applications: "Jami arizalar",
     stats_pending: "Kutilayotgan",
+    stats_contacted: "Bog'lanilgan",
     stats_approved: "Qabul qilingan",
     stats_rejected: "Rad etilgan",
     stats_users: "Foydalanuvchilar",
@@ -146,7 +149,7 @@ const translations: TranslationsDict = {
 
     // ── Broadcast ─────────────────────────────────────────
     broadcast_usage: "📢 Xabar yuborish uchun:\n/broadcast <matn>",
-    broadcast_usage_detail: "Barcha foydalanuvchilarga xabar yuborish uchun /broadcast buyrug\'ini ishlating.\n\nMisol:\n/broadcast Hurmatli foydalanuvchilar! Yangi kurslar ochildi!",
+    broadcast_usage_detail: "Barcha foydalanuvchilarga xabar yuborish uchun /broadcast buyrug'ini ishlating.\n\nMisol:\n/broadcast Hurmatli foydalanuvchilar! Yangi kurslar ochildi!",
     broadcast_start: "Xabar yuborilmoqda...",
     broadcast_header: "📢 Admin xabari",
     broadcast_done: "Xabar yuborildi",
@@ -155,11 +158,120 @@ const translations: TranslationsDict = {
 
     // ── User notifications on status change ───────────────
     application_status_approved: "Arizangiz qabul qilindi!",
-    application_approved_text: "Tabriklaymiz! Arizangiz muvaffaqiyatli qabul qilindi. Tez orada administratorlarimiz siz bilan bog\'lanishadi.",
+    application_approved_text: "Tabriklaymiz! Arizangiz muvaffaqiyatli qabul qilindi. Tez orada administratorlarimiz siz bilan bog'lanishadi.",
     application_status_rejected: "Arizangiz rad etildi",
-    application_rejected_text: "Afsuski, arizangiz rad etildi. Batafsil ma\'lumot olish uchun administrator bilan bog\'laning.",
-    application_status_pending: "Arizangiz ko\'rib chiqilmoqda",
-    application_pending_text: "Arizangiz qayta ko\'rib chiqish uchun ochildi. Tez orada natija haqida xabar beramiz.",
+    application_rejected_text: "Afsuski, arizangiz rad etildi. Batafsil ma'lumot olish uchun administrator bilan bog'laning.",
+    application_status_pending: "Arizangiz ko'rib chiqilmoqda",
+    application_pending_text: "Arizangiz qayta ko'rib chiqish uchun ochildi. Tez orada natija haqida xabar beramiz.",
+    application_status_contacted: "Arizangiz ko'rib chiqilmoqda",
+    application_contacted_text: "📞 Hayrli kun!\n\nJamoamiz arizangizni ko'rib chiqdi va tez orada siz bilan bog'lanadi.",
+
+    // ── CRM Premium Cards ─────────────────────────────────
+    premium_card_divider: "━━━━━━━━━━━━━━━━━━",
+    premium_card_title_new: "📝 YANGI ARIZA",
+    premium_card_title_important: "⭐ MUHIM ARIZA",
+    premium_card_name: "👤 Ism",
+    premium_card_phone: "📞 Telefon",
+    premium_card_region: "🌍 Viloyat",
+    premium_card_school: "🏫 Tuman",
+    premium_card_course: "📚 Kurs",
+    premium_card_message: "💬 Xabar",
+    premium_card_user_id: "🆔 Foydalanuvchi ID",
+    premium_card_username: "👤 Username",
+    premium_card_date: "📅 Sana",
+    premium_card_priority: "⭐ Priority",
+    premium_card_status: "📍 Holat",
+
+    // ── CRM Contacted ─────────────────────────────────────
+    crm_contacted: "📞 Bog'lanish",
+    crm_contacted_title: "📞 BOG'LANDI",
+    contacted_by: "👤 Bog'landi:",
+    contacted_at: "🕒 Bog'langanda:",
+    crm_contacted_notification: "📞 Hayrli kun!\n\nJamoamiz arizangizni ko'rib chiqdi va tez orada siz bilan bog'lanadi.",
+
+    // ── CRM Important ─────────────────────────────────────
+    crm_important: "⭐ Muhim",
+    crm_unimportant: "⭐ Muhim emas",
+    important_title: "⭐ MUHIM ARIZALAR",
+    important_marked: "⭐ Muhim deb belgilandi",
+    important_unmarked: "Muhim status olib tashlandi",
+    important_applications: "⭐ Muhim arizalar",
+
+    // ── CRM Reminder ──────────────────────────────────────
+    crm_reminder: "⏰ Eslatma",
+    reminder_time_prompt: "Qachon eslatma kerak?\n\nNamunalar:\n30m - 30 daqiqa\n1h - 1 soat\n3h - 3 soat\nTomorrow 09:00 - Ertaga 09:00",
+    reminder_time_examples: "30m, 1h, 3h, Tomorrow 09:00",
+    reminder_invalid: "❌ Noto'g'ri vaqt formati. Iltimos, qayta urinib ko'ring.\n\nNamunalar: 30m, 1h, 3h, Tomorrow 09:00",
+    reminder_saved: "✅ Eslatma saqlandi!",
+    reminder_trigger_title: "🔔 ESLATMA",
+    reminder_name: "Ism:",
+    reminder_phone: "Telefon:",
+    reminder_status: "Holat:",
+    duplicate_reminder: "⚠️ Ushbu ariza uchun eslatma allaqachon mavjud.",
+
+    // ── CRM History ───────────────────────────────────────
+    crm_history: "📝 Tarix",
+    history_title: "📝 Tarix",
+    history_no_entries: "Hali hech qanday harakat mavjud emas.",
+    history_received: "Ariza qabul qilindi",
+    history_important: "⭐ Muhim deb belgilandi",
+    history_contacted: "📞 Bog'landi",
+    history_note: "✍️ Izoh qo'shildi",
+    history_accepted: "✅ Qabul qilindi",
+    history_rejected: "❌ Rad etildi",
+    history_pending: "⏳ Kutilmoqda",
+    history_reminder: "⏰ Eslatma o'rnatildi",
+    history_status_changed: "Holat o'zgartirildi",
+
+    // ── CRM Notes ─────────────────────────────────────────
+    crm_add_note: "✍️ Izoh qo'shish",
+    admin_note_title: "📝 Admin izohi",
+
+    // ── CRM Profile ───────────────────────────────────────
+    crm_profile: "🔍 Profil",
+    crm_copy_id: "📋 ID nusxalash",
+    id_copied: "✅ ID nusxalandi!",
+
+    // ── Duplicate Protection ──────────────────────────────
+    duplicate_action: "⚠️ Bu amal allaqachon bajarilgan.",
+    already_accepted: "⚠️ Ariza allaqachon qabul qilingan.",
+    already_rejected: "⚠️ Ariza allaqachon rad etilgan.",
+    already_contacted: "⚠️ Ariza allaqachon bog'langan deb belgilangan.",
+
+    // ── Search ────────────────────────────────────────────
+    search_title: "🔍 Qidirish",
+    search_usage: "/search <ism, telefon, ID yoki username>",
+    search_prompt: "Qidirish uchun matn kiriting:",
+    no_results: "Natija topilmadi.",
+    search_results: "Qidiruv natijalari:",
+    search_by_name: "Ism",
+    search_by_phone: "Telefon",
+    search_by_id: "ID",
+    search_by_username: "Username",
+
+    // ── Filters ───────────────────────────────────────────
+    filter_pending: "⏳ Kutilayotgan",
+    filter_contacted: "📞 Bog'lanilgan",
+    filter_accepted: "✅ Qabul qilingan",
+    filter_rejected: "❌ Rad etilgan",
+    filter_today: "📅 Bugungi",
+    filter_important: "⭐ Muhim",
+    filter_region: "🌍 Viloyat",
+    filter_course: "📚 Kurs",
+    filter_no_results: "Ushbu filtr bo'yicha arizalar topilmadi.",
+
+    // ── Admin Action Logs ────────────────────────────────
+    admin_log_accepted: "Admin arizani qabul qildi",
+    admin_log_rejected: "Admin arizani rad etdi",
+    admin_log_contacted: "Admin bog'lanishni belgiladi",
+    admin_log_important: "Admin muhim deb belgiladi",
+    admin_log_reminder: "Admin eslatma yaratdi",
+    admin_log_note: "Admin izoh qo'shdi",
+    admin_log_history: "Tarix yangilandi",
+
+    // ── /important command ────────────────────────────────
+    important_empty: "⭐ Hozircha muhim arizalar mavjud emas.",
+    important_count: "Jami muhim arizalar:",
   },
 
   ru: {
@@ -243,9 +355,11 @@ const translations: TranslationsDict = {
     status_approved: '✅ Статус: ПРИНЯТО',
     status_rejected: '❌ Статус: ОТКЛОНЕНО',
     status_pending: '⏳ Статус: ОЖИДАНИЕ',
+    status_contacted: '🔵 Статус: СВЯЗАНЫ',
     approved: '✅ Принято',
     rejected: '❌ Отклонено',
     pending: '⏳ В ожидании',
+    contacted: '🔵 Связаны',
 
     // ── Admin Notifications ───────────────────────────────
     new_application_title: '🆕 <b>Новая заявка! (offline)</b>',
@@ -278,6 +392,7 @@ const translations: TranslationsDict = {
     stats_title: "Статистика бота",
     stats_total_applications: "Всего заявок",
     stats_pending: "В ожидании",
+    stats_contacted: "Связались",
     stats_approved: "Принятых",
     stats_rejected: "Отклоненных",
     stats_users: "Пользователей",
@@ -307,6 +422,115 @@ const translations: TranslationsDict = {
     application_rejected_text: "К сожалению, ваша заявка отклонена. Для получения подробной информации обратитесь к администратору.",
     application_status_pending: "Ваша заявка рассматривается",
     application_pending_text: "Ваша заявка открыта для повторного рассмотрения. Скоро сообщим о результате.",
+    application_status_contacted: "Ваша заявка рассматривается",
+    application_contacted_text: "📞 Здравствуйте!\n\nНаша команда рассмотрела вашу заявку и свяжется с вами в ближайшее время.",
+
+    // ── CRM Premium Cards ─────────────────────────────────
+    premium_card_divider: "━━━━━━━━━━━━━━━━━━",
+    premium_card_title_new: "📝 НОВАЯ ЗАЯВКА",
+    premium_card_title_important: "⭐ ВАЖНАЯ ЗАЯВКА",
+    premium_card_name: "👤 Имя",
+    premium_card_phone: "📞 Телефон",
+    premium_card_region: "🌍 Регион",
+    premium_card_school: "🏫 Район",
+    premium_card_course: "📚 Курс",
+    premium_card_message: "💬 Сообщение",
+    premium_card_user_id: "🆔 ID пользователя",
+    premium_card_username: "👤 Username",
+    premium_card_date: "📅 Дата",
+    premium_card_priority: "⭐ Приоритет",
+    premium_card_status: "📍 Статус",
+
+    // ── CRM Contacted ─────────────────────────────────────
+    crm_contacted: "📞 Связаться",
+    crm_contacted_title: "📞 СВЯЗАНЫ",
+    contacted_by: "👤 Связался:",
+    contacted_at: "🕒 Время связи:",
+    crm_contacted_notification: "📞 Здравствуйте!\n\nНаша команда рассмотрела вашу заявку и свяжется с вами в ближайшее время.",
+
+    // ── CRM Important ─────────────────────────────────────
+    crm_important: "⭐ Важно",
+    crm_unimportant: "⭐ Не важно",
+    important_title: "⭐ ВАЖНЫЕ ЗАЯВКИ",
+    important_marked: "⭐ Отмечено как важное",
+    important_unmarked: "Важность снята",
+    important_applications: "⭐ Важные заявки",
+
+    // ── CRM Reminder ──────────────────────────────────────
+    crm_reminder: "⏰ Напоминание",
+    reminder_time_prompt: "Когда напомнить?\n\nПримеры:\n30m - 30 минут\n1h - 1 час\n3h - 3 часа\nTomorrow 09:00 - Завтра 09:00",
+    reminder_time_examples: "30m, 1h, 3h, Tomorrow 09:00",
+    reminder_invalid: "❌ Неверный формат времени. Пожалуйста, попробуйте снова.\n\nПримеры: 30m, 1h, 3h, Tomorrow 09:00",
+    reminder_saved: "✅ Напоминание сохранено!",
+    reminder_trigger_title: "🔔 НАПОМИНАНИЕ",
+    reminder_name: "Имя:",
+    reminder_phone: "Телефон:",
+    reminder_status: "Статус:",
+    duplicate_reminder: "⚠️ Напоминание для этой заявки уже существует.",
+
+    // ── CRM History ───────────────────────────────────────
+    crm_history: "📝 История",
+    history_title: "📝 История",
+    history_no_entries: "История действий отсутствует.",
+    history_received: "Заявка получена",
+    history_important: "⭐ Отмечено важным",
+    history_contacted: "📞 Связались",
+    history_note: "✍️ Добавлен комментарий",
+    history_accepted: "✅ Принято",
+    history_rejected: "❌ Отклонено",
+    history_pending: "⏳ В ожидании",
+    history_reminder: "⏰ Установлено напоминание",
+    history_status_changed: "Статус изменен",
+
+    // ── CRM Notes ─────────────────────────────────────────
+    crm_add_note: "✍️ Добавить комментарий",
+    admin_note_title: "📝 Комментарий администратора",
+
+    // ── CRM Profile ───────────────────────────────────────
+    crm_profile: "🔍 Профиль",
+    crm_copy_id: "📋 Копировать ID",
+    id_copied: "✅ ID скопирован!",
+
+    // ── Duplicate Protection ──────────────────────────────
+    duplicate_action: "⚠️ Это действие уже выполнено.",
+    already_accepted: "⚠️ Заявка уже принята.",
+    already_rejected: "⚠️ Заявка уже отклонена.",
+    already_contacted: "⚠️ Заявка уже отмечена как связанная.",
+
+    // ── Search ────────────────────────────────────────────
+    search_title: "🔍 Поиск",
+    search_usage: "/search <имя, телефон, ID или username>",
+    search_prompt: "Введите текст для поиска:",
+    no_results: "Результатов не найдено.",
+    search_results: "Результаты поиска:",
+    search_by_name: "Имя",
+    search_by_phone: "Телефон",
+    search_by_id: "ID",
+    search_by_username: "Username",
+
+    // ── Filters ───────────────────────────────────────────
+    filter_pending: "⏳ В ожидании",
+    filter_contacted: "📞 Связались",
+    filter_accepted: "✅ Принятые",
+    filter_rejected: "❌ Отклоненные",
+    filter_today: "📅 Сегодня",
+    filter_important: "⭐ Важные",
+    filter_region: "🌍 Регион",
+    filter_course: "📚 Курс",
+    filter_no_results: "По данному фильтру заявки не найдены.",
+
+    // ── Admin Action Logs ────────────────────────────────
+    admin_log_accepted: "Админ принял заявку",
+    admin_log_rejected: "Админ отклонил заявку",
+    admin_log_contacted: "Админ отметил связь",
+    admin_log_important: "Админ отметил как важное",
+    admin_log_reminder: "Админ создал напоминание",
+    admin_log_note: "Админ добавил комментарий",
+    admin_log_history: "История обновлена",
+
+    // ── /important command ────────────────────────────────
+    important_empty: "⭐ Нет важных заявок.",
+    important_count: "Всего важных заявок:",
   },
 
   en: {
@@ -390,9 +614,11 @@ const translations: TranslationsDict = {
     status_approved: '✅ Status: APPROVED',
     status_rejected: '❌ Status: REJECTED',
     status_pending: '⏳ Status: PENDING',
+    status_contacted: '🔵 Status: CONTACTED',
     approved: '✅ Approved',
     rejected: '❌ Rejected',
     pending: '⏳ Pending',
+    contacted: '🔵 Contacted',
 
     // ── Admin Notifications ───────────────────────────────
     new_application_title: '🆕 <b>New Application! (offline)</b>',
@@ -425,6 +651,7 @@ const translations: TranslationsDict = {
     stats_title: "Bot Statistics",
     stats_total_applications: "Total Applications",
     stats_pending: "Pending",
+    stats_contacted: "Contacted",
     stats_approved: "Approved",
     stats_rejected: "Rejected",
     stats_users: "Users",
@@ -454,6 +681,115 @@ const translations: TranslationsDict = {
     application_rejected_text: "Unfortunately, your application has been rejected. Please contact the administrator for more information.",
     application_status_pending: "Your application is under review",
     application_pending_text: "Your application has been reopened for review. We will notify you of the result soon.",
+    application_status_contacted: "Your application is under review",
+    application_contacted_text: "📞 Hello!\n\nOur team has reviewed your application and will contact you shortly.",
+
+    // ── CRM Premium Cards ─────────────────────────────────
+    premium_card_divider: "━━━━━━━━━━━━━━━━━━",
+    premium_card_title_new: "📝 NEW APPLICATION",
+    premium_card_title_important: "⭐ IMPORTANT APPLICATION",
+    premium_card_name: "👤 Name",
+    premium_card_phone: "📞 Phone",
+    premium_card_region: "🌍 Region",
+    premium_card_school: "🏫 District",
+    premium_card_course: "📚 Course",
+    premium_card_message: "💬 Message",
+    premium_card_user_id: "🆔 User ID",
+    premium_card_username: "👤 Username",
+    premium_card_date: "📅 Date",
+    premium_card_priority: "⭐ Priority",
+    premium_card_status: "📍 Status",
+
+    // ── CRM Contacted ─────────────────────────────────────
+    crm_contacted: "📞 Contacted",
+    crm_contacted_title: "📞 CONTACTED",
+    contacted_by: "👤 Contacted by:",
+    contacted_at: "🕒 Contacted at:",
+    crm_contacted_notification: "📞 Hello!\n\nOur team has reviewed your application and will contact you shortly.",
+
+    // ── CRM Important ─────────────────────────────────────
+    crm_important: "⭐ Important",
+    crm_unimportant: "⭐ Not Important",
+    important_title: "⭐ IMPORTANT APPLICATIONS",
+    important_marked: "⭐ Marked as important",
+    important_unmarked: "Important status removed",
+    important_applications: "⭐ Important applications",
+
+    // ── CRM Reminder ──────────────────────────────────────
+    crm_reminder: "⏰ Reminder",
+    reminder_time_prompt: "When should I remind you?\n\nExamples:\n30m - 30 minutes\n1h - 1 hour\n3h - 3 hours\nTomorrow 09:00",
+    reminder_time_examples: "30m, 1h, 3h, Tomorrow 09:00",
+    reminder_invalid: "❌ Invalid time format. Please try again.\n\nExamples: 30m, 1h, 3h, Tomorrow 09:00",
+    reminder_saved: "✅ Reminder saved!",
+    reminder_trigger_title: "🔔 REMINDER",
+    reminder_name: "Name:",
+    reminder_phone: "Phone:",
+    reminder_status: "Status:",
+    duplicate_reminder: "⚠️ A reminder already exists for this application.",
+
+    // ── CRM History ───────────────────────────────────────
+    crm_history: "📝 History",
+    history_title: "📝 History",
+    history_no_entries: "No history entries yet.",
+    history_received: "Application received",
+    history_important: "⭐ Marked Important",
+    history_contacted: "📞 Contacted",
+    history_note: "✍️ Note added",
+    history_accepted: "✅ Accepted",
+    history_rejected: "❌ Rejected",
+    history_pending: "⏳ Pending",
+    history_reminder: "⏰ Reminder set",
+    history_status_changed: "Status changed",
+
+    // ── CRM Notes ─────────────────────────────────────────
+    crm_add_note: "✍️ Add Note",
+    admin_note_title: "📝 Admin Note",
+
+    // ── CRM Profile ───────────────────────────────────────
+    crm_profile: "🔍 Profile",
+    crm_copy_id: "📋 Copy ID",
+    id_copied: "✅ ID copied!",
+
+    // ── Duplicate Protection ──────────────────────────────
+    duplicate_action: "⚠️ This action has already been completed.",
+    already_accepted: "⚠️ Application already accepted.",
+    already_rejected: "⚠️ Application already rejected.",
+    already_contacted: "⚠️ Application already marked as contacted.",
+
+    // ── Search ────────────────────────────────────────────
+    search_title: "🔍 Search",
+    search_usage: "/search <name, phone, ID or username>",
+    search_prompt: "Enter search text:",
+    no_results: "No results found.",
+    search_results: "Search results:",
+    search_by_name: "Name",
+    search_by_phone: "Phone",
+    search_by_id: "ID",
+    search_by_username: "Username",
+
+    // ── Filters ───────────────────────────────────────────
+    filter_pending: "⏳ Pending",
+    filter_contacted: "📞 Contacted",
+    filter_accepted: "✅ Accepted",
+    filter_rejected: "❌ Rejected",
+    filter_today: "📅 Today",
+    filter_important: "⭐ Important",
+    filter_region: "🌍 Region",
+    filter_course: "📚 Course",
+    filter_no_results: "No applications found for this filter.",
+
+    // ── Admin Action Logs ────────────────────────────────
+    admin_log_accepted: "Admin accepted application",
+    admin_log_rejected: "Admin rejected application",
+    admin_log_contacted: "Admin marked as contacted",
+    admin_log_important: "Admin marked as important",
+    admin_log_reminder: "Admin created reminder",
+    admin_log_note: "Admin added note",
+    admin_log_history: "History updated",
+
+    // ── /important command ────────────────────────────────
+    important_empty: "⭐ No important applications yet.",
+    important_count: "Total important applications:",
   },
 };
 

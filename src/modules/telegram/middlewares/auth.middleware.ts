@@ -15,7 +15,8 @@ export interface RegistrationWizardState {
   note?: string;
   applicationId?: string;
   actionUserId?: string;
-  [key: string]: string | number | undefined;
+  reminderMode?: boolean;
+  [key: string]: string | number | boolean | undefined;
 }
 
 export type ProtectedContext = Scenes.WizardContext;

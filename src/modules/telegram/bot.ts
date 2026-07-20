@@ -1,7 +1,8 @@
 /**
  * src/modules/telegram/bot.ts
  * Main Telegram bot for the education center.
- * Handles user registration, admin commands, and CRM notifications.
+ * Production-grade CRM with premium application cards, reminders,
+ * history tracking, advanced search, and filter commands.
  */
 import { Telegraf, Scenes, Markup } from 'telegraf';
 import { sessionMiddleware } from './middlewares/session.middleware';
@@ -11,7 +12,7 @@ import { writeNoteWizard } from './scenes/write-note.wizard';
 import { teacherCrmService } from './services/teacher-crm.service';
 import { applicationStore } from '../applications/store';
 import { t } from './i18n/translations';
-import { safeAnswerCbQuery, safeReply, validateEnvVars } from './bot-helpers';
+import { safeAnswerCbQuery, safeReply, validateEnvVars, isCallbackDuplicate, isUserRateLimited } from './bot-helpers';
 import { logger } from '../../lib/security/logger';
 import { getEnv } from '../../lib/env';
 
@@ -51,8 +52,22 @@ bot.use(async (ctx, next) => {
       updateId,
       updateType: ctx.updateType,
     });
-    // Don't re-throw — Telegraf's catch handler will pick it up
   }
+});
+
+// ── Callback dedup middleware ───────────────────────────────────────
+bot.use(async (ctx, next) => {
+  if (ctx.callbackQuery && ctx.update?.update_id) {
+    if (isCallbackDuplicate(ctx.update.update_id)) {
+      logger.warn('[Telegram] Duplicate callback ignored', { updateId: ctx.update.update_id });
+      return;
+    }
+    if (isUserRateLimited(ctx.from?.id, 300)) {
+      logger.warn('[Telegram] Rate limited callback', { fromId: ctx.from?.id });
+      return;
+    }
+  }
+  return next();
 });
 
 // ── Register Middleware ─────────────────────────────────────────────
@@ -103,6 +118,7 @@ bot.command('stats', teacherAdminOnly(), async (ctx) => {
 
 📋 ${t(undefined, 'stats_total_applications')}: <b>${stats.total}</b>
 ⏳ ${t(undefined, 'stats_pending')}: <b>${stats.pending}</b>
+🔵 ${t(undefined, 'stats_contacted')}: <b>${stats.contacted}</b>
 ✅ ${t(undefined, 'stats_approved')}: <b>${stats.approved}</b>
 ❌ ${t(undefined, 'stats_rejected')}: <b>${stats.rejected}</b>
 
@@ -148,7 +164,7 @@ ${t(undefined, 'users_total')}: <b>${userCount}</b>
   });
 });
 
-// ── /broadcast ──────────────────────────────────────────────────────
+// ── /broadcast ────────────────────────────────────────────────────
 bot.command('broadcast', teacherAdminOnly(), async (ctx) => {
   const userId = ctx.from?.id;
   logger.info('[Telegram] /broadcast command', { from: userId });
@@ -183,7 +199,6 @@ bot.command('broadcast', teacherAdminOnly(), async (ctx) => {
     } catch {
       failed++;
     }
-    // Small delay to avoid hitting rate limits
     await new Promise((r) => setTimeout(r, 50));
   }
 
@@ -201,6 +216,255 @@ bot.command('broadcast', teacherAdminOnly(), async (ctx) => {
     ]),
   });
 });
+
+// ── /search ─────────────────────────────────────────────────────────
+bot.command('search', teacherAdminOnly(), async (ctx) => {
+  const text = ctx.message && 'text' in ctx.message ? ctx.message.text : '';
+  const query = text.replace(/^\/search\s*/i, '').trim();
+
+  if (!query) {
+    await safeReply(ctx, `🔍 <b>${t(undefined, 'search_title')}</b>\n\n${t(undefined, 'search_usage')}`, {
+      parse_mode: 'HTML',
+    });
+    return;
+  }
+
+  const result = applicationStore.getFiltered({ search: query, limit: 20 });
+
+  if (result.applications.length === 0) {
+    await safeReply(ctx, `🔍 <b>${t(undefined, 'search_title')}</b>\n\n${t(undefined, 'no_results')}`, {
+      parse_mode: 'HTML',
+    });
+    return;
+  }
+
+  await safeReply(ctx, `🔍 <b>${t(undefined, 'search_results')}</b> (${result.total})`, {
+    parse_mode: 'HTML',
+  });
+
+  for (const app of result.applications.slice(0, 5)) {
+    const msg = `
+━━━━━━━━━━━━━━━━━━
+👤 <b>${app.data.firstName} ${app.data.lastName}</b>
+📞 ${app.data.phone}
+🆔 <code>${app.id}</code>
+👤 @${app.data.username || '—'}
+📌 ${app.status}
+📅 ${app.createdAt.toLocaleDateString()}
+${app.important ? '⭐ MUHIM' : ''}
+━━━━━━━━━━━━━━━━━━
+    `;
+    await safeReply(ctx, msg, {
+      parse_mode: 'HTML',
+      ...Markup.inlineKeyboard([
+        [
+          Markup.button.callback('✅ ' + t(undefined, 'crm_accept'), `CRM_ACCEPT_${app.id}`),
+          Markup.button.callback('❌ ' + t(undefined, 'crm_reject'), `CRM_REJECT_${app.id}`),
+        ],
+        [
+          Markup.button.callback('📞 ' + t(undefined, 'crm_contacted'), `CRM_CONTACTED_${app.id}`),
+          Markup.button.callback('⭐ ' + t(undefined, 'crm_important'), `CRM_IMPORTANT_${app.id}`),
+        ],
+      ]),
+    });
+  }
+
+  if (result.applications.length > 5) {
+    await safeReply(ctx, `... +${result.applications.length - 5} ${t(undefined, 'search_results').toLowerCase()}`);
+  }
+});
+
+// ── /pending ────────────────────────────────────────────────────────
+bot.command('pending', teacherAdminOnly(), async (ctx) => {
+  await showFilteredApplications(ctx, 'PENDING', t(undefined, 'filter_pending'));
+});
+
+// ── /contacted ─────────────────────────────────────────────────────
+bot.command('contacted', teacherAdminOnly(), async (ctx) => {
+  await showFilteredApplications(ctx, 'CONTACTED', t(undefined, 'filter_contacted'));
+});
+
+// ── /accepted ───────────────────────────────────────────────────────
+bot.command('accepted', teacherAdminOnly(), async (ctx) => {
+  await showFilteredApplications(ctx, 'APPROVED', t(undefined, 'filter_accepted'));
+});
+
+// ── /rejected ─────────────────────────────────────────────────────
+bot.command('rejected', teacherAdminOnly(), async (ctx) => {
+  await showFilteredApplications(ctx, 'REJECTED', t(undefined, 'filter_rejected'));
+});
+
+// ── /today ─────────────────────────────────────────────────────────
+bot.command('today', teacherAdminOnly(), async (ctx) => {
+  const result = applicationStore.getFiltered({ today: true, limit: 50 });
+
+  if (result.applications.length === 0) {
+    await safeReply(ctx, `📅 <b>${t(undefined, 'filter_today')}</b>\n\n${t(undefined, 'filter_no_results')}`, {
+      parse_mode: 'HTML',
+    });
+    return;
+  }
+
+  await safeReply(ctx, `📅 <b>${t(undefined, 'filter_today')}</b>\n\nJami: ${result.total}`, {
+    parse_mode: 'HTML',
+  });
+
+  for (const app of result.applications.slice(0, 5)) {
+    const msg = `
+━━━━━━━━━━━━━━━━━━
+👤 <b>${app.data.firstName} ${app.data.lastName}</b>
+📞 ${app.data.phone}
+📌 ${app.status}
+🕒 ${app.createdAt.toLocaleTimeString()}
+━━━━━━━━━━━━━━━━━━
+    `;
+    await safeReply(ctx, msg, {
+      parse_mode: 'HTML',
+      ...Markup.inlineKeyboard([
+        [
+          Markup.button.callback('✅ Accept', `CRM_ACCEPT_${app.id}`),
+          Markup.button.callback('❌ Reject', `CRM_REJECT_${app.id}`),
+        ],
+      ]),
+    });
+  }
+
+  if (result.applications.length > 5) {
+    await safeReply(ctx, `... +${result.applications.length - 5} ${t(undefined, 'search_results').toLowerCase()}`);
+  }
+});
+
+// ── /important ──────────────────────────────────────────────────────
+bot.command('important', teacherAdminOnly(), async (ctx) => {
+  const importantApps = applicationStore.getImportant();
+
+  if (importantApps.length === 0) {
+    await safeReply(ctx, `⭐ ${t(undefined, 'important_empty')}`, { parse_mode: 'HTML' });
+    return;
+  }
+
+  await safeReply(ctx, `⭐ <b>${t(undefined, 'important_title')}</b>\n\n${t(undefined, 'important_count')}: ${importantApps.length}`, {
+    parse_mode: 'HTML',
+  });
+
+  for (const app of importantApps.slice(0, 5)) {
+    const msg = `
+━━━━━━━━━━━━━━━━━━
+👤 <b>${app.data.firstName} ${app.data.lastName}</b>
+📞 ${app.data.phone}
+📌 ${app.status}
+📅 ${app.createdAt.toLocaleDateString()}
+━━━━━━━━━━━━━━━━━━
+    `;
+    await safeReply(ctx, msg, {
+      parse_mode: 'HTML',
+      ...Markup.inlineKeyboard([
+        [
+          Markup.button.callback('✅ Accept', `CRM_ACCEPT_${app.id}`),
+          Markup.button.callback('❌ Reject', `CRM_REJECT_${app.id}`),
+        ],
+      ]),
+    });
+  }
+
+  if (importantApps.length > 5) {
+    await safeReply(ctx, `... +${importantApps.length - 5} ${t(undefined, 'search_results').toLowerCase()}`);
+  }
+});
+
+// ── /region and /course ─────────────────────────────────────────────
+bot.command('region', teacherAdminOnly(), async (ctx) => {
+  const text = ctx.message && 'text' in ctx.message ? ctx.message.text : '';
+  const region = text.replace(/^\/region\s*/i, '').trim();
+
+  if (!region) {
+    await safeReply(ctx, '🌍 <b>/region <viloyat nomi></b>\n\nMisol: /region Toshkent', { parse_mode: 'HTML' });
+    return;
+  }
+
+  const result = applicationStore.getFiltered({ region, limit: 20 });
+  if (result.applications.length === 0) {
+    await safeReply(ctx, `🌍 <b>${t(undefined, 'filter_region')}: ${region}</b>\n\n${t(undefined, 'filter_no_results')}`, { parse_mode: 'HTML' });
+    return;
+  }
+
+  await safeReply(ctx, `🌍 <b>${t(undefined, 'filter_region')}: ${region}</b>\n\nJami: ${result.total}`, { parse_mode: 'HTML' });
+  for (const app of result.applications.slice(0, 5)) {
+    await safeReply(ctx, `👤 ${app.data.firstName} ${app.data.lastName}\n📞 ${app.data.phone}\n📌 ${app.status}`, {
+      parse_mode: 'HTML',
+      ...Markup.inlineKeyboard([
+        [Markup.button.callback('✅ Accept', `CRM_ACCEPT_${app.id}`), Markup.button.callback('❌ Reject', `CRM_REJECT_${app.id}`)],
+      ]),
+    });
+  }
+});
+
+bot.command('course', teacherAdminOnly(), async (ctx) => {
+  const text = ctx.message && 'text' in ctx.message ? ctx.message.text : '';
+  const course = text.replace(/^\/course\s*/i, '').trim();
+
+  if (!course) {
+    await safeReply(ctx, '📚 <b>/course <kurs nomi></b>\n\nMisol: /course backend', { parse_mode: 'HTML' });
+    return;
+  }
+
+  const result = applicationStore.getFiltered({ course, limit: 20 });
+  if (result.applications.length === 0) {
+    await safeReply(ctx, `📚 <b>${t(undefined, 'filter_course')}: ${course}</b>\n\n${t(undefined, 'filter_no_results')}`, { parse_mode: 'HTML' });
+    return;
+  }
+
+  await safeReply(ctx, `📚 <b>${t(undefined, 'filter_course')}: ${course}</b>\n\nJami: ${result.total}`, { parse_mode: 'HTML' });
+  for (const app of result.applications.slice(0, 5)) {
+    await safeReply(ctx, `👤 ${app.data.firstName} ${app.data.lastName}\n📞 ${app.data.phone}\n📌 ${app.status}`, {
+      parse_mode: 'HTML',
+      ...Markup.inlineKeyboard([
+        [Markup.button.callback('✅ Accept', `CRM_ACCEPT_${app.id}`), Markup.button.callback('❌ Reject', `CRM_REJECT_${app.id}`)],
+      ]),
+    });
+  }
+});
+
+// ── Helper for filter commands ─────────────────────────────────────
+async function showFilteredApplications(ctx: ProtectedContext, status: 'PENDING' | 'CONTACTED' | 'APPROVED' | 'REJECTED', label: string) {
+  const result = applicationStore.getFiltered({ status, limit: 50 });
+
+  if (result.applications.length === 0) {
+    await safeReply(ctx, `${label}\n\n${t(undefined, 'filter_no_results')}`, { parse_mode: 'HTML' });
+    return;
+  }
+
+  await safeReply(ctx, `${label}\n\nJami: ${result.total}`, { parse_mode: 'HTML' });
+
+  for (const app of result.applications.slice(0, 5)) {
+    const msg = `
+━━━━━━━━━━━━━━━━━━
+👤 <b>${app.data.firstName} ${app.data.lastName}</b>
+📞 ${app.data.phone}
+🆔 <code>${app.id}</code>
+📌 ${app.status}
+📅 ${app.createdAt.toLocaleDateString()}
+━━━━━━━━━━━━━━━━━━
+    `;
+    await safeReply(ctx, msg, {
+      parse_mode: 'HTML',
+      ...Markup.inlineKeyboard([
+        [
+          Markup.button.callback('✅ ' + t(undefined, 'crm_accept'), `CRM_ACCEPT_${app.id}`),
+          Markup.button.callback('❌ ' + t(undefined, 'crm_reject'), `CRM_REJECT_${app.id}`),
+        ],
+        [
+          Markup.button.callback('📞 ' + t(undefined, 'crm_contacted'), `CRM_CONTACTED_${app.id}`),
+          Markup.button.callback('⭐ ' + t(undefined, 'crm_important'), `CRM_IMPORTANT_${app.id}`),
+        ],
+      ]),
+    });
+  }
+
+  if (result.applications.length > 5) {
+    await safeReply(ctx, `... +${result.applications.length - 5} ${t(undefined, 'search_results').toLowerCase()}`);
+  }
+}
 
 // ════════════════════════════════════════════════════════════════════
 // ADMIN CALLBACK HANDLERS
@@ -222,6 +486,9 @@ bot.action('ADMIN_MENU', teacherAdminOnly(), async (ctx) => {
           Markup.button.callback('📋 ' + t(undefined, 'admin_view_applications'), 'ADMIN_APPS'),
           Markup.button.callback('📢 ' + t(undefined, 'admin_broadcast'), 'ADMIN_BROADCAST'),
         ],
+        [
+          Markup.button.callback('⭐ ' + t(undefined, 'important_applications'), 'ADMIN_IMPORTANT'),
+        ],
       ]),
     }
   );
@@ -237,6 +504,7 @@ bot.action('ADMIN_STATS', teacherAdminOnly(), async (ctx) => {
 
 📋 ${t(undefined, 'stats_total_applications')}: <b>${stats.total}</b>
 ⏳ ${t(undefined, 'stats_pending')}: <b>${stats.pending}</b>
+🔵 ${t(undefined, 'stats_contacted')}: <b>${stats.contacted}</b>
 ✅ ${t(undefined, 'stats_approved')}: <b>${stats.approved}</b>
 ❌ ${t(undefined, 'stats_rejected')}: <b>${stats.rejected}</b>
 
@@ -352,6 +620,26 @@ bot.action('ADMIN_BROADCAST', teacherAdminOnly(), async (ctx) => {
   }
 });
 
+bot.action('ADMIN_IMPORTANT', teacherAdminOnly(), async (ctx) => {
+  await safeAnswerCbQuery(ctx);
+  const importantApps = applicationStore.getImportant();
+  if (importantApps.length === 0) {
+    await safeReply(ctx, `⭐ ${t(undefined, 'important_empty')}`, { parse_mode: 'HTML' });
+    return;
+  }
+  for (const app of importantApps.slice(0, 5)) {
+    await safeReply(ctx,
+      `👤 ${app.data.firstName} ${app.data.lastName}\n📞 ${app.data.phone}\n📌 ${app.status}\n📅 ${app.createdAt.toLocaleDateString()}`,
+      {
+        parse_mode: 'HTML',
+        ...Markup.inlineKeyboard([
+          [Markup.button.callback('✅ Accept', `CRM_ACCEPT_${app.id}`), Markup.button.callback('❌ Reject', `CRM_REJECT_${app.id}`)],
+        ]),
+      }
+    );
+  }
+});
+
 // ════════════════════════════════════════════════════════════════════
 // CRM ACTION HANDLERS
 // ════════════════════════════════════════════════════════════════════
@@ -361,14 +649,20 @@ bot.action(/CRM_ACCEPT_CONFIRM_(.+)/, teacherAdminOnly(), async (ctx) => {
   const appId = ctx.match[1];
   logger.info('[Telegram] CRM_ACCEPT_CONFIRM', { appId });
 
+  // Duplicate protection
+  if (applicationStore.isAlreadyActioned(appId, 'APPROVED')) {
+    await safeAnswerCbQuery(ctx, t(undefined, 'already_accepted'));
+    return;
+  }
+
   try {
-    await teacherCrmService.updateStatus(appId, 'APPROVED', 'no-db-mode');
+    await teacherCrmService.updateStatus(appId, 'APPROVED', ctx.from?.id?.toString() || 'no-db-mode');
     const currentText = (ctx.callbackQuery?.message as { text?: string })?.text || '';
     const updatedText = currentText.replace(/\[.*?\]/g, '').trim() + '\n\n✅ ' + t(undefined, 'status_approved');
     try {
       await ctx.editMessageText(updatedText, {
         parse_mode: 'HTML',
-        ...Markup.inlineKeyboard([]),
+        ...teacherCrmService.buildPremiumKeyboard(appId),
       });
     } catch { /* ignore */ }
     await safeAnswerCbQuery(ctx, t(undefined, 'approved'));
@@ -384,14 +678,20 @@ bot.action(/CRM_REJECT_CONFIRM_(.+)/, teacherAdminOnly(), async (ctx) => {
   const appId = ctx.match[1];
   logger.info('[Telegram] CRM_REJECT_CONFIRM', { appId });
 
+  // Duplicate protection
+  if (applicationStore.isAlreadyActioned(appId, 'REJECTED')) {
+    await safeAnswerCbQuery(ctx, t(undefined, 'already_rejected'));
+    return;
+  }
+
   try {
-    await teacherCrmService.updateStatus(appId, 'REJECTED', 'no-db-mode');
+    await teacherCrmService.updateStatus(appId, 'REJECTED', ctx.from?.id?.toString() || 'no-db-mode');
     const currentText = (ctx.callbackQuery?.message as { text?: string })?.text || '';
     const updatedText = currentText.replace(/\[.*?\]/g, '').trim() + '\n\n❌ ' + t(undefined, 'status_rejected');
     try {
       await ctx.editMessageText(updatedText, {
         parse_mode: 'HTML',
-        ...Markup.inlineKeyboard([]),
+        ...teacherCrmService.buildPremiumKeyboard(appId),
       });
     } catch { /* ignore */ }
     await safeAnswerCbQuery(ctx, t(undefined, 'rejected'));
@@ -406,6 +706,12 @@ bot.action(/CRM_REJECT_CONFIRM_(.+)/, teacherAdminOnly(), async (ctx) => {
 bot.action(/CRM_ACCEPT_(.+)/, teacherAdminOnly(), async (ctx) => {
   const appId = ctx.match[1];
   logger.info('[Telegram] CRM_ACCEPT', { appId });
+
+  // Duplicate protection
+  if (applicationStore.isAlreadyActioned(appId, 'APPROVED')) {
+    await safeAnswerCbQuery(ctx, t(undefined, 'already_accepted'));
+    return;
+  }
 
   try {
     const currentText = (ctx.callbackQuery?.message as { text?: string })?.text || '';
@@ -434,6 +740,12 @@ bot.action(/CRM_ACCEPT_(.+)/, teacherAdminOnly(), async (ctx) => {
 bot.action(/CRM_REJECT_(.+)/, teacherAdminOnly(), async (ctx) => {
   const appId = ctx.match[1];
   logger.info('[Telegram] CRM_REJECT', { appId });
+
+  // Duplicate protection
+  if (applicationStore.isAlreadyActioned(appId, 'REJECTED')) {
+    await safeAnswerCbQuery(ctx, t(undefined, 'already_rejected'));
+    return;
+  }
 
   try {
     const currentText = (ctx.callbackQuery?.message as { text?: string })?.text || '';
@@ -467,15 +779,7 @@ bot.action(/CRM_BACK_(.+)/, teacherAdminOnly(), async (ctx) => {
     const cleanText = currentText.replace(/\n\n[\s\S]*$/, '');
     await ctx.editMessageText(cleanText, {
       parse_mode: 'HTML',
-      ...Markup.inlineKeyboard([
-        [
-          Markup.button.callback(t(undefined, 'crm_accept'), `CRM_ACCEPT_${appId}`),
-          Markup.button.callback(t(undefined, 'crm_reject'), `CRM_REJECT_${appId}`),
-        ],
-        [
-          Markup.button.callback('💬 ' + t(undefined, 'crm_reply'), `CRM_NOTE_${appId}`),
-        ],
-      ]),
+      ...teacherCrmService.buildPremiumKeyboard(appId),
     });
   } catch { /* ignore */ }
 });
@@ -486,7 +790,7 @@ bot.action(/CRM_PENDING_(.+)/, teacherAdminOnly(), async (ctx) => {
   logger.info('[Telegram] CRM_PENDING', { appId });
 
   try {
-    await teacherCrmService.updateStatus(appId, 'PENDING', 'no-db-mode');
+    await teacherCrmService.updateStatus(appId, 'PENDING', ctx.from?.id?.toString() || 'no-db-mode');
     const currentText = (ctx.callbackQuery?.message as { text?: string })?.text || '';
     const cleanText = currentText.replace(/\n\n\[\s*.*?\s*\]/g, '').trim();
     try {
@@ -494,15 +798,7 @@ bot.action(/CRM_PENDING_(.+)/, teacherAdminOnly(), async (ctx) => {
         cleanText + '\n\n⏳ ' + t(undefined, 'status_pending'),
         {
           parse_mode: 'HTML',
-          ...Markup.inlineKeyboard([
-            [
-              Markup.button.callback(t(undefined, 'crm_accept'), `CRM_ACCEPT_${appId}`),
-              Markup.button.callback(t(undefined, 'crm_reject'), `CRM_REJECT_${appId}`),
-            ],
-            [
-              Markup.button.callback('💬 ' + t(undefined, 'crm_reply'), `CRM_NOTE_${appId}`),
-            ],
-          ]),
+          ...teacherCrmService.buildPremiumKeyboard(appId),
         }
       );
     } catch { /* ignore */ }
@@ -511,6 +807,102 @@ bot.action(/CRM_PENDING_(.+)/, teacherAdminOnly(), async (ctx) => {
     logger.error('[Telegram] Failed to set pending', { appId, error: String(error) });
     await safeAnswerCbQuery(ctx, t(undefined, 'error_generic'));
   }
+});
+
+// ── Contacted ───────────────────────────────────────────────────────
+bot.action(/CRM_CONTACTED_(.+)/, teacherAdminOnly(), async (ctx) => {
+  const appId = ctx.match[1];
+  const adminId = ctx.from?.id?.toString() || 'unknown';
+  logger.info('[Telegram] CRM_CONTACTED', { appId, adminId });
+
+  // Duplicate protection
+  if (applicationStore.isAlreadyActioned(appId, 'CONTACTED')) {
+    await safeAnswerCbQuery(ctx, t(undefined, 'already_contacted'));
+    return;
+  }
+
+  try {
+    const success = await teacherCrmService.markContacted(appId, adminId);
+    if (success) {
+      const currentText = (ctx.callbackQuery?.message as { text?: string })?.text || '';
+      const dateStr = new Date().toLocaleDateString('uz-UZ', {
+        year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit',
+      });
+      const updatedText = currentText.replace(/\[.*?\]/g, '').trim() + `\n\n🔵 ${t(undefined, 'status_contacted')}\n\n${t(undefined, 'contacted_by')} ${ctx.from?.first_name || adminId}\n${t(undefined, 'contacted_at')} ${dateStr}`;
+      try {
+        await ctx.editMessageText(updatedText, {
+          parse_mode: 'HTML',
+          ...teacherCrmService.buildPremiumKeyboard(appId),
+        });
+      } catch { /* ignore */ }
+      await safeAnswerCbQuery(ctx, t(undefined, 'contacted'));
+    } else {
+      await safeAnswerCbQuery(ctx, t(undefined, 'already_contacted'));
+    }
+  } catch (error) {
+    logger.error('[Telegram] Contacted action failed', { appId, error: String(error) });
+    await safeAnswerCbQuery(ctx, t(undefined, 'error_generic'));
+  }
+});
+
+// ── Important ───────────────────────────────────────────────────────
+bot.action(/CRM_IMPORTANT_(.+)/, teacherAdminOnly(), async (ctx) => {
+  const appId = ctx.match[1];
+  const adminId = ctx.from?.id?.toString() || 'unknown';
+  logger.info('[Telegram] CRM_IMPORTANT', { appId, adminId });
+
+  try {
+    const result = await teacherCrmService.toggleImportant(appId, adminId);
+    if (result) {
+      const currentText = (ctx.callbackQuery?.message as { text?: string })?.text || '';
+      let updatedText = currentText.replace(/⭐ <b>Priority:<\/b>[\s\S]*?\n/g, '');
+      if (result.important) {
+        updatedText = updatedText + '\n\n⭐ <b>IMPORTANT APPLICATION</b>';
+      }
+      try {
+        await ctx.editMessageText(updatedText, {
+          parse_mode: 'HTML',
+          ...teacherCrmService.buildPremiumKeyboard(appId),
+        });
+      } catch { /* ignore */ }
+      await safeAnswerCbQuery(ctx, result.important ? t(undefined, 'important_marked') : t(undefined, 'important_unmarked'));
+    } else {
+      await safeAnswerCbQuery(ctx, t(undefined, 'error_generic'));
+    }
+  } catch (error) {
+    logger.error('[Telegram] Important action failed', { appId, error: String(error) });
+    await safeAnswerCbQuery(ctx, t(undefined, 'error_generic'));
+  }
+});
+
+// ── Reminder ────────────────────────────────────────────────────────
+bot.action(/CRM_REMINDER_(.+)/, teacherAdminOnly(), async (ctx) => {
+  const appId = ctx.match[1];
+  logger.info('[Telegram] CRM_REMINDER', { appId });
+
+  // Duplicate protection
+  if (applicationStore.hasReminder(appId)) {
+    await safeAnswerCbQuery(ctx, t(undefined, 'duplicate_reminder'));
+    return;
+  }
+
+  await safeAnswerCbQuery(ctx);
+  await ctx.scene.enter('CRM_WRITE_NOTE', {
+    applicationId: appId,
+    actionUserId: ctx.from?.id?.toString() || 'no-db-mode',
+    reminderMode: true,
+  });
+});
+
+// ── History ─────────────────────────────────────────────────────────
+bot.action(/CRM_HISTORY_(.+)/, teacherAdminOnly(), async (ctx) => {
+  const appId = ctx.match[1];
+  logger.info('[Telegram] CRM_HISTORY', { appId });
+
+  const historyText = teacherCrmService.getHistoryText(appId);
+  await safeReply(ctx, historyText, { parse_mode: 'HTML' });
+  await safeAnswerCbQuery(ctx);
+  logger.info('[Telegram] History viewed', { appId });
 });
 
 // ── Write Note ──────────────────────────────────────────────────────
@@ -522,7 +914,16 @@ bot.action(/CRM_NOTE_(.+)/, teacherAdminOnly(), async (ctx) => {
   await ctx.scene.enter('CRM_WRITE_NOTE', {
     applicationId: appId,
     actionUserId: ctx.from?.id?.toString() || 'no-db-mode',
+    reminderMode: false,
   });
+});
+
+// ── Copy ID ─────────────────────────────────────────────────────────
+bot.action(/CRM_COPY_ID_(.+)/, teacherAdminOnly(), async (ctx) => {
+  const appId = ctx.match[1];
+  logger.info('[Telegram] CRM_COPY_ID', { appId });
+
+  await safeAnswerCbQuery(ctx, `${t(undefined, 'id_copied')} ${appId}`);
 });
 
 // ── View Student Profile ────────────────────────────────────────────
@@ -540,55 +941,76 @@ bot.action(/CRM_PROFILE_(.+)/, teacherAdminOnly(), async (ctx) => {
   }
 });
 
-// ── Search applications ─────────────────────────────────────────────
+// ── Search applications (legacy) ────────────────────────────────────
 bot.action('ADMIN_SEARCH', teacherAdminOnly(), async (ctx) => {
   await safeAnswerCbQuery(ctx);
   await safeReply(ctx,
-    `🔍 <b>${t(undefined, 'admin_view_applications')}</b>\n\nIzlash uchun: /search <ism yoki telefon>`,
+    `🔍 <b>${t(undefined, 'search_title')}</b>\n\n${t(undefined, 'search_usage')}`,
     { parse_mode: 'HTML' }
   );
 });
 
-// ── /search command ─────────────────────────────────────────────────
-bot.command('search', teacherAdminOnly(), async (ctx) => {
-  const text = ctx.message && 'text' in ctx.message ? ctx.message.text : '';
-  const query = text.replace(/^\/search\s*/i, '').trim();
+// ════════════════════════════════════════════════════════════════════
+// REMINDER SCHEDULER
+// ════════════════════════════════════════════════════════════════════
 
-  if (!query) {
-    await safeReply(ctx, '🔍 ' + t(undefined, 'admin_view_applications') + '\n\n/search <name or phone>');
-    return;
+let reminderInterval: ReturnType<typeof setInterval> | null = null;
+
+export function startReminderScheduler(intervalMs: number = 30000): void {
+  if (reminderInterval) {
+    clearInterval(reminderInterval);
   }
 
-  const result = applicationStore.getFiltered({ search: query, limit: 20 });
+  reminderInterval = setInterval(async () => {
+    const dueReminders = applicationStore.getDueReminders();
 
-  if (result.applications.length === 0) {
-    await safeReply(ctx, '🔍 ' + t(undefined, 'admin_apps_desc'));
-    return;
-  }
+    for (const app of dueReminders) {
+      try {
+        const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
+        if (!adminChatId) continue;
 
-  for (const app of result.applications.slice(0, 5)) {
-    const msg = `
-👤 <b>${app.data.firstName} ${app.data.lastName}</b>
-📞 ${app.data.phone}
-🆔 <code>${app.id}</code>
-📌 ${app.status}
+        const bot = await getBot();
+        const message = `
+🔔 <b>${t(undefined, 'reminder_trigger_title')}</b>
+
+━━━━━━━━━━━━━━━━━━
+
+${t(undefined, 'reminder_name')} <b>${app.data.firstName} ${app.data.lastName}</b>
+${t(undefined, 'reminder_phone')} ${app.data.phone}
+${t(undefined, 'reminder_status')} ${app.status}
+
 📅 ${app.createdAt.toLocaleDateString()}
-    `;
-    await safeReply(ctx, msg, {
-      parse_mode: 'HTML',
-      ...Markup.inlineKeyboard([
-        [
-          Markup.button.callback('✅ ' + t(undefined, 'crm_accept'), `CRM_ACCEPT_${app.id}`),
-          Markup.button.callback('❌ ' + t(undefined, 'crm_reject'), `CRM_REJECT_${app.id}`),
-        ],
-      ]),
-    });
-  }
+🆔 <code>${app.id}</code>
 
-  if (result.applications.length > 5) {
-    await safeReply(ctx, `... +${result.applications.length - 5} more results`);
+━━━━━━━━━━━━━━━━━━
+        `;
+
+        await bot.telegram.sendMessage(adminChatId, message, {
+          parse_mode: 'HTML',
+          ...teacherCrmService.buildPremiumKeyboard(app.id),
+        });
+
+        applicationStore.triggerReminder(app.id);
+        logger.info('[Reminder] Triggered', { applicationId: app.id });
+      } catch (error) {
+        logger.error('[Reminder] Failed to trigger', { applicationId: app.id, error: String(error) });
+      }
+    }
+  }, intervalMs);
+
+  logger.info('[Reminder] Scheduler started', { intervalMs });
+}
+
+export function stopReminderScheduler(): void {
+  if (reminderInterval) {
+    clearInterval(reminderInterval);
+    reminderInterval = null;
+    logger.info('[Reminder] Scheduler stopped');
   }
-});
+}
+
+// ── Start scheduler on bot launch ──────────────────────────────────
+startReminderScheduler();
 
 // ════════════════════════════════════════════════════════════════════
 // CATCH-ALL CALLBACK HANDLER

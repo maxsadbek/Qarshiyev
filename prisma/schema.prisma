@@ -166,6 +166,7 @@ model Application {
 
 enum ApplicationStatus {
   PENDING
+  CONTACTED
   APPROVED
   REJECTED
   CANCELLED
