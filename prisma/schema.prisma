@@ -363,7 +363,7 @@ model MarketplaceUser {
 
   orders        MarketplaceOrder[]
   reviews       MarketplaceReview[]
-  referrals     MarketplaceUser    @relation("Referrals", fields: [referredBy], references: [id], onDelete: SetNull)
+  referrals     MarketplaceUser?   @relation("Referrals", fields: [referredBy], references: [id], onDelete: SetNull)
   referredUsers MarketplaceUser[]  @relation("Referrals")
   transactions  WalletTransaction[]
 
