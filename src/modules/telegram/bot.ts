@@ -73,6 +73,77 @@ bot.use(async (ctx, next) => {
 // ── Register Middleware ─────────────────────────────────────────────
 bot.use(sessionMiddleware());
 
+// ════════════════════════════════════════════════════════════════════
+// SCENE COMMAND INTERCEPTOR
+// Runs BEFORE stage.middleware() to intercept commands while wizard is active.
+// ════════════════════════════════════════════════════════════════════
+bot.use(async (ctx, next) => {
+  // Only intercept text messages when a scene/wizard is active
+  if (!ctx.message || !('text' in ctx.message) || !ctx.session?.__scenes?.current) {
+    return next();
+  }
+
+  const text = ctx.message.text;
+  if (!text.startsWith('/')) {
+    return next(); // Not a command, let scene handle it
+  }
+
+  const command = text.split(' ')[0].toLowerCase();
+  const lang = (ctx as any).wizard?.state?.language || 'uz';
+
+  // ── /cancel — always leaves the wizard ───────────────────
+  if (command === '/cancel') {
+    logger.info('[Command] Received: /cancel (from wizard)');
+    await safeReply(ctx, t(lang, 'note_cancelled'));
+    await ctx.scene.leave();
+    logger.info('[Command] Finished: /cancel — scene left');
+    return;
+  }
+
+  // ── /help — show help without leaving wizard ─────────────
+  if (command === '/help') {
+    logger.info('[Command] Received: /help (from wizard)');
+    await safeReply(ctx,
+      `📚 <b>Yordam / Help</b>\n\n` +
+      `/cancel — ${t(lang, 'note_cancelled')}\n` +
+      `/start — ${t(lang, 'cancel_done')}`,
+      { parse_mode: 'HTML' }
+    );
+    logger.info('[Command] Finished: /help');
+    return;
+  }
+
+  // ── /start — leave scene and let bot-level handler run ───
+  if (command === '/start') {
+    logger.info('[Command] Received: /start (from wizard)');
+    await ctx.scene.leave();
+    logger.info('[Command] Finished: /start — scene left, forwarding to handler');
+    return next();
+  }
+
+  // ── /menu — leave scene and show menu ────────────────────
+  if (command === '/menu') {
+    logger.info('[Command] Received: /menu (from wizard)');
+    await ctx.scene.leave();
+    logger.info('[Command] Finished: /menu — scene left, forwarding to handler');
+    return next();
+  }
+
+  // ── Admin commands — leave scene and let handler run ─────
+  const adminCommands = ['/stats', '/users', '/broadcast', '/search', '/pending',
+    '/contacted', '/accepted', '/rejected', '/today', '/important',
+    '/region', '/course'];
+  if (adminCommands.some((c) => command.startsWith(c))) {
+    logger.info('[Command] Received: ' + command + ' (from wizard, admin)');
+    await ctx.scene.leave();
+    logger.info('[Command] Finished: ' + command + ' — scene left, forwarding to handler');
+    return next();
+  }
+
+  // For unknown commands, let scene handle (or fall through)
+  return next();
+});
+
 // ── Register Scenes ────────────────────────────────────────────────
 const stage = new Scenes.Stage<ProtectedContext>([registrationWizard, writeNoteWizard]);
 bot.use(stage.middleware());
@@ -81,10 +152,108 @@ bot.use(stage.middleware());
 // COMMANDS
 // ════════════════════════════════════════════════════════════════════
 
+// ── /cancel ─────────────────────────────────────────────────────────
+bot.command('cancel', async (ctx) => {
+  logger.info('[Command] Received: /cancel');
+  
+  // If inside a scene, leave it
+  if (ctx.session?.__scenes?.current) {
+    await ctx.scene.leave();
+    const lang = (ctx as any).wizard?.state?.language || 'uz';
+    await safeReply(ctx, t(lang, 'cancel_done'));
+    logger.info('[Command] Finished: /cancel — scene left');
+    return;
+  }
+  
+  await safeReply(ctx, '❌ Siz ariza jarayonida emassiz. /start bosing.');
+  logger.info('[Command] Finished: /cancel — no scene');
+});
+
+// ── /help ──────────────────────────────────────────────────────────
+bot.command('help', async (ctx) => {
+  logger.info('[Command] Received: /help');
+  
+  const isAdmin = ctx.from?.id?.toString() === process.env.TELEGRAM_ADMIN_CHAT_ID;
+  
+  let helpText = `📚 <b>Yordam / Help</b>
+
+`;
+  helpText += `/start — Ro'yxatdan o'tish / Registration
+`;
+  helpText += `/cancel — Bekor qilish / Cancel
+`;
+  helpText += `/menu — Asosiy menyu / Main menu
+`;
+
+  if (isAdmin) {
+    helpText += `
+<b>Admin buyruqlari:</b>
+/stats — Statistika
+/users — Foydalanuvchilar
+/pending — Kutilayotgan arizalar
+/contacted — Bog'lanilgan arizalar
+/accepted — Qabul qilingan arizalar
+/rejected — Rad etilgan arizalar
+/important — Muhim arizalar
+/today — Bugungi arizalar
+/broadcast <matn> — Xabar yuborish
+/search <matn> — Qidirish
+/region <nomi> — Viloyat bo'yicha filtrlash
+/course <nomi> — Kurs bo'yicha filtrlash
+`;
+  }
+
+  await safeReply(ctx, helpText, { parse_mode: 'HTML' });
+  logger.info('[Command] Finished: /help');
+});
+
+// ── /menu ──────────────────────────────────────────────────────────
+bot.command('menu', async (ctx) => {
+  logger.info('[Command] Received: /menu');
+  
+  const isAdmin = ctx.from?.id?.toString() === process.env.TELEGRAM_ADMIN_CHAT_ID;
+  
+  if (isAdmin) {
+    // Show admin menu
+    await safeReply(ctx,
+      `🏠 <b>${t(undefined, 'admin_menu_title')}</b>\n\n${t(undefined, 'admin_menu_desc')}`,
+      {
+        parse_mode: 'HTML',
+        ...Markup.inlineKeyboard([
+          [
+            Markup.button.callback('📊 ' + t(undefined, 'admin_stats'), 'ADMIN_STATS'),
+            Markup.button.callback('👥 ' + t(undefined, 'admin_users'), 'ADMIN_USERS'),
+          ],
+          [
+            Markup.button.callback('📋 ' + t(undefined, 'admin_view_applications'), 'ADMIN_APPS'),
+            Markup.button.callback('📢 ' + t(undefined, 'admin_broadcast'), 'ADMIN_BROADCAST'),
+          ],
+          [
+            Markup.button.callback('⭐ ' + t(undefined, 'important_applications'), 'ADMIN_IMPORTANT'),
+          ],
+        ]),
+      }
+    );
+  } else {
+    // For regular users, start registration
+    try {
+      await ctx.scene.enter('REGISTRATION_WIZARD');
+    } catch (error) {
+      logger.error('[Telegram] Failed to enter REGISTRATION_WIZARD from /menu', {
+        error: String(error),
+        from: ctx.from?.id,
+      });
+      await safeReply(ctx, t(undefined, 'error_generic_with_start'));
+    }
+  }
+  
+  logger.info('[Command] Finished: /menu');
+});
+
 // ── /start ──────────────────────────────────────────────────────────
 bot.start(async (ctx) => {
   const userId = ctx.from?.id;
-  logger.info('[Telegram] /start command', { from: userId });
+  logger.info('[Command] Received: /start', { from: userId });
 
   if (userId) applicationStore.trackUser(userId);
 
@@ -98,6 +267,7 @@ bot.start(async (ctx) => {
     });
     await safeReply(ctx, t(undefined, 'error_generic_with_start'));
   }
+  logger.info('[Command] Finished: /start');
 });
 
 // ════════════════════════════════════════════════════════════════════
@@ -107,7 +277,7 @@ bot.start(async (ctx) => {
 // ── /stats ──────────────────────────────────────────────────────────
 bot.command('stats', teacherAdminOnly(), async (ctx) => {
   const userId = ctx.from?.id;
-  logger.info('[Telegram] /stats command', { from: userId });
+  logger.info('[Command] Received: /stats', { from: userId });
 
   const stats = applicationStore.getStats();
   const userCount = applicationStore.getUserCount();
@@ -134,12 +304,13 @@ bot.command('stats', teacherAdminOnly(), async (ctx) => {
       [Markup.button.callback('🏠 ' + t(undefined, 'admin_menu'), 'ADMIN_MENU')],
     ]),
   });
+  logger.info('[Command] Finished: /stats');
 });
 
 // ── /users ──────────────────────────────────────────────────────────
 bot.command('users', teacherAdminOnly(), async (ctx) => {
   const userId = ctx.from?.id;
-  logger.info('[Telegram] /users command', { from: userId });
+  logger.info('[Command] Received: /users', { from: userId });
 
   const userCount = applicationStore.getUserCount();
   const stats = applicationStore.getStats();
@@ -162,12 +333,13 @@ ${t(undefined, 'users_total')}: <b>${userCount}</b>
       [Markup.button.callback('🏠 ' + t(undefined, 'admin_menu'), 'ADMIN_MENU')],
     ]),
   });
+  logger.info('[Command] Finished: /users');
 });
 
 // ── /broadcast ────────────────────────────────────────────────────
 bot.command('broadcast', teacherAdminOnly(), async (ctx) => {
   const userId = ctx.from?.id;
-  logger.info('[Telegram] /broadcast command', { from: userId });
+  logger.info('[Command] Received: /broadcast', { from: userId });
 
   const text = ctx.message && 'text' in ctx.message ? ctx.message.text : '';
   const messageText = text.replace(/^\/broadcast\s*/i, '').trim();
@@ -215,10 +387,12 @@ bot.command('broadcast', teacherAdminOnly(), async (ctx) => {
       [Markup.button.callback('🏠 ' + t(undefined, 'admin_menu'), 'ADMIN_MENU')],
     ]),
   });
+  logger.info('[Command] Finished: /broadcast');
 });
 
 // ── /search ─────────────────────────────────────────────────────────
 bot.command('search', teacherAdminOnly(), async (ctx) => {
+  logger.info('[Command] Received: /search');
   const text = ctx.message && 'text' in ctx.message ? ctx.message.text : '';
   const query = text.replace(/^\/search\s*/i, '').trim();
 
@@ -272,36 +446,47 @@ ${app.important ? '⭐ MUHIM' : ''}
   if (result.applications.length > 5) {
     await safeReply(ctx, `... +${result.applications.length - 5} ${t(undefined, 'search_results').toLowerCase()}`);
   }
+  logger.info('[Command] Finished: /search');
 });
 
 // ── /pending ────────────────────────────────────────────────────────
 bot.command('pending', teacherAdminOnly(), async (ctx) => {
+  logger.info('[Command] Received: /pending');
   await showFilteredApplications(ctx, 'PENDING', t(undefined, 'filter_pending'));
+  logger.info('[Command] Finished: /pending');
 });
 
 // ── /contacted ─────────────────────────────────────────────────────
 bot.command('contacted', teacherAdminOnly(), async (ctx) => {
+  logger.info('[Command] Received: /contacted');
   await showFilteredApplications(ctx, 'CONTACTED', t(undefined, 'filter_contacted'));
+  logger.info('[Command] Finished: /contacted');
 });
 
 // ── /accepted ───────────────────────────────────────────────────────
 bot.command('accepted', teacherAdminOnly(), async (ctx) => {
+  logger.info('[Command] Received: /accepted');
   await showFilteredApplications(ctx, 'APPROVED', t(undefined, 'filter_accepted'));
+  logger.info('[Command] Finished: /accepted');
 });
 
 // ── /rejected ─────────────────────────────────────────────────────
 bot.command('rejected', teacherAdminOnly(), async (ctx) => {
+  logger.info('[Command] Received: /rejected');
   await showFilteredApplications(ctx, 'REJECTED', t(undefined, 'filter_rejected'));
+  logger.info('[Command] Finished: /rejected');
 });
 
 // ── /today ─────────────────────────────────────────────────────────
 bot.command('today', teacherAdminOnly(), async (ctx) => {
+  logger.info('[Command] Received: /today');
   const result = applicationStore.getFiltered({ today: true, limit: 50 });
 
   if (result.applications.length === 0) {
     await safeReply(ctx, `📅 <b>${t(undefined, 'filter_today')}</b>\n\n${t(undefined, 'filter_no_results')}`, {
       parse_mode: 'HTML',
     });
+    logger.info('[Command] Finished: /today — no results');
     return;
   }
 
@@ -332,6 +517,7 @@ bot.command('today', teacherAdminOnly(), async (ctx) => {
   if (result.applications.length > 5) {
     await safeReply(ctx, `... +${result.applications.length - 5} ${t(undefined, 'search_results').toLowerCase()}`);
   }
+  logger.info('[Command] Finished: /today');
 });
 
 // ── /important ──────────────────────────────────────────────────────
@@ -370,10 +556,12 @@ bot.command('important', teacherAdminOnly(), async (ctx) => {
   if (importantApps.length > 5) {
     await safeReply(ctx, `... +${importantApps.length - 5} ${t(undefined, 'search_results').toLowerCase()}`);
   }
+  logger.info('[Command] Finished: /important');
 });
 
 // ── /region and /course ─────────────────────────────────────────────
 bot.command('region', teacherAdminOnly(), async (ctx) => {
+  logger.info('[Command] Received: /region');
   const text = ctx.message && 'text' in ctx.message ? ctx.message.text : '';
   const region = text.replace(/^\/region\s*/i, '').trim();
 
@@ -397,9 +585,11 @@ bot.command('region', teacherAdminOnly(), async (ctx) => {
       ]),
     });
   }
+  logger.info('[Command] Finished: /region');
 });
 
 bot.command('course', teacherAdminOnly(), async (ctx) => {
+  logger.info('[Command] Received: /course');
   const text = ctx.message && 'text' in ctx.message ? ctx.message.text : '';
   const course = text.replace(/^\/course\s*/i, '').trim();
 
@@ -423,9 +613,10 @@ bot.command('course', teacherAdminOnly(), async (ctx) => {
       ]),
     });
   }
+  logger.info('[Command] Finished: /course');
 });
 
-// ── Helper for filter commands ─────────────────────────────────────
+// ── Helper for filter commands (used by /pending, /contacted, /accepted, /rejected) ──
 async function showFilteredApplications(ctx: ProtectedContext, status: 'PENDING' | 'CONTACTED' | 'APPROVED' | 'REJECTED', label: string) {
   const result = applicationStore.getFiltered({ status, limit: 50 });
 

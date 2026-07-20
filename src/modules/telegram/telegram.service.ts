@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { logger } from '../../lib/security/logger';
 import { applicationStore } from '../applications/store';
+import { getRegionName, getCanonicalRegionName, getDistrictName, getCanonicalDistrictName, mapRegionsForDisplay, mapDistrictsForDisplay } from './geo-localization';
 
 // ── Validation Schema ──────────────────────────────────────────────
 export const RegistrationSchema = z.object({
@@ -176,8 +177,65 @@ export class TelegramService {
     return REGIONS;
   }
 
+  /**
+   * Returns regions with translated names for UI display.
+   * The canonical ID is preserved — only the display name changes.
+   * @param lang - User's language code ('uz', 'ru', 'en')
+   */
+  async getRegionsForDisplay(lang?: string): Promise<Array<{ id: string; name: string; displayName: string }>> {
+    return mapRegionsForDisplay(REGIONS, lang);
+  }
+
+  /**
+   * Returns the translated name for a region.
+   * Falls back to canonical Uzbek name if translation not found.
+   * @param regionId - Canonical region ID (e.g. 'toshkent')
+   * @param lang - User's language code ('uz', 'ru', 'en')
+   * @returns Translated region name for display
+   */
+  getRegionTitle(regionId: string, lang?: string): string {
+    return getRegionName(regionId, lang);
+  }
+
+  /**
+   * Returns the canonical (Uzbek) name for a region.
+   * Use this for database operations, filtering, and searching.
+   */
+  resolveCanonicalRegionName(regionId: string): string {
+    return getCanonicalRegionName(regionId);
+  }
+
   async getDistricts(regionId: string): Promise<DistrictItem[]> {
     return DISTRICTS.filter((d) => d.regionId === regionId);
+  }
+
+  /**
+   * Returns districts for a region with translated names for UI display.
+   * @param regionId - Canonical region ID
+   * @param lang - User's language code ('uz', 'ru', 'en')
+   */
+  async getDistrictsForDisplay(regionId: string, lang?: string): Promise<Array<{ id: string; name: string; regionId: string; displayName: string }>> {
+    const districts = DISTRICTS.filter((d) => d.regionId === regionId);
+    return mapDistrictsForDisplay(districts, lang);
+  }
+
+  /**
+   * Returns the translated name for a district.
+   * Falls back to canonical Uzbek name if translation not found.
+   * @param districtId - Canonical district ID (e.g. 'chilonzor')
+   * @param lang - User's language code ('uz', 'ru', 'en')
+   * @returns Translated district name for display
+   */
+  getDistrictTitle(districtId: string, lang?: string): string {
+    return getDistrictName(districtId, lang);
+  }
+
+  /**
+   * Returns the canonical (Uzbek) name for a district.
+   * Use this for database operations, filtering, and searching.
+   */
+  resolveCanonicalDistrictName(districtId: string): string {
+    return getCanonicalDistrictName(districtId);
   }
 
   async getAllDistricts(): Promise<DistrictItem[]> {
@@ -186,6 +244,19 @@ export class TelegramService {
 
   async getDistrictById(id: string): Promise<DistrictItem | undefined> {
     return DISTRICTS.find((d) => d.id === id);
+  }
+
+  /**
+   * Returns a district with its translated name.
+   * Falls back to canonical name.
+   */
+  async getDistrictByIdForDisplay(id: string, lang?: string): Promise<{ id: string; name: string; regionId: string; displayName: string } | undefined> {
+    const district = DISTRICTS.find((d) => d.id === id);
+    if (!district) return undefined;
+    return {
+      ...district,
+      displayName: getDistrictName(id, lang),
+    };
   }
 
   async getActiveCourses(): Promise<CourseItem[]> {

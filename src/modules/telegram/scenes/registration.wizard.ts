@@ -166,7 +166,7 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
         {
           ...Markup.inlineKeyboard([
             ...regions.map((r: { id: string; name: string }) => [
-              Markup.button.callback(r.name, `REGION_${r.id}`)
+              Markup.button.callback(telegramService.getRegionTitle(r.id, lang), `REGION_${r.id}`)
             ]),
             [Markup.button.callback('❌ ' + t(lang, 'cancel_button'), 'CANCEL_ALL')],
           ]),
@@ -235,7 +235,7 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
         {
           ...Markup.inlineKeyboard([
             ...districts.map((d: { id: string; name: string }) => [
-              Markup.button.callback(d.name, `DISTRICT_${d.id}`)
+              Markup.button.callback(telegramService.getDistrictTitle(d.id, lang), `DISTRICT_${d.id}`)
             ]),
             [Markup.button.callback('🔙 ' + t(lang, 'cancel_button'), 'BACK_TO_REGION')],
           ]),
@@ -506,9 +506,13 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
       return;
     }
 
-    // Build confirmation message with translated course name
-    const resolvedRegion = state.regionId || '—';
-    const resolvedDistrict = state.districtId || '—';
+    // Build confirmation message with translated course and geographic names
+    const resolvedRegion = state.regionId
+      ? telegramService.getRegionTitle(state.regionId, lang)
+      : '—';
+    const resolvedDistrict = state.districtId
+      ? telegramService.getDistrictTitle(state.districtId, lang)
+      : '—';
     const resolvedCourse = state.courseId
       ? telegramService.getCourseTitle(state.courseId, lang)
       : '—';
@@ -516,8 +520,8 @@ export const registrationWizard = new Scenes.WizardScene<ProtectedContext>(
     const summary = `📋 <b>${t(lang, 'confirm_title')}</b>\n\n` +
       `👤 ${state.firstName} ${state.lastName}\n` +
       `${t(lang, 'label_phone')}: ${state.phone}\n` +
-      `📍 Viloyat: ${resolvedRegion}\n` +
-      `🏫 Tuman: ${resolvedDistrict}\n` +
+      `📍 ${t(lang, 'premium_card_region')}: ${resolvedRegion}\n` +
+      `🏫 ${t(lang, 'premium_card_school')}: ${resolvedDistrict}\n` +
       `📄 Kurs: ${resolvedCourse}\n` +
       `${t(lang, 'label_shift')}: ${state.shift}\n` +
       `${t(lang, 'label_age')}: ${state.age}\n` +
