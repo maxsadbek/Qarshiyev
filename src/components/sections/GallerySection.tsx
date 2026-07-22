@@ -42,7 +42,7 @@ export const GallerySection: React.FC = () => {
             overline="Galereya"
             title="Ahamiyatli"
             titleAccent="Lahzalar"
-            description="Qarshiyev Ta'lim Markazidagi hayotga bir nazar — sinfxonalardan va tadbirlardan bitirish marosimlarigacha va o'quvchi yutuqlarigacha."
+            description="'QARSHIYEV SCHOOL' Ta'lim Markazi o'quvchilarining natijalari hamda faoliyati bilan bog'liq eng qiziqarli va zavqli jarayonlar."
           />
         </motion.div>
 

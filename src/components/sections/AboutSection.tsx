@@ -14,12 +14,14 @@ import { statistics } from '@/data/statistics';
 import sirojUstoz from '@/assets/SirojUstoz.jpg';
 
 const ABOUT_POINTS = [
-  'Cambridge va DELTA sertifikatlangan o\'qituvchilar',
-  'Har bir sinfda maksimal 12 ta o\'quvchi',
-  'Rasmiy imtihon materiallari va amaliy testlar',
-  'Shaxsiy rivojlanishni kuzatish',
-  '10+ yillik isbotlangan natijalar',
-  'Xalqaro hamkorlik va xorijda o\'qishga yordam',
+  "Xalqaro va Milliy sertifikatga ega o'qituvchilar",
+  'Har bir fandan chuqurlashtirilgan darslar',
+  "Sifatli ta'lim va kuchli nazorat",
+  'Qulay joylashuv va raqobatbardosh muhit',
+  "Ilm majlisi, tarbiya darslari va suhbatlari",
+  'Ichki sayohatlar va ekskursiyalar',
+  "Ta'lim va tarbiya uyg'unligi",
+  'Ota-onalar bilan muntazam suhbatlar',
 ];
 
 export const AboutSection: React.FC = () => {
@@ -57,9 +59,9 @@ export const AboutSection: React.FC = () => {
               viewport={{ once: true }}
               transition={{ delay: 0.4 }}
             >
-              <div className="text-4xl font-serif font-bold text-violet-400 leading-none">10+</div>
+              <div className="text-4xl font-serif font-bold text-violet-400 leading-none">8+</div>
               <div className="text-slate-300 text-sm mt-1 font-medium">Yillik</div>
-              <div className="text-white text-sm font-semibold">Mukammallik</div>
+              <div className="text-white text-sm font-semibold">Tajriba</div>
             </motion.div>
 
             {/* Floating card: Success */}
@@ -75,7 +77,7 @@ export const AboutSection: React.FC = () => {
                   <span className="text-violet-600 text-lg font-bold">%</span>
                 </div>
                 <div>
-                  <div className="font-serif font-bold text-slate-950 text-xl">96%</div>
+                  <div className="font-serif font-bold text-slate-950 text-xl">90%</div>
                   <div className="text-slate-500 text-xs">Muvaffaqiyat Ko'rsatkichi</div>
                 </div>
               </div>
@@ -95,37 +97,23 @@ export const AboutSection: React.FC = () => {
             >
               <SectionHeader
                 overline="Biz Haqimizda"
-                title="Kelajakni O'zgartirishning"
-                titleAccent="O'n Yili"
-                description="2015 yilda tashkil etilgan Qarshiyev Ta'lim Markazi kichik til maktabidan Qarshining eng ishonchli xalqaro ta'lim muassasasiga aylandi — 8,500 dan ortiq o'quvchilar va akademik mukammallik merosi bilan."
+                title="Qarshiyev School —"
+                titleAccent="Ishonch va Natija"
+                description="2018-yilda tashkil etilgan 'QARSHIYEV SCHOOL' Ta'lim Markazi kichik o'quv markazidan Nuriston shaharchasidagi eng ishonchli va eng natijabardor ta'lim markaziga aylandi. Bugungi kunda 2000 dan ortiq o'quvchilar ta'lim olib, 1500 dan ortiq bitiruvchilar o'z maqsadlariga erishgan."
                 align="left"
               />
             </motion.div>
 
-            {/* Mission & Vision */}
-            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {[
-                {
-                  title: 'Bizning Missiyamiz',
-                  text: 'O\'zbek talabalarini xalqaro akademik va professional muhitda muvaffaqiyatga erishishga imkon beradigan jahon darajasidagi ta\'lim taqdim etish.',
-                  accent: 'border-l-4 border-violet-500',
-                },
-                {
-                  title: 'Bizning Maqsadimiz',
-                  text: 'Markaziy Osiyodagi yetakchi ta\'lim markaziga aylanish, mukammallik, innovatsiya va bitiruvchilarimizning global muvaffaqiyati bilan tan olinish.',
-                  accent: 'border-l-4 border-slate-950',
-                },
-              ].map((item) => (
-                <div
-                  key={item.title}
-                  className={`bg-slate-50 rounded-2xl p-5 ${item.accent}`}
-                >
-                  <h4 className="font-semibold text-slate-950 mb-2 text-sm uppercase tracking-wider">
-                    {item.title}
-                  </h4>
-                  <p className="text-slate-500 text-sm leading-relaxed">{item.text}</p>
-                </div>
-              ))}
+            {/* Mission */}
+            <div className="mt-8">
+              <div className="bg-slate-50 rounded-2xl p-5 border-l-4 border-violet-500">
+                <h4 className="font-semibold text-slate-950 mb-2 text-sm uppercase tracking-wider">
+                  Bizning Missiyamiz
+                </h4>
+                <p className="text-slate-500 text-sm leading-relaxed">
+                  Xalqimiz farzandlariga sifatli ta'lim va tarbiya berish, ularning hayotiga ijobiy o'zgartirish kiritish.
+                </p>
+              </div>
             </div>
 
             {/* Checklist */}

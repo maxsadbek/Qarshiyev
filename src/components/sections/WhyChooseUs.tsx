@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import {
-  Users, Trophy, Clock, BookOpen, Globe, HeartHandshake, Sparkles, BarChart3
+  Users, Trophy, Clock, BookOpen, HeartHandshake, Sparkles, BarChart3
 } from 'lucide-react';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { StaggerContainer, StaggerItem } from '@/components/ui/AnimatedSection';
@@ -10,32 +10,24 @@ const features = [
   {
     icon: Trophy,
     title: 'Isbotlangan Natijalar',
-    description: 'Bizning o\'quvchilarimizning 96% maqsadli ball yoki qabul maqsadiga erishadi. Bizning tajribamiz 10 yil va 8,500+ o\'quvchini qamrab oladi.',
-    stat: '96%',
+    description: 'Bizning o\'quvchilarimizning 90% maqsadli ball yoki qabul maqsadiga erishadi. 2018-yildan buyon 2000 dan ortiq o\'quvchilarni muvaffaqiyat sari yetakladik.',
+    stat: '90%',
+    color: 'text-violet-600',
+    bg: 'bg-violet-50',
+  },
+  {
+    icon: BookOpen,
+    title: 'Malakali O\'qituvchilar',
+    description: 'Barcha o\'qituvchilar o\'z mutaxassisligi bo\'yicha rasmiy diplom, xalqaro va milliy sertifikatlarga ega.',
+    stat: 'Diplom',
     color: 'text-violet-600',
     bg: 'bg-violet-50',
   },
   {
     icon: Users,
     title: 'Kichik Guruhlar',
-    description: 'Har bir guruhda maksimum 12 o\'quvchi - bu har bir o\'quvchiga shaxsiy e\'tibor, fikr-mulohaza va o\'qituvchidan yo\'l-yo\'riq olish imkonini beradi.',
-    stat: '≤12',
-    color: 'text-violet-600',
-    bg: 'bg-violet-50',
-  },
-  {
-    icon: BookOpen,
-    title: 'Sertifikatlangan O\'qituvchilar',
-    description: 'Barcha o\'qituvchilar Cambridge CELTA, DELTA yoki ekvivalent xalqaro sertifikatlarga ega. Ona tilida so\'zlashuvchi va ona tiliga yaqin o\'qituvchilar.',
-    stat: '42',
-    color: 'text-violet-600',
-    bg: 'bg-violet-50',
-  },
-  {
-    icon: Globe,
-    title: 'Xorijda O\'qish Yordami',
-    description: 'Universitetga ariza berish bo\'yicha keng qamrovli yo\'l-yo\'riq, stipendiya tadqiqoti, viza yordami va hamkor universitet aloqalari.',
-    stat: '200+',
+    description: 'Har bir guruhda maksimum 20 nafar o\'quvchi bo\'lib, bu har bir o\'quvchiga individual e\'tibor, muntazam fikr-mulohaza va o\'qituvchidan samarali yo\'l-yo\'riq olish imkonini beradi.',
+    stat: '≤20',
     color: 'text-violet-600',
     bg: 'bg-violet-50',
   },
@@ -58,15 +50,15 @@ const features = [
   {
     icon: HeartHandshake,
     title: 'Qabul qilinadigan Jamiyat',
-    description: 'Gullab-yashnayotgan o\'quvchi jamiyatiga qo\'shiling. Nutq klublari, o\'quv guruhlari, tadbirlar va bizning markazimizda qurilgan umrbod aloqalar.',
-    stat: '8,500+',
+    description: 'Gullab-yashnayotgan o\'quvchilar hamjamiyatiga qo\'shiling. Nutq klublari, o\'quv guruhlari, turli tadbirlar va markazimizda qurilgan umrbod do\'stliklar sizni kutmoqda.',
+    stat: '2000+',
     color: 'text-violet-600',
     bg: 'bg-violet-50',
   },
   {
     icon: Sparkles,
     title: 'Premium Muhit',
-    description: 'Zamonaviy sinf xonalari, kompyuter laboratoriyalari, akademik kutubxona va qulay tomoshgalari xonasi — diqqatli o\'rganish uchun mo\'ljallangan.',
+    description: 'Zamonaviy sinf xonalari, akademik kutubxona va interaktiv doskalar diqqatli va samarali ta\'lim olish uchun yaratilgan.',
     stat: 'Jahon darajasi',
     color: 'text-violet-600',
     bg: 'bg-violet-50',
@@ -86,9 +78,9 @@ export const WhyChooseUs: React.FC = () => {
         >
           <SectionHeader
             overline="Nima Uchun Bizni Tanlaysiz"
-            title="Muvaffaqiyatga Erishish Uchun"
-            titleAccent="Kerakli Hamma Narsa"
-            description="Biz faqat ingliz tilini o'rgatmaymiz. Biz kelajakni quramiz. Qarshiyev Ta'lim Markazini O'zbekistondagi boshqa til maktablaridan ajratib turadigan narsalar shular."
+            title="Biz faqat ingliz tilini o'rgatmaymiz."
+            titleAccent="Biz kelajakni quramiz."
+            description="'QARSHIYEV SCHOOL' Ta'lim Markazining boshqa ta'lim markazlaridan ajralib turadigan jihatlari quyidagilar."
           />
         </motion.div>
 

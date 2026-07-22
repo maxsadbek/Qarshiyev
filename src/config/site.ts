@@ -5,8 +5,8 @@
 // Update these values based on environment.
 
 export const siteConfig = {
-  name: 'Qarshiyev AVYD',
-  description: 'Quality education for a brighter future',
+  name: 'Qarshiyev School',
+  description: "O'zbekistondagi eng ishonchli va eng natijabardor ta'lim markazi",
   url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
   apiUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api',
   locale: 'uz',

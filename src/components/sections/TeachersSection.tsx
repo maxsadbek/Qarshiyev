@@ -36,9 +36,8 @@ export const TeachersSection: React.FC = () => {
         >
           <SectionHeader
             overline="Bizning Jamoamiz"
-            title="O'z"
-            titleAccent="Mutaxassis O'qituvchilarini Tanishing"
-            description="Xalqaro sertifikatlangan o'qituvchilar sizning muvaffaqiyatingizga bag'ishlangan. Har bir o'qituvchi yillik tajriba, chuqur bilim va maqsadingizga erishishingizga yordam berishga haqiqiy sodiqlik olib keladi."
+            title="Malakali"
+            titleAccent="O'qituvchilarimiz"
             inverted
           />
         </motion.div>
@@ -198,7 +197,7 @@ export const TeacherCard: React.FC<{
           </div>
         </div>
 
-        <p className="text-slate-400 text-xs leading-relaxed mb-4 line-clamp-2">{teacher.shortBio}</p>
+        <p className="text-slate-400 text-xs leading-relaxed mb-4">{teacher.bio}</p>
 
         {/* Specializations */}
         <div className="flex flex-wrap gap-1.5 mb-4">

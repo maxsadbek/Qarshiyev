@@ -1,7 +1,6 @@
 import React from 'react';
 import { Clock, Users, Star, BookOpen } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
-import { formatPrice } from '@/utils';
 import type { Course } from '@/types';
 
 export const CourseCard: React.FC<{ course: Course; className?: string }> = ({
@@ -71,29 +70,14 @@ export const CourseCard: React.FC<{ course: Course; className?: string }> = ({
         {/* Divider */}
         <div className="h-px bg-slate-100 mb-4" />
 
-        {/* Price + CTA */}
-        <div className="flex items-center justify-between mt-auto">
-          <div>
-            {course.discountPrice ? (
-              <div className="flex items-baseline gap-2">
-                <span className="font-bold text-slate-950 text-sm">
-                  {formatPrice(course.discountPrice)}
-                </span>
-                <span className="text-slate-400 text-xs line-through">
-                  {formatPrice(course.price)}
-                </span>
-              </div>
-            ) : (
-              <span className="font-bold text-slate-950 text-sm">{formatPrice(course.price)}</span>
-            )}
-            <div className="text-slate-400 text-xs mt-0.5">{course.schedule}</div>
-          </div>
+        {/* CTA Button */}
+        <div className="mt-auto flex justify-center">
           <a
             href="https://telegram.me/SIROJIDDIN_QARSHIYEV"
             target="_blank"
             rel="noopener noreferrer"
           >
-            <button className="bg-violet-500 text-white text-xs font-bold px-4 py-2 rounded-full hover:bg-violet-600 transition-colors">
+            <button className="bg-violet-500 text-white text-xs font-bold px-6 py-2.5 rounded-full hover:bg-violet-600 transition-colors shadow-lg shadow-violet-500/25">
               Bog'lanish
             </button>
           </a>

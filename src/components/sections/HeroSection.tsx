@@ -11,10 +11,10 @@ const heroPhoneVideo = '/assets/5318996866413656030.mp4';
 const THUMBNAIL = 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&q=90';
 
 const stats = [
-  { icon: Users, value: '8,500+', label: "O'quvchilar" },
-  { icon: GraduationCap, value: '6,200+', label: 'Bitiruvchilar' },
-  { icon: Star, value: '96%', label: 'Muvaffaqiyat' },
-  { icon: Award, value: '10+', label: 'Yillar' },
+  { icon: Users, value: '2000+', label: "O'quvchilar" },
+  { icon: GraduationCap, value: '1500+', label: 'Bitiruvchilar' },
+  { icon: Star, value: '90%', label: 'Muvaffaqiyat' },
+  { icon: Award, value: '8+', label: 'Yillik Tajriba' },
 ];
 
 export const HeroSection: React.FC = () => {
@@ -52,7 +52,7 @@ export const HeroSection: React.FC = () => {
               <div className="flex items-center gap-1.5 bg-violet-500/15 border border-violet-500/30 rounded-full px-4 py-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse" />
                 <span className="text-violet-400 text-xs font-bold tracking-widest uppercase">
-                  Qarshiyev Ta'lim Markazi
+                  QARSHIYEV SCHOOL
                 </span>
               </div>
             </motion.div>
@@ -63,13 +63,11 @@ export const HeroSection: React.FC = () => {
               animate={isIntroComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
               transition={{ delay: 0.3, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             >
-              O'z{' '}
-              <span className="gold-shimmer">Global</span>
+              Ta'limga tikilgan{' '}
+              <span className="gold-shimmer">investitsiya</span>
               <br />
-              Salohiyatingizni Oching{' '}
-              <span className="text-violet-400">Sifatli</span>
-              <br />
-              Ta'lim Bilan
+              — eng yaxshi{' '}
+              <span className="text-violet-400">investitsiya</span>!
             </motion.h1>
 
             <motion.p
@@ -78,7 +76,7 @@ export const HeroSection: React.FC = () => {
               animate={isIntroComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ delay: 0.45 }}
             >
-              IELTS Band 7+ dan xalqaro universitetlargacha — biz sertifikatlangan o'qituvchilar va isbotlangan 96% muvaffaqiyat ko'rsatkichi bilan dunyo darajasidagi ingliz tili ta'limini taqdim etamiz.
+              "QARSHIYEV SCHOOL" Ta'lim Markazi — 2018-yildan buyon Nuriston shaharchasidagi eng ishonchli va natijabardor ta'lim dargohi. 2000 dan ortiq o'quvchilar, 1500 dan ortiq bitiruvchilar bilan sifatli ta'lim sari yo'ldamiz.
             </motion.p>
 
             <motion.div

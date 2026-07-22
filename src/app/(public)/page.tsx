@@ -4,9 +4,10 @@ import type { Metadata } from 'next';
 import { HomePage } from '@/screens/HomePage';
 
 export const metadata: Metadata = {
-  title: 'Qarshiyev Education Center | Premium Language & Academic Hub',
+  title: "QARSHIYEV SCHOOL | Premium Ta'lim Markazi",
   description:
-    "Unlock your global potential with Qarshi's premier education center. Specialized in IELTS, General English, and SAT preparation with internationally certified instructors.",
+    "2018-yilda tashkil etilgan QARSHIYEV SCHOOL Ta'lim Markazi — IELTS, CEFR, ingliz tili, ona tili va adabiyot, tarix va boshqa fanlardan yuqori natijalarga erishing.",
+
 };
 
 export default function Page() {

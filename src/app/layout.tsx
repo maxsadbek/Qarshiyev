@@ -9,11 +9,11 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: {
-    default: 'Qarshiyev AVYD — Taʼlim markazi',
-    template: '%s | Qarshiyev AVYD',
+    default: 'QARSHIYEV SCHOOL — Taʼlim markazi',
+    template: '%s | QARSHIYEV SCHOOL',
   },
   description:
-    "Qarshiyev AVYD — sifatli ta'lim, IELTS, ingliz tili, matematika va boshqa fanlar. O'quv markaziga xush kelibsiz.",
+    "QARSHIYEV SCHOOL — sifatli ta'lim, IELTS, ingliz tili va boshqa fanlar. O'quv markaziga xush kelibsiz.",
   icons: {
     icon: [
       { url: '/favicon.svg', type: 'image/svg+xml' },

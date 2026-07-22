@@ -28,13 +28,13 @@ export const Footer: React.FC = () => {
               <img src={logo.src} alt="Qarshiyev" className="w-10 h-10 rounded-xl object-cover" />
               <div>
                 <span className="font-serif font-bold text-white text-lg leading-none block">
-                  Qarshiyev
+                  Qarshiyev School
                 </span>
                 <span className="text-white/50 text-xs tracking-wider">Ta'lim Markazi</span>
               </div>
             </Link>
             <p className="text-slate-400 text-sm leading-relaxed mb-6">
-              2015 yildan buyon Qarshining yetakchi ta'lim markazi, o'quvchilarga xalqaro til va akademik muvaffaqiyatga erishishda yordam beradi.
+              2018-yildan buyon Nuriston shaharchasidagi eng ishonchli ta'lim markazi, o'quvchilarga sifatli ta'lim va tarbiya berib, ularning hayotiga ijobiy o'zgartirish kiritadi.
             </p>
             <div className="flex items-center gap-3">
               <a
@@ -192,7 +192,7 @@ export const Footer: React.FC = () => {
         <div className="container-custom py-5">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-slate-500 text-sm">
-              © {currentYear} Qarshiyev Ta'lim Markazi. Barcha huquqlar himoyalangan.
+              © {currentYear} QARSHIYEV SCHOOL. Barcha huquqlar himoyalangan.
             </p>
             <div className="flex items-center gap-5">
               <Link href="#" className="text-slate-500 text-sm hover:text-slate-300 transition-colors">

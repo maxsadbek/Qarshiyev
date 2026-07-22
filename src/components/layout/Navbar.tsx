@@ -95,7 +95,7 @@ export const Navbar: React.FC = () => {
             />
             <div className="flex flex-col">
               <span className="font-sans font-bold text-white text-[22px] leading-none">
-                Qarshiyev
+                Qarshiyev School
               </span>
               <span className="font-sans text-white/55 text-[13px] leading-none mt-2">
                 Ta'lim Markazi
@@ -247,7 +247,7 @@ export const Navbar: React.FC = () => {
                   <Link href="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-3">
                     <img src={logo.src} alt="Qarshiyev" className="w-11 h-11 rounded-xl object-cover" />
                     <div className="flex flex-col">
-                      <span className="font-sans font-bold text-white text-lg leading-none">Qarshiyev</span>
+                      <span className="font-sans font-bold text-white text-lg leading-none">Qarshiyev School</span>
                       <span className="text-white/55 text-xs leading-none mt-1">Ta'lim Markazi</span>
                     </div>
                   </Link>

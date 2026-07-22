@@ -30,15 +30,10 @@ export interface Course {
 
 export type CourseCategory =
   | 'IELTS'
-  | 'TOEFL'
-  | 'SAT'
   | 'English'
-  | 'Math'
-  | 'Science'
-  | 'Programming'
-  | 'Business'
   | 'Tarix'
-  | 'Ona tili va adabiyot';
+  | 'Ona tili va adabiyot'
+  | 'DTM';
 
 export type CourseLevel =
   | 'Beginner'

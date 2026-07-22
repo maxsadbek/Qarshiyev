@@ -15,7 +15,7 @@ export const Partners: React.FC = () => {
         >
           <ShieldCheck size={16} className="text-violet-500" />
           <span className="text-slate-500 text-sm font-semibold uppercase tracking-widest">
-            Recognized by Global Leaders
+            Xalqaro Hamkorlarimiz
           </span>
         </motion.div>
       </div>

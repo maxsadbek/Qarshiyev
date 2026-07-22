@@ -16,13 +16,30 @@ import { courses } from '@/data/courses';
 
 export const PopularCourses: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string>('Barchasi');
-  const categories = ['Barchasi', 'IELTS', 'English', 'SAT', 'Business', 'Tarix', 'Ona tili va adabiyot'];
+
+  // Filter to show only these specific courses
+  const courseFilters = [
+    { label: 'Barchasi', value: 'all' },
+    { label: 'IELTS', value: 'IELTS' },
+    { label: 'CEFR (Multi Level)', value: 'CEFR' },
+    { label: 'English Grammar', value: 'English Grammar' },
+    { label: 'Kids English', value: 'Kids English' },
+    { label: "Ona tili va adabiyot", value: 'Ona tili' },
+    { label: "Prezident maktablariga tayyorgarlik", value: 'Prezident' },
+  ];
+
+  // Course IDs that should appear in Popular Courses
+  const popularCourseIds = ['1', '2', '9', '10', '11', '12', '13'];
+  const popularCourses = courses.filter((c) => popularCourseIds.includes(c.id));
+
+  const filtered = activeCategory === 'all'
+    ? popularCourses
+    : popularCourses.filter((c) =>
+        c.title.includes(activeCategory) || c.category.includes(activeCategory)
+      );
+
   const prevRef = useRef<HTMLButtonElement>(null);
   const nextRef = useRef<HTMLButtonElement>(null);
-
-  const filtered = activeCategory === 'Barchasi'
-    ? courses
-    : courses.filter((c) => c.category === activeCategory);
 
   return (
     <section className="section-padding bg-white">
@@ -35,10 +52,9 @@ export const PopularCourses: React.FC = () => {
           className="mb-10"
         >
           <SectionHeader
-            overline="Bizning Dasturlarimiz"
-            title="Mashhur"
+            overline="Ommabop Kurslar"
+            title="Ommabop"
             titleAccent="Kurslar"
-            description="Boshlang'ich ingliz tilidan ilg'or IELTS tayyorgarligigacha — maqsadingizga mos dasturni toping va bugun safaringizni boshlang."
           />
         </motion.div>
 
@@ -50,17 +66,17 @@ export const PopularCourses: React.FC = () => {
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
         >
-          {categories.map((cat) => (
+          {courseFilters.map((f) => (
             <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
+              key={f.value}
+              onClick={() => setActiveCategory(f.value)}
               className={`px-3 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap ${
-                activeCategory === cat
+                activeCategory === f.value
                   ? 'bg-slate-950 text-white shadow-sm'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
-              {cat}
+              {f.label}
             </button>
           ))}
         </motion.div>
